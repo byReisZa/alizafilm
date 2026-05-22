@@ -357,25 +357,32 @@ ul, ol {
   color: var(--primary-light);
 }
 
-.admin-toggle {
+.nav-btn {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
   border: 1px solid var(--border-light);
   transition: var(--transition-base);
   font-size: 1rem;
+  flex-shrink: 0;
 }
 
-.admin-toggle:hover {
+.nav-btn:hover {
   color: var(--primary-light);
   border-color: var(--primary);
   background: rgba(108, 60, 225, 0.1);
   box-shadow: var(--shadow-glow-primary);
 }
+
+#adminToggle {
+  display: none;
+}
+
+
 
 .mobile-menu-btn {
   display: none;
@@ -1460,6 +1467,23 @@ ul, ol {
 
 .auth-form.active {
   display: flex;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin: 4px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
 }
 
 .auth-switch {
@@ -2821,7 +2845,7 @@ ul, ol {
     padding: 8px 10px;
   }
 
-  .admin-toggle {
+  .nav-btn {
     width: 36px;
     height: 36px;
     font-size: 0.9rem;
