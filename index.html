@@ -1019,6 +1019,11 @@ function updateAuthUI(user) {
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUserRole = await getUserRole(user.uid);
+    if (!currentUserRole) {
+      const isAdm = user.email === 'alininsiteleri27@gmail.com' && user.displayName === 'adminali';
+      currentUserRole = isAdm ? 'admin' : 'member';
+      await setUserRole(user.uid, currentUserRole);
+    }
   } else {
     currentUserRole = null;
   }
