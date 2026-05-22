@@ -1596,8 +1596,10 @@ document.addEventListener('DOMContentLoaded', () => {
           showToast(`Sezon ${num} eklendi!`, 'success');
           document.getElementById('seasonNumber').value = '';
           renderSeasons(id);
-          renderSeriesSelect();
           populateEpisodeSeasonSelect(id);
+          renderSeriesSelect();
+          document.getElementById('seriesSelect').value = id;
+          document.getElementById('seriesManagement').style.display = 'block';
           const epSeason = document.getElementById('episodeSeason');
           if (epSeason.querySelector(`option[value="${num}"]`)) epSeason.value = String(num);
           renderContent();
@@ -1629,8 +1631,10 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('episodeTitle').value = '';
           document.getElementById('episodeVideo').value = '';
           renderSeasons(id);
-          renderSeriesSelect();
           populateEpisodeSeasonSelect(id);
+          renderSeriesSelect();
+          document.getElementById('seriesSelect').value = id;
+          document.getElementById('seriesManagement').style.display = 'block';
           renderContent();
         });
       }
