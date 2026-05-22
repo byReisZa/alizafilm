@@ -105,6 +105,33 @@
         </div>
       </section>
 
+      <section class="stats-section" id="statsSection">
+        <div class="container">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-film"></i></div>
+              <div class="stat-number" id="totalMovies">0</div>
+              <div class="stat-label">Film</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-tv"></i></div>
+              <div class="stat-number" id="totalSeries">0</div>
+              <div class="stat-label">Dizi</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-language"></i></div>
+              <div class="stat-number" id="totalTurkish">0</div>
+              <div class="stat-label">Türkçe</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><i class="fas fa-globe"></i></div>
+              <div class="stat-number" id="totalOriginal">0</div>
+              <div class="stat-label">Orijinal</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -470,6 +497,7 @@ const auth = getAuth(app);
 let currentUser = null;
 let currentUserRole = null;
 let currentFilter = 'all';
+let currentPage = 'home';
 let currentPlayer = null;
 let currentEpisode = null;
 let editingId = null;
@@ -743,6 +771,8 @@ function renderContent(filter = currentFilter) {
       card.addEventListener('click', () => showDetail(card.dataset.id));
     });
 
+    if (currentLetter !== 'all') filterByLetter(currentLetter);
+
     updateStats(data);
     updateHero(data);
   });
@@ -764,7 +794,7 @@ function updateHero(data) {
     document.getElementById('heroLang').innerHTML = '<i class="fas fa-language"></i> ALIZA';
     return;
   }
-  const featured = data[0];
+  const featured = data[Math.floor(Math.random() * Math.min(data.length, 10))];
   document.getElementById('heroTitle').textContent = featured.title || '—';
   document.getElementById('heroDesc').textContent = featured.desc || 'Açıklama bulunamadı.';
   document.getElementById('heroYear').textContent = featured.year || '—';
@@ -1074,6 +1104,98 @@ function populateEpisodeSeasonSelect(contentId) {
   });
 }
 
+/* ======================
+   MOBILE UI - LETTER FILTER & DISCOVER
+   ====================== */
+
+function buildLetterFilter() {
+  const container = document.getElementById('letterFilter');
+  const letters = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ'.split('');
+  let html = '<button class="letter-btn active" data-letter="all">Tümü</button>';
+  letters.forEach(l => { html += `<button class="letter-btn" data-letter="${l}">${l}</button>`; });
+  html += '<button class="letter-btn" data-letter="0-9">0-9</button>';
+  container.innerHTML = html;
+  container.querySelectorAll('.letter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterByLetter(btn.dataset.letter);
+    });
+  });
+}
+
+let currentLetter = 'all';
+
+function filterByLetter(letter) {
+  currentLetter = letter;
+  const grid = document.getElementById('contentGrid');
+  const cards = grid.querySelectorAll('.content-card');
+  if (letter === 'all') {
+    cards.forEach(c => c.style.display = '');
+    return;
+  }
+  cards.forEach(c => {
+    const title = c.querySelector('.content-card-title')?.textContent?.trim() || '';
+    if (letter === '0-9') {
+      c.style.display = /^[0-9]/.test(title) ? '' : 'none';
+    } else {
+      c.style.display = title.startsWith(letter) || title.startsWith(letter.toLocaleLowerCase('tr')) ? '' : 'none';
+    }
+  });
+}
+
+function renderDiscover() {
+  const container = document.getElementById('discoverRows');
+  loadContent((data) => {
+    if (!data || data.length === 0) { container.innerHTML = ''; return; }
+    const categories = [
+      { key: 'popular', label: 'Popüler', icon: 'fa-fire', items: [...data].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 15) },
+      { key: 'latest', label: 'Son Eklenenler', icon: 'fa-clock', items: [...data].reverse().slice(0, 15) },
+      { key: 'movie', label: 'Filmler', icon: 'fa-film', items: data.filter(c => c.type === 'movie').slice(0, 15) },
+      { key: 'series', label: 'Diziler', icon: 'fa-tv', items: data.filter(c => c.type === 'series').slice(0, 15) },
+      { key: 'turkish', label: 'Türkçe Dublaj', icon: 'fa-language', items: data.filter(c => c.lang === 'turkish' || c.lang === 'both').slice(0, 15) },
+    ];
+    container.innerHTML = categories.filter(g => g.items.length > 0).map(group => `
+      <div class="discover-row">
+        <div class="discover-row-header">
+          <h3><i class="fas ${group.icon}"></i> ${group.label}</h3>
+          <span class="see-all" data-filter="${group.key}">Tümü</span>
+        </div>
+        <div class="discover-scroll">
+          ${group.items.map(item => `
+            <div class="discover-card" data-id="${item.id}">
+              <div class="discover-card-img">
+                <img src="${item.image || 'https://picsum.photos/seed/p' + item.id + '/260/390'}" alt="${item.title || ''}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'background:var(--bg-surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--text-muted)\\'><i class=\\'fas fa-film\\'></i></div>'">
+                ${item.rating ? `<span class="card-rating"><i class="fas fa-star"></i> ${item.rating}</span>` : ''}
+              </div>
+              <div class="discover-card-info">
+                <h4>${item.title || '—'}</h4>
+                <span>${item.type === 'series' ? 'Dizi' : 'Film'} · ${item.year || '—'}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+    container.querySelectorAll('.discover-card').forEach(card => {
+      card.addEventListener('click', () => showDetail(card.dataset.id));
+    });
+    container.querySelectorAll('.see-all').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const filter = btn.dataset.filter;
+        const navMap = { popular: 'all', latest: 'all', movie: 'movie', series: 'series', turkish: 'turkish' };
+        const navFilter = navMap[filter] || 'all';
+        document.querySelector(`.nav-item[data-page="${navFilter === 'movie' ? 'movies' : navFilter === 'series' ? 'series' : 'home'}"]`).click();
+        if (filter === 'popular' || filter === 'latest' || filter === 'turkish') {
+          const chip = document.querySelector(`.filter-chip[data-filter="${navFilter}"]`);
+          if (chip) chip.click();
+        }
+      });
+    });
+  });
+}
+
 window.editContent = function(id) {
   getContentById(id, (content) => {
     if (!content) return;
@@ -1244,40 +1366,77 @@ document.addEventListener('DOMContentLoaded', () => {
   typeSelect.addEventListener('change', toggleVideoField);
   toggleVideoField();
 
-  /* Navbar */
-  document.getElementById('navbar');
   window.addEventListener('scroll', () => {
-    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+    document.getElementById('topHeader').classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-    document.getElementById('navLinks').classList.toggle('active');
-  });
-
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-      document.getElementById('navLinks').classList.remove('active');
-      currentFilter = link.dataset.filter;
-      renderContent(currentFilter);
+  /* Bottom Nav */
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      const page = item.dataset.page;
+      currentPage = page;
+      document.getElementById('searchRow').classList.remove('active');
+      document.getElementById('hero').style.display = 'none';
+      document.getElementById('discoverSection').style.display = 'none';
+      document.getElementById('filterSection').style.display = 'none';
+      document.querySelector('.content-section').style.display = 'none';
+      document.getElementById('statsSection').style.display = 'none';
+      if (page === 'home') {
+        document.getElementById('hero').style.display = 'block';
+        document.getElementById('discoverSection').style.display = 'block';
+        document.getElementById('filterSection').style.display = 'block';
+        document.querySelector('.content-section').style.display = 'block';
+        document.getElementById('statsSection').style.display = 'block';
+        renderContent('all');
+      } else if (page === 'discover') {
+        document.getElementById('discoverSection').style.display = 'block';
+      } else if (page === 'movies') {
+        document.getElementById('filterSection').style.display = 'block';
+        document.querySelector('.content-section').style.display = 'block';
+        document.getElementById('statsSection').style.display = 'block';
+        renderContent('movie');
+      } else if (page === 'series') {
+        document.getElementById('filterSection').style.display = 'block';
+        document.querySelector('.content-section').style.display = 'block';
+        document.getElementById('statsSection').style.display = 'block';
+        renderContent('series');
+      } else if (page === 'account') {
+        document.getElementById('userToggle').click();
+      }
     });
   });
 
   /* Filters */
-  document.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentFilter = tab.dataset.filter;
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
       renderContent(currentFilter);
     });
   });
 
   /* Search */
-  document.getElementById('searchInput').addEventListener('input', () => renderContent(currentFilter));
-  document.getElementById('searchBtn').addEventListener('click', () => renderContent(currentFilter));
+  document.getElementById('searchToggleBtn').addEventListener('click', () => {
+    const row = document.getElementById('searchRow');
+    row.classList.toggle('active');
+    if (row.classList.contains('active')) {
+      setTimeout(() => document.getElementById('searchInput').focus(), 100);
+    }
+  });
+  document.getElementById('searchClear').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchClear').classList.remove('visible');
+    renderContent(currentFilter);
+    document.getElementById('searchInput').focus();
+  });
+  document.getElementById('searchInput').addEventListener('input', () => {
+    const val = document.getElementById('searchInput').value.trim();
+    document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
+    renderContent(currentFilter);
+  });
   document.getElementById('searchInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') renderContent(currentFilter);
   });
@@ -1641,8 +1800,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* Hero Info Button */
+  document.getElementById('heroInfo').addEventListener('click', () => {
+    loadContent((data) => {
+      if (data.length > 0) showDetail(data[0].id);
+    });
+  });
+
   /* Initial Render */
   renderContent();
+  buildLetterFilter();
+  renderDiscover();
 
 });
 </script>
