@@ -14,112 +14,107 @@
 <div id="app">
   <div class="noise-overlay"></div>
 
-  <nav class="navbar" id="navbar">
-    <div class="nav-container">
-      <div class="nav-brand">
-        <div class="logo-glow"></div>
-        <span class="logo-text">ALIZA</span>
-        <span class="logo-beta">beta</span>
+  <header class="top-header" id="topHeader">
+    <div class="header-row">
+      <div class="header-brand">
+        <div class="logo-glow-sm"></div>
+        <span class="logo-text-sm">ALIZA</span>
       </div>
-      <div class="nav-links" id="navLinks">
-        <a href="#" class="nav-link active" data-filter="all">Ana Sayfa</a>
-        <a href="#" class="nav-link" data-filter="movie">Filmler</a>
-        <a href="#" class="nav-link" data-filter="series">Diziler</a>
-        <a href="#" class="nav-link" data-filter="turkish">Türkçe Dublaj</a>
-        <a href="#" class="nav-link" data-filter="original">Orijinal Dil</a>
-      </div>
-      <div class="nav-actions">
-        <div class="search-box" id="searchBox">
-          <input type="text" id="searchInput" placeholder="Film veya dizi ara...">
-          <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
-        </div>
-        <button class="nav-btn" id="adminToggle" title="Admin Paneli"><i class="fas fa-shield-halved"></i></button>
-        <button class="nav-btn" id="userToggle" title="Giriş Yap / Kayıt Ol"><i class="fas fa-user"></i></button>
-        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+      <div class="header-actions">
+        <button class="header-btn" id="searchToggleBtn" title="Ara"><i class="fas fa-search"></i></button>
+        <button class="header-btn" id="userToggle" title="Hesabım"><i class="fas fa-user"></i></button>
+        <button class="header-btn" id="adminToggle" title="Admin"><i class="fas fa-shield-halved"></i></button>
       </div>
     </div>
+    <div class="search-row" id="searchRow">
+      <div class="search-box-full">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Film veya dizi ara...">
+        <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="letter-filter" id="letterFilter"></div>
+    </div>
+  </header>
+
+  <div class="page-content" id="pageContent">
+
+    <section class="hero" id="hero">
+      <div class="hero-bg" id="heroBg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-badge">POPÜLER</div>
+        <h1 class="hero-title" id="heroTitle">Sonsuzluk Oyunu</h1>
+        <p class="hero-desc" id="heroDesc">Yükleniyor...</p>
+        <div class="hero-meta">
+          <span class="hero-year" id="heroYear">—</span>
+          <span class="hero-rating"><i class="fas fa-star"></i> <span id="heroRating">—</span></span>
+          <span class="hero-quality">HD</span>
+          <span class="hero-lang" id="heroLang"><i class="fas fa-language"></i> —</span>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-primary hero-play" id="heroPlay"><i class="fas fa-play"></i> İzle</button>
+          <button class="btn-secondary hero-info" id="heroInfo"><i class="fas fa-circle-info"></i> Detay</button>
+        </div>
+      </div>
+    </section>
+
+    <main class="main-content" id="mainContent">
+
+      <section class="discover-section" id="discoverSection">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title"><span class="title-glow">Keşfet</span></h2>
+            <a href="#" class="section-more" id="discoverMore">Tümünü Gör</a>
+          </div>
+          <div class="discover-rows" id="discoverRows"></div>
+        </div>
+      </section>
+
+      <section class="filter-section" id="filterSection">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title"><span class="title-glow">İçerikler</span></h2>
+          </div>
+          <div class="filter-scroll" id="filterTabs">
+            <button class="filter-chip active" data-filter="all">Tümü</button>
+            <button class="filter-chip" data-filter="movie">Filmler</button>
+            <button class="filter-chip" data-filter="series">Diziler</button>
+            <button class="filter-chip" data-filter="turkish">Türkçe Dublaj</button>
+            <button class="filter-chip" data-filter="original">Orijinal Dil</button>
+            <button class="filter-chip" data-filter="action">Aksiyon</button>
+            <button class="filter-chip" data-filter="comedy">Komedi</button>
+            <button class="filter-chip" data-filter="sci-fi">Bilim Kurgu</button>
+            <button class="filter-chip" data-filter="drama">Dram</button>
+            <button class="filter-chip" data-filter="horror">Korku</button>
+            <button class="filter-chip" data-filter="thriller">Gerilim</button>
+            <button class="filter-chip" data-filter="romance">Romantik</button>
+            <button class="filter-chip" data-filter="fantasy">Fantastik</button>
+            <button class="filter-chip" data-filter="animation">Animasyon</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="container">
+          <div class="content-grid" id="contentGrid"></div>
+          <div class="empty-state" id="emptyState">
+            <i class="fas fa-film"></i>
+            <h3>İçerik Bulunamadı</h3>
+            <p>Henüz hiç film veya dizi eklenmemiş.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" data-page="home"><i class="fas fa-house"></i><span>Ana Sayfa</span></button>
+    <button class="nav-item" data-page="discover"><i class="fas fa-compass"></i><span>Keşfet</span></button>
+    <button class="nav-item" data-page="movies"><i class="fas fa-film"></i><span>Filmler</span></button>
+    <button class="nav-item" data-page="series"><i class="fas fa-tv"></i><span>Diziler</span></button>
+    <button class="nav-item" data-page="account"><i class="fas fa-user"></i><span>Hesap</span></button>
   </nav>
-
-  <section class="hero" id="hero">
-    <div class="hero-bg" id="heroBg"></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <div class="hero-badge">POPÜLER</div>
-      <h1 class="hero-title" id="heroTitle">Sonsuzluk Oyunu</h1>
-      <p class="hero-desc" id="heroDesc">Yükleniyor...</p>
-      <div class="hero-meta">
-        <span class="hero-year" id="heroYear">—</span>
-        <span class="hero-rating"><i class="fas fa-star"></i> <span id="heroRating">—</span></span>
-        <span class="hero-quality">4K Ultra HD</span>
-        <span class="hero-lang" id="heroLang"><i class="fas fa-language"></i> —</span>
-      </div>
-      <div class="hero-actions">
-        <button class="btn-primary hero-play" id="heroPlay"><i class="fas fa-play"></i> İzle</button>
-        <button class="btn-secondary hero-info"><i class="fas fa-circle-info"></i> Detay</button>
-      </div>
-    </div>
-    <div class="hero-scroll"><i class="fas fa-chevron-down"></i></div>
-  </section>
-
-  <main class="main-content">
-    <section class="filters-section">
-      <div class="container">
-        <div class="filter-header">
-          <h2 class="section-title"><span class="title-glow">İçerikler</span></h2>
-          <div class="filter-tabs" id="filterTabs">
-            <button class="filter-tab active" data-filter="all">Tümü</button>
-            <button class="filter-tab" data-filter="movie">Filmler</button>
-            <button class="filter-tab" data-filter="series">Diziler</button>
-            <button class="filter-tab" data-filter="turkish">Türkçe Dublaj</button>
-            <button class="filter-tab" data-filter="original">Orijinal Dil</button>
-            <button class="filter-tab" data-filter="action">Aksiyon</button>
-            <button class="filter-tab" data-filter="comedy">Komedi</button>
-            <button class="filter-tab" data-filter="sci-fi">Bilim Kurgu</button>
-            <button class="filter-tab" data-filter="drama">Dram</button>
-            <button class="filter-tab" data-filter="horror">Korku</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="content-section">
-      <div class="container">
-        <div class="content-grid" id="contentGrid"></div>
-        <div class="empty-state" id="emptyState">
-          <i class="fas fa-film"></i>
-          <h3>İçerik Bulunamadı</h3>
-          <p>Henüz hiç film veya dizi eklenmemiş.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="stats-section">
-      <div class="container">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-film"></i></div>
-            <div class="stat-number" id="totalMovies">0</div>
-            <div class="stat-label">Film</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-tv"></i></div>
-            <div class="stat-number" id="totalSeries">0</div>
-            <div class="stat-label">Dizi</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-closed-captioning"></i></div>
-            <div class="stat-number" id="totalTurkish">0</div>
-            <div class="stat-label">Türkçe Dublaj</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon"><i class="fas fa-headphones"></i></div>
-            <div class="stat-number" id="totalOriginal">0</div>
-            <div class="stat-label">Orijinal Dil</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
 
   <div class="player-overlay" id="playerOverlay">
     <div class="player-container">
