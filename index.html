@@ -503,6 +503,28 @@ function isAdminSync(user) {
   return user && currentUserRole === 'admin';
 }
 
+function toEmbedUrl(url) {
+  const l = url.toLowerCase().trim();
+  let m;
+
+  m = l.match(/youtube\.com\/watch\?v=([a-z0-9_-]+)/i) || l.match(/youtu\.be\/([a-z0-9_-]+)/i);
+  if (m) return `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`;
+
+  m = l.match(/dailymotion\.com\/video\/([a-z0-9]+)/i);
+  if (m) return `https://www.dailymotion.com/embed/video/${m[1]}?autoplay=1`;
+
+  m = l.match(/vimeo\.com\/(\d+)/i);
+  if (m) return `https://player.vimeo.com/video/${m[1]}?autoplay=1`;
+
+  m = l.match(/drive\.google\.com\/file\/d\/([a-z0-9_-]+)/i);
+  if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+
+  m = l.match(/ok\.ru\/video\/(\d+)/i);
+  if (m) return `https://ok.ru/videoembed/${m[1]}`;
+
+  return url;
+}
+
 function isEmbedUrl(url) {
   if (!url) return false;
   const videoExts = ['.mp4','.webm','.ogg','.m3u8','.mov','.avi','.mkv','.flv','.wmv','.ts','.3gp','.mpg','.mpeg'];
@@ -522,7 +544,7 @@ function playUrl(type, url, videoEl, iframeEl, placeholderEl) {
     videoEl.style.display = 'none';
     videoEl.src = '';
     videoEl.pause();
-    iframeEl.src = url;
+    iframeEl.src = toEmbedUrl(url);
     iframeEl.style.display = 'block';
     placeholderEl.style.display = 'none';
     iframeEl.onload = () => { try { iframeEl.contentWindow.postMessage('play','*'); } catch(e) {} };
