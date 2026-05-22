@@ -607,7 +607,7 @@ function setupUploadZone(dropId, previewId, imgId, widthId, heightId, cropBtnId,
   const preview = document.getElementById(previewId);
   const img = document.getElementById(imgId);
   const wInput = document.getElementById(widthId);
-  const hInput = document.getElementById(hiddenId);
+  const hInput = document.getElementById(heightId);
   const cropBtn = document.getElementById(cropBtnId);
   const removeBtn = document.getElementById(removeId);
   const hidden = document.getElementById(hiddenId);
@@ -695,13 +695,19 @@ function setupUploadZone(dropId, previewId, imgId, widthId, heightId, cropBtnId,
   });
 }
 
+let contentUnsubscribe = null;
+const contentCallbacks = [];
+
 function loadContent(callback) {
-  const contentRef = ref(db, 'content');
-  onValue(contentRef, (snapshot) => {
-    const data = snapshot.val();
-    const items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-    callback(items);
-  });
+  contentCallbacks.push(callback);
+  if (!contentUnsubscribe) {
+    const contentRef = ref(db, 'content');
+    contentUnsubscribe = onValue(contentRef, (snapshot) => {
+      const data = snapshot.val();
+      const items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+      contentCallbacks.forEach(cb => cb(items));
+    });
+  }
 }
 
 function getContentById(id, callback) {
@@ -1251,7 +1257,6 @@ window.confirmDeleteSeason = function(contentId, num) {
       update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
         showToast(`Sezon ${num} silindi!`, 'info');
         renderSeasons(contentId);
-        renderSeriesSelect(true);
         populateEpisodeSeasonSelect(contentId);
         renderContent();
       });
@@ -1756,7 +1761,6 @@ document.addEventListener('DOMContentLoaded', () => {
         update(ref(db, `content/${id}`), { seasons }).then(() => {
           showToast(`Sezon ${num} eklendi!`, 'success');
           document.getElementById('seasonNumber').value = '';
-          renderSeriesSelect(true);
           renderSeasons(id);
           populateEpisodeSeasonSelect(id);
           const epSeason = document.getElementById('episodeSeason');
@@ -1789,7 +1793,6 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('episodeNumber').value = '';
           document.getElementById('episodeTitle').value = '';
           document.getElementById('episodeVideo').value = '';
-          renderSeriesSelect(true);
           renderSeasons(id);
           populateEpisodeSeasonSelect(id);
           const epSeason = document.getElementById('episodeSeason');
