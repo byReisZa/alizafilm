@@ -142,6 +142,7 @@
           </div>
         </div>
         <video class="player-video" id="playerVideo" controls></video>
+        <iframe class="player-iframe" id="playerIframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
       </div>
       <div class="player-episodes" id="playerEpisodes">
         <div class="episodes-header">
@@ -428,17 +429,68 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-const ADMIN_EMAIL = 'alininsiteleri27@gmail.com';
-const ADMIN_USERNAME = 'adminali';
-
 let currentUser = null;
+let currentUserRole = null;
 let currentFilter = 'all';
 let currentPlayer = null;
 let currentEpisode = null;
 let editingId = null;
 
-function isAdmin(user) {
-  return user && user.email === ADMIN_EMAIL && user.displayName === ADMIN_USERNAME;
+function getUserRole(uid) {
+  return new Promise((resolve) => {
+    get(child(ref(db), `users/${uid}/role`)).then((snap) => {
+      resolve(snap.val() || 'member');
+    }).catch(() => resolve('member'));
+  });
+}
+
+function setUserRole(uid, role) {
+  return set(ref(db, `users/${uid}/role`), role);
+}
+
+async function isAdmin(user) {
+  if (!user) return false;
+  const role = await getUserRole(user.uid);
+  return role === 'admin';
+}
+
+function isAdminSync(user) {
+  return user && currentUserRole === 'admin';
+}
+
+function isEmbedUrl(url) {
+  if (!url) return false;
+  const embedDomains = ['embed', 'vidmoly', 'youtube', 'dailymotion', 'vimeo', 'ok.ru', 'drive.google'];
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.m3u8', '.mov', '.avi', '.mkv', '.flv', '.wmv'];
+  const lower = url.toLowerCase();
+  if (videoExtensions.some(ext => lower.includes(ext))) return false;
+  return embedDomains.some(d => lower.includes(d)) || lower.includes('/embed') || lower.includes('player.');
+}
+
+function playUrl(type, url, videoEl, iframeEl, placeholderEl) {
+  if (!url) {
+    videoEl.style.display = 'none';
+    videoEl.src = '';
+    iframeEl.style.display = 'none';
+    iframeEl.src = '';
+    placeholderEl.style.display = 'flex';
+    return;
+  }
+  if (type === 'embed' || isEmbedUrl(url)) {
+    videoEl.style.display = 'none';
+    videoEl.src = '';
+    videoEl.pause();
+    iframeEl.src = url;
+    iframeEl.style.display = 'block';
+    placeholderEl.style.display = 'none';
+  } else {
+    iframeEl.style.display = 'none';
+    iframeEl.src = '';
+    videoEl.src = url;
+    videoEl.style.display = 'block';
+    placeholderEl.style.display = 'none';
+    videoEl.load();
+  }
 }
 
 function showToast(message, type = 'info') {
@@ -648,12 +700,17 @@ function openPlayer(contentId, season, episode) {
     const title = document.getElementById('playerTitle');
     const meta = document.getElementById('playerMeta');
     const video = document.getElementById('playerVideo');
+    const iframe = document.getElementById('playerIframe');
     const placeholder = document.getElementById('playerPlaceholder');
     const info = document.getElementById('placeholderInfo');
     const episodesSection = document.getElementById('playerEpisodes');
 
     currentPlayer = contentId;
     title.textContent = content.title || '—';
+    video.style.display = 'none';
+    video.src = '';
+    iframe.style.display = 'none';
+    iframe.src = '';
 
     if (content.type === 'series' && content.seasons) {
       const seasons = content.seasons;
@@ -663,71 +720,44 @@ function openPlayer(contentId, season, episode) {
       const seasonSelect = document.getElementById('seasonSelect');
       seasonSelect.innerHTML = seasonKeys.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
 
-      if (season && episode) {
-        seasonSelect.value = String(season);
-        currentEpisode = { season, episode };
-        const ep = seasons[season]?.find(e => e.num === episode);
-        meta.textContent = `Sezon ${season} - Bölüm ${episode}${ep?.title ? ': ' + ep.title : ''}`;
-        if (ep?.video) {
-          placeholder.style.display = 'none';
-          video.style.display = 'block';
-          video.src = ep.video;
-          video.load();
+      const loadEpisode = (s, ep) => {
+        currentEpisode = { season: s, episode: ep };
+        const epData = seasons[s]?.find(e => e.num === ep);
+        meta.textContent = `Sezon ${s} - Bölüm ${ep}${epData?.title ? ': ' + epData.title : ''}`;
+        if (epData?.video) {
+          playUrl('auto', epData.video, video, iframe, placeholder);
         } else {
-          placeholder.style.display = 'flex';
           video.style.display = 'none';
           video.src = '';
-          info.textContent = `Sezon ${season} - Bölüm ${episode} · Video bağlantısı eklenmemiş`;
+          iframe.style.display = 'none';
+          iframe.src = '';
+          placeholder.style.display = 'flex';
+          info.textContent = epData ? 'Video bağlantısı eklenmemiş' : 'Bölüm bulunamadı';
         }
+      };
+
+      if (season && episode) {
+        seasonSelect.value = String(season);
+        loadEpisode(season, episode);
       } else if (seasonKeys.length > 0) {
         const firstSeason = seasonKeys[0];
         seasonSelect.value = String(firstSeason);
-        currentEpisode = { season: firstSeason, episode: 1 };
-        const firstEp = seasons[firstSeason]?.[0];
-        meta.textContent = `Sezon ${firstSeason} - Bölüm 1${firstEp?.title ? ': ' + firstEp.title : ''}`;
-        if (firstEp?.video) {
-          placeholder.style.display = 'none';
-          video.style.display = 'block';
-          video.src = firstEp.video;
-          video.load();
-        } else {
-          placeholder.style.display = 'flex';
-          video.style.display = 'none';
-          info.textContent = 'Video bağlantısı eklenmemiş';
-        }
+        loadEpisode(firstSeason, 1);
       }
 
       renderEpisodesList(contentId, Number(seasonSelect.value));
       seasonSelect.onchange = () => {
-        currentEpisode = { season: Number(seasonSelect.value), episode: 1 };
         const eps = seasons[Number(seasonSelect.value)] || [];
-        if (eps.length > 0) {
-          meta.textContent = `Sezon ${seasonSelect.value} - Bölüm 1${eps[0]?.title ? ': ' + eps[0].title : ''}`;
-          if (eps[0]?.video) {
-            placeholder.style.display = 'none';
-            video.style.display = 'block';
-            video.src = eps[0].video;
-            video.load();
-          } else {
-            placeholder.style.display = 'flex';
-            video.style.display = 'none';
-            info.textContent = 'Video bağlantısı eklenmemiş';
-          }
-        }
+        loadEpisode(Number(seasonSelect.value), eps.length > 0 ? eps[0].num : 1);
         renderEpisodesList(contentId, Number(seasonSelect.value));
       };
     } else {
       episodesSection.classList.remove('active');
       meta.textContent = 'Film';
       if (content.video) {
-        placeholder.style.display = 'none';
-        video.style.display = 'block';
-        video.src = content.video;
-        video.load();
+        playUrl('auto', content.video, video, iframe, placeholder);
       } else {
         placeholder.style.display = 'flex';
-        video.style.display = 'none';
-        video.src = '';
         info.textContent = 'Video bağlantısı eklenmemiş';
       }
     }
@@ -769,6 +799,7 @@ function playEpisode(contentId, season, episode) {
     if (!content) return;
     const meta = document.getElementById('playerMeta');
     const video = document.getElementById('playerVideo');
+    const iframe = document.getElementById('playerIframe');
     const placeholder = document.getElementById('playerPlaceholder');
     const info = document.getElementById('placeholderInfo');
 
@@ -777,16 +808,13 @@ function playEpisode(contentId, season, episode) {
     meta.textContent = `Sezon ${season} - Bölüm ${episode}${ep?.title ? ': ' + ep.title : ''}`;
 
     if (ep?.video) {
-      placeholder.style.display = 'none';
-      video.style.display = 'block';
-      video.src = ep.video;
-      video.load();
-      video.play().catch(() => {});
+      playUrl('auto', ep.video, video, iframe, placeholder);
     } else {
-      placeholder.style.display = 'flex';
       video.style.display = 'none';
       video.src = '';
-      video.pause();
+      iframe.style.display = 'none';
+      iframe.src = '';
+      placeholder.style.display = 'flex';
       info.textContent = 'Bu bölüm için video bağlantısı eklenmemiş';
     }
     renderEpisodesList(contentId, season);
@@ -958,7 +986,7 @@ function updateAuthUI(user) {
     userToggle.title = 'Giriş Yap / Kayıt Ol';
   }
 
-  if (isAdmin(user)) {
+  if (isAdminSync(user)) {
     toggle.style.display = 'flex';
   } else {
     toggle.style.display = 'none';
@@ -973,7 +1001,7 @@ function updateAuthUI(user) {
     const name = isGuest ? 'Misafir' : (user.displayName || user.email?.split('@')[0] || 'Kullanıcı');
     document.getElementById('profileName').textContent = name;
     document.getElementById('profileEmail').textContent = isGuest ? 'Misafir oturumu' : (user.email || user.phoneNumber || '—');
-    document.getElementById('profileBadge').textContent = isGuest ? 'Misafir' : (isAdmin(user) ? 'Admin' : 'Üye');
+    document.getElementById('profileBadge').textContent = isGuest ? 'Misafir' : (isAdminSync(user) ? 'Admin' : 'Üye');
     const avatar = document.getElementById('profileAvatar');
     if (user.photoURL) {
       avatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
@@ -988,10 +1016,22 @@ function updateAuthUI(user) {
   }
 }
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUserRole = await getUserRole(user.uid);
+  } else {
+    currentUserRole = null;
+  }
   updateAuthUI(user);
-  if (user && isAdmin(user)) {
+  const isAdm = isAdminSync(user);
+  if (user && isAdm) {
     document.getElementById('adminToggle').style.display = 'flex';
+    document.getElementById('adminNotAuth').style.display = 'none';
+    document.getElementById('adminDashboard').style.display = 'block';
+  } else {
+    document.getElementById('adminToggle').style.display = 'none';
+    document.getElementById('adminNotAuth').style.display = 'block';
+    document.getElementById('adminDashboard').style.display = 'none';
   }
 });
 
@@ -1060,9 +1100,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('playerClose').addEventListener('click', () => {
     const overlay = document.getElementById('playerOverlay');
     const video = document.getElementById('playerVideo');
+    const iframe = document.getElementById('playerIframe');
     video.pause();
     video.src = '';
     video.style.display = 'none';
+    iframe.src = '';
+    iframe.style.display = 'none';
     document.getElementById('playerPlaceholder').style.display = 'flex';
     overlay.classList.remove('active');
     document.body.style.overflow = '';
@@ -1081,23 +1124,16 @@ document.addEventListener('DOMContentLoaded', () => {
     getContentById(currentPlayer, (content) => {
       if (!content) return;
       const video = document.getElementById('playerVideo');
+      const iframe = document.getElementById('playerIframe');
       const placeholder = document.getElementById('playerPlaceholder');
+      let url = null;
       if (content.type === 'series' && currentEpisode) {
         const ep = content.seasons?.[currentEpisode.season]?.find(e => e.num === currentEpisode.episode);
-        if (ep?.video) {
-          placeholder.style.display = 'none';
-          video.style.display = 'block';
-          video.src = ep.video;
-          video.load();
-          video.play().catch(() => {});
-        }
-      } else if (content.type === 'movie' && content.video) {
-        placeholder.style.display = 'none';
-        video.style.display = 'block';
-        video.src = content.video;
-        video.load();
-        video.play().catch(() => {});
+        url = ep?.video;
+      } else if (content.type === 'movie') {
+        url = content.video;
       }
+      if (url) playUrl('auto', url, video, iframe, placeholder);
     });
   });
 
@@ -1195,10 +1231,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pass.length < 6) return showToast('Şifre en az 6 karakter olmalı!', 'error');
 
     createUserWithEmailAndPassword(auth, email, pass)
-      .then((result) => {
-        return updateProfile(result.user, { displayName: username });
-      })
-      .then(() => {
+      .then(async (result) => {
+        await updateProfile(result.user, { displayName: username });
+        const role = (email === 'alininsiteleri27@gmail.com' && username === 'adminali') ? 'admin' : 'member';
+        await setUserRole(result.user.uid, role);
+        currentUserRole = role;
         showToast('Kayıt başarılı! Hoş geldin!', 'success');
         document.getElementById('userOverlay').classList.remove('active');
         document.body.style.overflow = '';
@@ -1226,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.style.overflow = 'hidden';
       return;
     }
-    if (!isAdmin(currentUser)) {
+    if (!isAdminSync(currentUser)) {
       showToast('Admin yetkiniz yok!', 'error');
       return;
     }
@@ -1382,17 +1419,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Initial Render */
   renderContent();
-
-  /* Check admin on auth state */
-  onAuthStateChanged(auth, (user) => {
-    if (user && isAdmin(user)) {
-      document.getElementById('adminNotAuth').style.display = 'none';
-      document.getElementById('adminDashboard').style.display = 'block';
-    } else {
-      document.getElementById('adminNotAuth').style.display = 'block';
-      document.getElementById('adminDashboard').style.display = 'none';
-    }
-  });
 
 });
 </script>
