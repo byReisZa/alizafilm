@@ -427,23 +427,20 @@
                 </div>
 
                 <!-- Seçili Sezon Bilgisi -->
-                <div class="selected-season-info" id="selectedSeasonInfo" style="display:none;margin:16px 0;padding:12px 16px;background:var(--bg-surface);border-radius:var(--radius-md);border:1px solid var(--border-color);">
-                  <span style="color:var(--primary-light);font-weight:700;">
-                    <i class="fas fa-check-circle"></i> Seçili Sezon: <span id="selectedSeasonNum">—</span>
-                  </span>
-                  <button id="clearSeasonBtn" style="margin-left:12px;font-size:0.75rem;color:var(--text-muted);background:none;border:none;cursor:pointer;">
-                    <i class="fas fa-times"></i> Temizle
-                  </button>
-                </div>
+                
 
                 <!-- Yeni Bölüm Ekle -->
                 <div class="add-episode-box" id="addEpisodeBox">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Bölüm Ekle</h4>
+
+                  <!-- Auto-filled season info -->
+                  <div class="auto-season-info" id="autoSeasonInfo" style="margin-bottom:16px;padding:10px 14px;background:rgba(108,60,225,0.1);border:1px solid var(--border-color);border-radius:var(--radius-md);display:none;">
+                    <span style="color:var(--primary-light);font-size:0.85rem;">
+                      <i class="fas fa-layer-group"></i> <strong>Sezon <span id="autoSeasonNum">—</span></strong> seçili — bölüm bu sezona eklenecek
+                    </span>
+                  </div>
+
                   <div class="form-row">
-                    <div class="form-group">
-                      <label>Sezon No *</label>
-                      <input type="number" id="episodeSeason" placeholder="Sezon no yaz" min="1">
-                    </div>
                     <div class="form-group">
                       <label>Bölüm No *</label>
                       <input type="number" id="episodeNumber" placeholder="Bölüm no yaz" min="1">
@@ -1877,11 +1874,14 @@ function renderSeasons(contentId) {
 // Select a season for adding episodes
 window.selectSeasonForEpisode = function(seasonNum) {
   currentSelectedSeason = String(seasonNum);
-  document.getElementById('episodeSeason').value = seasonNum;
 
-  // Update UI
-  document.getElementById('selectedSeasonInfo').style.display = 'block';
-  document.getElementById('selectedSeasonNum').textContent = seasonNum;
+  // Update auto-season info in episode box
+  const autoInfo = document.getElementById('autoSeasonInfo');
+  const autoNum = document.getElementById('autoSeasonNum');
+  if (autoInfo && autoNum) {
+    autoInfo.style.display = 'block';
+    autoNum.textContent = seasonNum;
+  }
 
   // Update tag styles
   document.querySelectorAll('.season-tag').forEach(tag => {
@@ -1894,8 +1894,11 @@ window.selectSeasonForEpisode = function(seasonNum) {
 // Clear selected season
 function clearSelectedSeason() {
   currentSelectedSeason = null;
-  document.getElementById('episodeSeason').value = '';
-  document.getElementById('selectedSeasonInfo').style.display = 'none';
+
+  // Hide auto season info
+  const autoInfo = document.getElementById('autoSeasonInfo');
+  if (autoInfo) autoInfo.style.display = 'none';
+
   document.querySelectorAll('.season-tag').forEach(tag => {
     tag.classList.remove('active');
   });
@@ -1944,9 +1947,9 @@ document.getElementById('addSeasonBtn').addEventListener('click', () => {
         showToast(`Sezon ${num} eklendi!`, 'success');
         document.getElementById('seasonNumber').value = '';
         renderSeasons(id);
-        // Auto-select the new season
-        selectSeasonForEpisode(seasonKey);
         renderContent();
+        // Auto-select the new season after render
+        setTimeout(() => selectSeasonForEpisode(seasonKey), 100);
       })
       .catch(err => {
         showToast('Sezon eklenirken hata: ' + err.message, 'error');
@@ -1957,23 +1960,22 @@ document.getElementById('addSeasonBtn').addEventListener('click', () => {
 // Add Episode
 document.getElementById('addEpisodeBtn').addEventListener('click', () => {
   const id = document.getElementById('seriesSelect').value;
-  const seasonNum = parseInt(document.getElementById('episodeSeason').value, 10);
   const num = parseInt(document.getElementById('episodeNumber').value, 10);
   const title = document.getElementById('episodeTitle').value.trim();
   const video = document.getElementById('episodeVideo').value.trim();
 
   if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
-  if (!seasonNum || seasonNum < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
+  if (!currentSelectedSeason) return showToast('Önce bir sezon seçin!', 'error');
   if (!num || num < 1) return showToast('Geçerli bir bölüm numarası girin.', 'error');
 
   getContentById(id, (content) => {
     if (!content) return showToast('Dizi bulunamadı!', 'error');
 
     const seasons = content.seasons || {};
-    const seasonKey = String(seasonNum);
+    const seasonKey = currentSelectedSeason;
 
     if (seasons[seasonKey] === undefined) {
-      return showToast(`Sezon ${seasonNum} mevcut değil! Önce sezon ekleyin.`, 'error');
+      return showToast(`Sezon ${seasonKey} mevcut değil! Önce sezon ekleyin.`, 'error');
     }
 
     if (!Array.isArray(seasons[seasonKey])) {
@@ -2003,7 +2005,7 @@ document.getElementById('addEpisodeBtn').addEventListener('click', () => {
 });
 
 // Clear season selection
-document.getElementById('clearSeasonBtn').addEventListener('click', clearSelectedSeason);
+
 
 /* DELETE FUNCTIONS */
 
