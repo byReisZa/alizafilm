@@ -1,63 +1,329 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALİZA - Film & Dizi İzle</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALİZA - Film & Dizi İzle</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0b0b12;--surface:#12121e;--card:#1a1a2e;--gold:#e8a838;--gold-dim:#c48c2a;--gold-glow:rgba(232,168,56,.3);--text:#f0f0f0;--text-dim:#8888a0;--radius:14px;--radius-sm:8px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+::selection{background:var(--gold);color:#000}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:4px}
+nav{position:sticky;top:0;z-index:100;background:rgba(11,11,18,.92);backdrop-filter:blur(20px);border-bottom:1px solid rgba(232,168,56,.10);padding:0 32px;height:70px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-size:26px;font-weight:800;letter-spacing:3px;background:linear-gradient(135deg,var(--gold),#f5d080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-transform:uppercase}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-size:14px;font-weight:500;color:var(--text-dim);transition:color .3s;position:relative;cursor:pointer}
+.nav-links a:hover,.nav-links a.active{color:var(--gold)}
+.nav-links a.active::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:2px;background:var(--gold);border-radius:2px}
+.nav-search{display:flex;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:50px;padding:8px 16px;transition:all .3s}
+.nav-search:focus-within{border-color:var(--gold);box-shadow:0 0 20px var(--gold-glow)}
+.nav-search input{background:none;border:none;outline:none;color:var(--text);font-size:14px;width:200px}
+.nav-search input::placeholder{color:var(--text-dim)}
+.nav-search span{color:var(--text-dim);font-size:16px}
+.btn-admin{background:rgba(232,168,56,.12);border:1px solid rgba(232,168,56,.25);color:var(--gold);padding:8px 20px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s}
+.btn-admin:hover{background:var(--gold);color:#000;box-shadow:0 0 30px var(--gold-glow)}
+.hero{text-align:center;padding:60px 20px 40px;background:radial-gradient(ellipse at top,rgba(232,168,56,.06),transparent 70%)}
+.hero h1{font-size:42px;font-weight:800;margin-bottom:10px;background:linear-gradient(135deg,var(--gold),#f5d080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--text-dim);font-size:17px;max-width:500px;margin:0 auto}
+.tabs{display:flex;justify-content:center;gap:12px;padding:20px 20px 0}
+.tab{padding:10px 32px;border-radius:50px;border:1px solid rgba(255,255,255,.08);background:transparent;color:var(--text-dim);font-size:14px;font-weight:600;cursor:pointer;transition:all .35s}
+.tab:hover{border-color:var(--gold);color:var(--gold)}
+.tab.active{background:var(--gold);color:#000;border-color:var(--gold);box-shadow:0 0 30px var(--gold-glow)}
+.movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:20px;padding:0 32px 40px}
+.movie-card{background:var(--card);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(.25,.46,.45,.94);border:1px solid rgba(255,255,255,.04)}
+.movie-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 20px 60px rgba(0,0,0,.6);border-color:rgba(232,168,56,.2)}
+.movie-card .poster{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--surface)}
+.movie-card .poster-placeholder{width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--surface),var(--card));color:var(--text-dim);font-size:48px}
+.movie-card .info{padding:14px 16px 16px}
+.movie-card .info h3{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.movie-card .info .meta{display:flex;align-items:center;gap:8px;margin-top:6px}
+.badge{font-size:11px;font-weight:700;padding:2px 10px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
+.badge-film{background:rgba(232,168,56,.2);color:var(--gold)}
+.badge-dizi{background:rgba(100,200,255,.15);color:#64c8ff}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}
+.modal-overlay.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-content{background:var(--surface);border-radius:var(--radius);max-width:900px;width:100%;max-height:90vh;overflow-y:auto;padding:0;animation:slideUp .35s ease;border:1px solid rgba(232,168,56,.10)}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.06)}
+.modal-header h2{font-size:20px;font-weight:700}
+.modal-close{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.06);color:var(--text);font-size:20px;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(255,80,80,.2);color:#ff5050}
+.player-wrap{position:relative;width:100%;padding-top:56.25%;background:#000}
+.player-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.modal-body{padding:20px 24px}
+.modal-body p{color:var(--text-dim);font-size:14px;line-height:1.7}
+.modal-body .badge{display:inline-block;margin-bottom:12px}
+.no-embed{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-dim);font-size:14px;text-align:center;padding:20px;position:absolute;inset:0}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);grid-column:1/-1}
+.empty-state span{font-size:48px;display:block;margin-bottom:12px}
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--surface);border:1px solid rgba(232,168,56,.10);border-radius:var(--radius);padding:48px 40px;width:100%;max-width:400px;text-align:center;animation:slideUp .4s ease}
+.login-box h1{font-size:28px;margin-bottom:4px;background:linear-gradient(135deg,var(--gold),#f5d080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-box p{color:var(--text-dim);font-size:14px;margin-bottom:28px}
+.login-box input{width:100%;padding:14px 18px;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--text);font-size:16px;outline:none;transition:all .3s;margin-bottom:16px}
+.login-box input:focus{border-color:var(--gold);box-shadow:0 0 20px var(--gold-glow)}
+.login-box button{width:100%;padding:14px;border-radius:var(--radius-sm);border:none;background:var(--gold);color:#000;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s}
+.login-box button:hover{box-shadow:0 0 40px var(--gold-glow);transform:translateY(-2px)}
+.login-error{color:#ff5050;font-size:13px;margin-top:12px;display:none}
+.dashboard{display:none;max-width:1100px;margin:0 auto;padding:32px 24px}
+.dashboard.open{display:block}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.dash-header h2{font-size:24px;font-weight:700}
+.btn-logout{background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.25);color:#ff5050;padding:8px 20px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s}
+.btn-logout:hover{background:#ff5050;color:#fff}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.dash-card{background:var(--surface);border-radius:var(--radius);border:1px solid rgba(255,255,255,.04);padding:28px}
+.dash-card h3{font-size:17px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.dash-card h3 span{color:var(--gold)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--text-dim);margin-bottom:6px}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 14px;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:var(--text);font-size:14px;outline:none;transition:all .3s;font-family:inherit}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--gold);box-shadow:0 0 15px var(--gold-glow)}
+.form-group select option{background:var(--surface);color:var(--text)}
+.btn-submit{padding:12px 28px;border-radius:var(--radius-sm);border:none;background:var(--gold);color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;width:100%}
+.btn-submit:hover{box-shadow:0 0 30px var(--gold-glow);transform:translateY(-2px)}
+.btn-delete{padding:6px 14px;border-radius:var(--radius-sm);border:1px solid rgba(255,80,80,.3);background:rgba(255,80,80,.1);color:#ff5050;font-size:12px;font-weight:600;cursor:pointer;transition:all .3s}
+.btn-delete:hover{background:#ff5050;color:#fff}
+.btn-edit{padding:6px 14px;border-radius:var(--radius-sm);border:1px solid rgba(232,168,56,.3);background:rgba(232,168,56,.1);color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;transition:all .3s}
+.btn-edit:hover{background:var(--gold);color:#000}
+.movie-list-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.movie-list-item:last-child{border-bottom:none}
+.movie-list-item img{width:44px;height:62px;object-fit:cover;border-radius:6px;background:var(--card)}
+.movie-list-item .ml-info{flex:1;min-width:0}
+.movie-list-item .ml-info h4{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.movie-list-item .ml-info .ml-meta{font-size:12px;color:var(--text-dim)}
+.ml-actions{display:flex;gap:8px}
+.toast{position:fixed;bottom:30px;right:30px;padding:14px 24px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;z-index:300;animation:slideUp .35s ease;display:none}
+.toast.success{background:#1a8a3a;color:#fff;display:block}
+.toast.error{background:#aa2020;color:#fff;display:block}
+footer{text-align:center;padding:32px;color:var(--text-dim);font-size:13px;border-top:1px solid rgba(255,255,255,.04);margin-top:20px}
+@media(max-width:768px){
+  nav{padding:0 16px}
+  .nav-links{display:none}
+  .nav-search input{width:120px}
+  .hero h1{font-size:28px}
+  .hero{padding:40px 16px 30px}
+  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;padding:0 16px 30px}
+  .dash-grid{grid-template-columns:1fr}
+  .dash-card{padding:20px}
+  .modal-content{max-height:95vh}
+  .modal-header{padding:16px 18px}
+  .modal-body{padding:16px 18px}
+  .login-box{padding:32px 24px}
+}
+@media(max-width:480px){
+  .movie-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .movie-card .info{padding:10px 12px 12px}
+  .movie-card .info h3{font-size:13px}
+}
+</style>
 </head>
 <body>
 
-  <nav>
-    <div class="nav-logo">ALİZA</div>
-    <div class="nav-links">
-      <a class="active" data-category="all">Ana Sayfa</a>
-      <a data-category="film">Filmler</a>
-      <a data-category="dizi">Diziler</a>
-    </div>
-    <div class="nav-search">
-      <input id="searchInput" type="text" placeholder="Ara...">
-      <span>🔍</span>
-    </div>
-    <button class="btn-admin" onclick="location.href='admin.html'">Admin</button>
-  </nav>
-
-  <section class="hero">
-    <h1>ALİZA</h1>
-    <p>En kaliteli film ve dizileri ücretsiz izleyin.</p>
-  </section>
-
-  <div class="tabs">
-    <button class="tab active" data-category="all">Tümü</button>
-    <button class="tab" data-category="film">Filmler</button>
-    <button class="tab" data-category="dizi">Diziler</button>
+<nav>
+  <div class="nav-logo">ALİZA</div>
+  <div class="nav-links">
+    <a class="active" onclick="APP.filter('all',this)">Ana Sayfa</a>
+    <a onclick="APP.filter('film',this)">Filmler</a>
+    <a onclick="APP.filter('dizi',this)">Diziler</a>
   </div>
+  <div class="nav-search">
+    <input id="searchInput" type="text" placeholder="Ara..." oninput="APP.search()">
+    <span>🔍</span>
+  </div>
+  <button class="btn-admin" onclick="APP.showAdmin()">Admin</button>
+</nav>
 
-  <div id="movieGrid" class="movie-grid"></div>
+<section class="hero">
+  <h1>ALİZA</h1>
+  <p>En kaliteli film ve dizileri ücretsiz izleyin.</p>
+</section>
 
-  <!-- MODAL -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 id="modalTitle">Başlık</h2>
-        <button class="modal-close" id="modalCloseBtn">✕</button>
-      </div>
-      <div class="player-wrap" id="playerWrap">
-        <div class="no-embed">Yükleniyor...</div>
-      </div>
-      <div class="modal-body">
-        <span id="modalBadge" class="badge badge-film"></span>
-        <p id="modalDesc"></p>
-      </div>
+<div class="tabs">
+  <button class="tab active" onclick="APP.filter('all',this)">Tümü</button>
+  <button class="tab" onclick="APP.filter('film',this)">Filmler</button>
+  <button class="tab" onclick="APP.filter('dizi',this)">Diziler</button>
+</div>
+
+<div id="movieGrid" class="movie-grid"></div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)APP.closeModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Başlık</h2>
+      <button class="modal-close" onclick="APP.closeModal()">✕</button>
+    </div>
+    <div class="player-wrap" id="playerWrap"><div class="no-embed">Yükleniyor...</div></div>
+    <div class="modal-body">
+      <span id="modalBadge" class="badge badge-film"></span>
+      <p id="modalDesc"></p>
     </div>
   </div>
+</div>
 
-  <footer>
-    ALİZA &copy; 2026 &mdash; Tüm hakları saklıdır.
-  </footer>
+<div id="adminPanel" style="display:none">
+  <div class="login-wrap" id="loginWrap">
+    <div class="login-box">
+      <h1>ALİZA</h1>
+      <p>Admin paneli &mdash; giriş yapın</p>
+      <form onsubmit="APP.login(event)">
+        <input type="password" id="passwordInput" placeholder="Admin şifresi" required autofocus>
+        <button type="submit">Giriş Yap</button>
+        <div class="login-error" id="loginError">❌ Şifre hatalı.</div>
+      </form>
+      <p style="margin-top:18px;font-size:12px;color:var(--text-dim);">
+        <a href="#" onclick="APP.showHome()" style="color:var(--gold);">Ana sayfaya</a> dön.
+      </p>
+    </div>
+  </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="dashboard" id="dashboard">
+    <div class="dash-header">
+      <h2>🔐 Admin Paneli</h2>
+      <div style="display:flex;gap:10px">
+        <button class="btn-admin" onclick="APP.showHome()">Ana Sayfa</button>
+        <button class="btn-logout" onclick="APP.logout()">Çıkış Yap</button>
+      </div>
+    </div>
+    <div class="dash-grid">
+      <div class="dash-card">
+        <h3><span>📺</span> İçerik Ekle / Düzenle</h3>
+        <form onsubmit="APP.saveMovie(event)">
+          <div class="form-group">
+            <label>Başlık *</label>
+            <input type="text" id="fTitle" placeholder="Film / dizi adı" required>
+          </div>
+          <div class="form-group">
+            <label>Görsel URL</label>
+            <input type="url" id="fImage" placeholder="https://...poster.jpg">
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="fCategory">
+              <option value="film">Film</option>
+              <option value="dizi">Dizi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Embed Kodu / Link</label>
+            <input type="text" id="fEmbed" placeholder="iframe kodu veya video URL">
+          </div>
+          <div class="form-group">
+            <label>Açıklama</label>
+            <textarea id="fDesc" placeholder="Kısa açıklama..."></textarea>
+          </div>
+          <button type="submit" class="btn-submit" id="fSubmitBtn">Ekle</button>
+          <input type="hidden" id="fEditId">
+        </form>
+      </div>
+      <div class="dash-card">
+        <h3><span>📋</span> Mevcut İçerikler</h3>
+        <div id="adminMovieList"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <script src="app.js"></script>
+<footer>ALİZA &copy; 2026</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const APP = {
+  pw: '3454', cat: 'all', editId: null,
+  init(){
+    if(!localStorage.getItem('aliza_movies')) this.seed()
+    this.render()
+  },
+  seed(){
+    localStorage.setItem('aliza_movies',JSON.stringify([
+      {id:1,title:'Interstellar',image:'https://image.tmdb.org/t/p/w342/nCbkOyOMTEwlEV0LtCOvCnwEONA.jpg',category:'film',embed:'',description:'Bir grup kaşif, insanlığın geleceğini kurtarmak için solucan deliği aracılığıyla galaksiler arası bir yolculuğa çıkar.'},
+      {id:2,title:'Breaking Bad',image:'https://image.tmdb.org/t/p/w342/ggFHVNu6YYI5L9T8tNZ9N4aMqJw.jpg',category:'dizi',embed:'',description:'Kimyager öğretmen Walter White, ailesinin geleceğini garanti altına almak için metamfetamin üretmeye başlar.'},
+      {id:3,title:'Inception',image:'https://image.tmdb.org/t/p/w342/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg',category:'film',embed:'',description:'Bir hırsız, rüya paylaşım teknolojisini kullanarak bir iş adamının bilinçaltına bir fikir yerleştirmek için işe alınır.'},
+      {id:4,title:'The Dark Knight',image:'https://image.tmdb.org/t/p/w342/qJ2tW6WMUDux911BB6n7k8S1K8.jpg',category:'film',embed:'',description:'Batman, Joker adlı kaotik bir suç dehasıyla yüzleşmek zorunda kalır.'},
+      {id:5,title:'Stranger Things',image:'https://image.tmdb.org/t/p/w342/49WJfeN0m4bUJ5igLDUH30H3pU.jpg',category:'dizi',embed:'',description:'Kaybolan bir çocuğu ararken, küçük bir kasaba gizli bir hükümet laboratuvarı ve doğaüstü bir kızın varlığını keşfeder.'},
+      {id:6,title:'Pulp Fiction',image:'https://image.tmdb.org/t/p/w342/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg',category:'film',embed:'',description:'Los Angeles\'ta geçen ve birbirine bağlı birkaç hikayeyi anlatan kült bir suç filmi.'},
+      {id:7,title:'The Matrix',image:'https://image.tmdb.org/t/p/w342/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',category:'film',embed:'',description:'Bir bilgisayar korsanı, gerçekliğin aslında bir simülasyon olduğunu keşfeder.'},
+      {id:8,title:'La Casa de Papel',image:'https://image.tmdb.org/t/p/w342/ooBGRQBdbGzBxAVfExiO8rWcS3d.jpg',category:'dizi',embed:'',description:'Profesör liderliğindeki bir ekip, İspanya Kraliyet Darphanesi\'nde büyük bir soygun gerçekleştirir.'}
+    ]))
+  },
+  get(){return JSON.parse(localStorage.getItem('aliza_movies')||'[]')},
+  save(d){localStorage.setItem('aliza_movies',JSON.stringify(d));this.render()},
+  render(){
+    const g=document.getElementById('movieGrid')
+    let m=this.get()
+    if(this.cat!=='all') m=m.filter(x=>x.category===this.cat)
+    const q=document.getElementById('searchInput').value.trim().toLowerCase()
+    if(q) m=m.filter(x=>x.title.toLowerCase().includes(q))
+    if(!m.length){g.innerHTML='<div class="empty-state"><span>🎬</span>Henüz içerik bulunmuyor.</div>';return}
+    g.innerHTML=m.map(x=>`<div class="movie-card" onclick="APP.openModal(${x.id})">
+      ${x.image?`<img class="poster" src="${x.image}" loading="lazy" onerror="this.outerHTML='<div class=\\'poster-placeholder\\'>🎬</div>'">`:`<div class="poster-placeholder">🎬</div>`}
+      <div class="info"><h3>${x.title}</h3><div class="meta"><span class="badge ${x.category==='film'?'badge-film':'badge-dizi'}">${x.category==='film'?'Film':'Dizi'}</span></div></div>
+    </div>`).join('')
+  },
+  filter(c,el){this.cat=c;document.querySelectorAll('.tab,.nav-links a').forEach(e=>e.classList.remove('active'));if(el)el.classList.add('active');this.render()},
+  search(){this.render()},
+  openModal(id){
+    const m=this.get().find(x=>x.id===id);if(!m)return
+    document.getElementById('modalTitle').textContent=m.title
+    const b=document.getElementById('modalBadge');b.textContent=m.category==='film'?'Film':'Dizi';b.className='badge '+(m.category==='film'?'badge-film':'badge-dizi')
+    document.getElementById('modalDesc').textContent=m.description||'Açıklama eklenmemiş.'
+    const w=document.getElementById('playerWrap')
+    if(m.embed&&m.embed.trim()){let h=m.embed.trim();if(h.startsWith('http'))h=`<iframe src="${h}" allowfullscreen></iframe>`;w.innerHTML=h}
+    else w.innerHTML='<div class="no-embed">Henüz embed linki eklenmemiş.</div>'
+    document.getElementById('modalOverlay').classList.add('open');document.body.style.overflow='hidden'
+  },
+  closeModal(){document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';document.getElementById('playerWrap').innerHTML='<div class="no-embed">Yükleniyor...</div>'},
+  showAdmin(){
+    document.querySelector('nav').style.display='none';document.querySelector('.hero').style.display='none'
+    document.querySelector('.tabs').style.display='none';document.getElementById('movieGrid').style.display='none'
+    document.querySelector('footer').style.display='none';document.getElementById('adminPanel').style.display='block'
+    if(sessionStorage.getItem('aliza_admin')==='true'){document.getElementById('loginWrap').style.display='none';document.getElementById('dashboard').classList.add('open');this.renderAdminList()}
+    else{document.getElementById('loginWrap').style.display='flex';document.getElementById('dashboard').classList.remove('open')}
+  },
+  showHome(){
+    document.querySelector('nav').style.display='flex';document.querySelector('.hero').style.display='block'
+    document.querySelector('.tabs').style.display='flex';document.getElementById('movieGrid').style.display='grid'
+    document.querySelector('footer').style.display='block';document.getElementById('adminPanel').style.display='none'
+    document.getElementById('modalOverlay').classList.remove('open');this.render()
+  },
+  login(e){e.preventDefault()
+    if(document.getElementById('passwordInput').value===this.pw){sessionStorage.setItem('aliza_admin','true');document.getElementById('loginWrap').style.display='none';document.getElementById('dashboard').classList.add('open');this.renderAdminList();this.toast('Giriş başarılı!')}
+    else document.getElementById('loginError').style.display='block'
+  },
+  logout(){sessionStorage.removeItem('aliza_admin');document.getElementById('loginWrap').style.display='flex';document.getElementById('dashboard').classList.remove('open');this.toast('Çıkış yapıldı.')},
+  saveMovie(e){e.preventDefault()
+    const d={title:document.getElementById('fTitle').value.trim(),image:document.getElementById('fImage').value.trim(),category:document.getElementById('fCategory').value,embed:document.getElementById('fEmbed').value.trim(),description:document.getElementById('fDesc').value.trim()}
+    if(!d.title){this.toast('Başlık zorunludur.','error');return}
+    const ei=document.getElementById('fEditId').value;let m=this.get()
+    if(ei){const i=m.findIndex(x=>x.id==ei);if(i>-1)m[i]={...m[i],...d};this.toast('Güncellendi!')}
+    else{d.id=Date.now();m.unshift(d);this.toast('Eklendi!')}
+    this.save(m);this.renderAdminList();e.target.reset();document.getElementById('fEditId').value='';document.getElementById('fSubmitBtn').textContent='Ekle'
+  },
+  editMovie(id){
+    const m=this.get().find(x=>x.id===id);if(!m)return
+    document.getElementById('fTitle').value=m.title;document.getElementById('fImage').value=m.image||''
+    document.getElementById('fCategory').value=m.category;document.getElementById('fEmbed').value=m.embed||''
+    document.getElementById('fDesc').value=m.description||'';document.getElementById('fEditId').value=id
+    document.getElementById('fSubmitBtn').textContent='Güncelle';document.querySelector('.dash-grid').scrollIntoView({behavior:'smooth'})
+  },
+  deleteMovie(id){if(!confirm('Silmek istediğinize emin misiniz?'))return;let m=this.get();m=m.filter(x=>x.id!==id);this.save(m);this.renderAdminList();this.toast('Silindi!')},
+  renderAdminList(){
+    const c=document.getElementById('adminMovieList');const m=this.get()
+    if(!m.length){c.innerHTML='<div class="empty-state" style="padding:30px 0">Henüz içerik yok.</div>';return}
+    c.innerHTML=m.map(x=>`<div class="movie-list-item">
+      ${x.image?`<img src="${x.image}" onerror="this.src=''">`:'<div style="width:44px;height:62px;border-radius:6px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:20px">🎬</div>'}
+      <div class="ml-info"><h4>${x.title}</h4><div class="ml-meta"><span class="badge ${x.category==='film'?'badge-film':'badge-dizi'}">${x.category==='film'?'Film':'Dizi'}</span>${x.embed?' • Link var':' • Link yok'}</div></div>
+      <div class="ml-actions"><button class="btn-edit" onclick="APP.editMovie(${x.id})">Düzenle</button><button class="btn-delete" onclick="APP.deleteMovie(${x.id})">Sil</button></div>
+    </div>`).join('')
+  },
+  toast(m,t='success'){const e=document.getElementById('toast');e.textContent=m;e.className='toast '+t;clearTimeout(this._t);this._t=setTimeout(()=>e.className='toast',3000)}
+}
+document.addEventListener('DOMContentLoaded',()=>APP.init())
+</script>
 </body>
 </html>
