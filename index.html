@@ -388,9 +388,10 @@
                 <div class="add-episode">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Bölüm Ekle</h4>
                   <div class="form-group">
-                    <label>Sezon Seç <span style="color:var(--text-muted);font-weight:400">(aşağıdan sezona tıkla)</span></label>
-                    <div class="season-tabs" id="seasonTabContainer"></div>
-                    <select id="episodeSeason" style="display:none"></select>
+                    <label>Sezon Seç</label>
+                    <select id="episodeSeason">
+                      <option value="">— Önce sezon ekleyin —</option>
+                    </select>
                   </div>
                   <div class="form-row">
                     <div class="form-group">
@@ -403,7 +404,7 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>Video URL <span style="color:var(--text-muted);font-weight:400">(opsiyonel, sonra da eklenebilir)</span></label>
+                    <label>Video URL <span style="color:var(--text-muted);font-weight:400">(opsiyonel)</span></label>
                     <input type="url" id="episodeVideo" placeholder="https://vidmoly.net/embed-... veya .mp4">
                   </div>
                   <button class="btn-primary" id="addEpisodeBtn"><i class="fas fa-plus"></i> Bölüm Ekle</button>
@@ -1044,28 +1045,14 @@ function populateEpisodeSeasonSelect(contentId) {
     if (!content) return;
     const seasons = Object.keys(content.seasons || {}).sort((a, b) => Number(a) - Number(b));
     const select = document.getElementById('episodeSeason');
-    const container = document.getElementById('seasonTabContainer');
     if (seasons.length === 0) {
       select.innerHTML = '<option value="">— Önce sezon ekleyin —</option>';
-      container.innerHTML = '<p style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Henüz sezon yok. Yukarıdan sezon ekleyin.</p>';
       return;
     }
     select.innerHTML = seasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
-    container.innerHTML = seasons.map(s => `
-      <button class="season-tab" data-season="${s}" onclick="selectSeasonTab('${contentId}',${s})">
-        <i class="fas fa-layer-group"></i> Sezon ${s}
-      </button>
-    `).join('');
     select.value = seasons[0];
-    document.querySelectorAll('.season-tab').forEach(t => t.classList.toggle('active', t.dataset.season === seasons[0]));
   });
 }
-
-window.selectSeasonTab = function(contentId, season) {
-  document.getElementById('episodeSeason').value = String(season);
-  document.querySelectorAll('.season-tab').forEach(t => t.classList.toggle('active', Number(t.dataset.season) === season));
-  document.getElementById('seasonNumber').value = season;
-};
 
 window.editContent = function(id) {
   getContentById(id, (content) => {
@@ -1624,6 +1611,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('episodeVideo').value = '';
           renderSeasons(id);
           renderSeriesSelect();
+          populateEpisodeSeasonSelect(id);
           renderContent();
         });
       }
