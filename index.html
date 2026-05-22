@@ -505,11 +505,8 @@ function isAdminSync(user) {
 
 function isEmbedUrl(url) {
   if (!url) return false;
-  const embedDomains = ['embed', 'vidmoly', 'youtube', 'dailymotion', 'vimeo', 'ok.ru', 'drive.google'];
-  const videoExtensions = ['.mp4', '.webm', '.ogg', '.m3u8', '.mov', '.avi', '.mkv', '.flv', '.wmv'];
-  const lower = url.toLowerCase();
-  if (videoExtensions.some(ext => lower.includes(ext))) return false;
-  return embedDomains.some(d => lower.includes(d)) || lower.includes('/embed') || lower.includes('player.');
+  const videoExts = ['.mp4','.webm','.ogg','.m3u8','.mov','.avi','.mkv','.flv','.wmv','.ts','.3gp','.mpg','.mpeg'];
+  return !videoExts.some(e => url.toLowerCase().includes(e));
 }
 
 function playUrl(type, url, videoEl, iframeEl, placeholderEl) {
