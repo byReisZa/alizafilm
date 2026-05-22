@@ -2037,6 +2037,13 @@ ul, ol {
   min-height: 80px;
 }
 
+.form-group small {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
 .form-group select {
   cursor: pointer;
   appearance: none;
