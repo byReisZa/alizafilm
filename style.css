@@ -1156,6 +1156,18 @@ ul, ol {
   display: block;
 }
 
+.player-iframe {
+  width: 100%;
+  height: 100%;
+  display: none;
+  border: none;
+  background: #000;
+}
+
+.player-iframe.active {
+  display: block;
+}
+
 .player-episodes {
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-light);
