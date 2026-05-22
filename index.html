@@ -402,27 +402,27 @@
                   <h4><i class="fas fa-plus-circle"></i> Yeni Sezon Ekle</h4>
                   <div class="form-row" style="align-items:flex-end">
                     <div class="form-group" style="margin-bottom:0">
-                      <label>Sezon Numarası</label>
-                      <input type="number" id="seasonNumber" placeholder="örn: 1" min="1">
+                      <label>Sezon Numarası *</label>
+                      <input type="number" id="seasonNumber" placeholder="örn: 1" min="1" value="1">
                     </div>
                     <button class="btn-primary" id="addSeasonBtn" style="height:44px"><i class="fas fa-plus"></i> Sezon Ekle</button>
                   </div>
                 </div>
                 <div class="add-episode">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Bölüm Ekle</h4>
-                  <div class="form-group">
-                  <label>Sezon No *</label>
-                  <input type="number" id="episodeSeason" placeholder="örn: 2" min="1" value="1">
-                </div>
                   <div class="form-row">
+                    <div class="form-group">
+                      <label>Sezon No *</label>
+                      <input type="number" id="episodeSeason" placeholder="örn: 1" min="1" value="1">
+                    </div>
                     <div class="form-group">
                       <label>Bölüm No *</label>
                       <input type="number" id="episodeNumber" placeholder="örn: 1" min="1">
                     </div>
-                    <div class="form-group">
-                      <label>Bölüm Başlığı</label>
-                      <input type="text" id="episodeTitle" placeholder="Bölüm başlığı (opsiyonel)">
-                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Bölüm Başlığı</label>
+                    <input type="text" id="episodeTitle" placeholder="Bölüm başlığı (opsiyonel)">
                   </div>
                   <div class="form-group">
                     <label>Video URL <span style="color:var(--text-muted);font-weight:400">(opsiyonel)</span></label>
@@ -1248,7 +1248,6 @@ window.confirmDeleteSeason = function(contentId, num) {
         showToast(`Sezon ${num} silindi!`, 'info');
         renderSeasons(contentId);
         renderSeriesSelect(true);
-        
         renderContent();
       });
     }
@@ -1263,7 +1262,6 @@ window.confirmDeleteEpisode = function(contentId, seasonNum, epNum) {
       update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
         showToast(`Bölüm ${epNum} silindi!`, 'info');
         renderSeasons(contentId);
-        
         renderContent();
       });
     }
@@ -1748,32 +1746,28 @@ document.addEventListener('DOMContentLoaded', () => {
    * ===================================================================== */
   document.getElementById('addSeasonBtn').addEventListener('click', () => {
     const id = document.getElementById('seriesSelect').value;
-    const num = Number(document.getElementById('seasonNumber').value);
+    const num = parseInt(document.getElementById('seasonNumber').value, 10);
     if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
     if (!num || num < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
 
     getContentById(id, (content) => {
-      if (content) {
-        const seasons = content.seasons || {};
-        // String key ile kontrol et (Firebase integer key'leri string döndürür)
-        if (seasons[String(num)] !== undefined) return showToast('Bu sezon zaten mevcut!', 'error');
-        seasons[String(num)] = [];
-        update(ref(db, `content/${id}`), { seasons }).then(() => {
-          showToast(`Sezon ${num} eklendi!`, 'success');
-          document.getElementById('seasonNumber').value = '';
-          // Önce renderSeasons, sonra episodeSeason doldur
-          renderSeasons(id);
-          // episodeSeason'ı yeniden doldur ve yeni eklenen sezonu seç
-          getContentById(id, (updated) => {
-            if (!updated) return;
-            const updatedSeasons = Object.keys(updated.seasons || {}).sort((a, b) => Number(a) - Number(b));
-            const epSelect = document.getElementById('episodeSeason');
-            epSelect.innerHTML = updatedSeasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
-            epSelect.value = String(num); // Yeni eklenen sezonu seç
-          });
-          renderContent();
-        });
+      if (!content) return showToast('Dizi bulunamadı!', 'error');
+      const seasons = content.seasons || {};
+      const seasonKey = String(num);
+
+      if (seasons[seasonKey] !== undefined) {
+        return showToast(`Sezon ${num} zaten mevcut!`, 'error');
       }
+
+      seasons[seasonKey] = [];
+      update(ref(db, `content/${id}`), { seasons }).then(() => {
+        showToast(`Sezon ${num} eklendi!`, 'success');
+        document.getElementById('seasonNumber').value = '';
+        renderSeasons(id);
+        renderContent();
+      }).catch(err => {
+        showToast('Sezon eklenirken hata: ' + err.message, 'error');
+      });
     });
   });
 
@@ -1783,34 +1777,46 @@ document.addEventListener('DOMContentLoaded', () => {
    * ===================================================================== */
   document.getElementById('addEpisodeBtn').addEventListener('click', () => {
     const id = document.getElementById('seriesSelect').value;
-    const season = String(document.getElementById('episodeSeason').value); // number input'dan string olarak al
-    const num = Number(document.getElementById('episodeNumber').value);
+    const seasonNum = parseInt(document.getElementById('episodeSeason').value, 10);
+    const num = parseInt(document.getElementById('episodeNumber').value, 10);
     const title = document.getElementById('episodeTitle').value.trim();
     const video = document.getElementById('episodeVideo').value.trim();
 
     if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
-    if (!season || season < 1) return showToast('Lütfen geçerli bir sezon numarası girin.', 'error');
-    if (!num) return showToast('Bölüm numarası girin.', 'error');
+    if (!seasonNum || seasonNum < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
+    if (!num || num < 1) return showToast('Geçerli bir bölüm numarası girin.', 'error');
 
     getContentById(id, (content) => {
-      if (content) {
-        const seasons = content.seasons || {};
-        if (seasons[season] === undefined) return showToast('Bu sezon mevcut değil!', 'error');
-        if (!Array.isArray(seasons[season])) seasons[season] = [];
-        if (seasons[season].find(e => e.num === num)) return showToast('Bu bölüm numarası zaten mevcut!', 'error');
-        seasons[season].push({ num, title: title || `Bölüm ${num}`, video });
-        seasons[season].sort((a, b) => a.num - b.num);
-        update(ref(db, `content/${id}`), { seasons }).then(() => {
-          showToast(`Bölüm ${num} eklendi!`, 'success');
-          document.getElementById('episodeNumber').value = '';
-          document.getElementById('episodeTitle').value = '';
-          document.getElementById('episodeVideo').value = '';
-          renderSeasons(id);
-          
-          
-          renderContent();
-        });
+      if (!content) return showToast('Dizi bulunamadı!', 'error');
+
+      const seasons = content.seasons || {};
+      const seasonKey = String(seasonNum);
+
+      if (seasons[seasonKey] === undefined) {
+        return showToast(`Sezon ${seasonNum} mevcut değil! Önce sezon ekleyin.`, 'error');
       }
+
+      if (!Array.isArray(seasons[seasonKey])) {
+        seasons[seasonKey] = [];
+      }
+
+      if (seasons[seasonKey].find(e => e.num === num)) {
+        return showToast(`Bölüm ${num} zaten mevcut!`, 'error');
+      }
+
+      seasons[seasonKey].push({ num, title: title || `Bölüm ${num}`, video });
+      seasons[seasonKey].sort((a, b) => a.num - b.num);
+
+      update(ref(db, `content/${id}`), { seasons }).then(() => {
+        showToast(`Bölüm ${num} eklendi!`, 'success');
+        document.getElementById('episodeNumber').value = '';
+        document.getElementById('episodeTitle').value = '';
+        document.getElementById('episodeVideo').value = '';
+        renderSeasons(id);
+        renderContent();
+      }).catch(err => {
+        showToast('Bölüm eklenirken hata: ' + err.message, 'error');
+      });
     });
   });
 
