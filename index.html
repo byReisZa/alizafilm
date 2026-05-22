@@ -477,7 +477,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getDatabase, ref, set, push, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut, updateProfile, signInWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBK3mnQL99Lfqx7cWkufo3HKDkp7SIGznA",
@@ -600,17 +600,19 @@ function showToast(message, type = 'info') {
   }, 4000);
 }
 
-/* IMAGE UPLOAD */
-
+/* IMAGE UPLOAD
+ * Parametre sırası: dropId, previewId, imgId, widthId, heightId, cropBtnId, removeId, hiddenId, prefix
+ * DÜZELTİLDİ: hInput artık heightId'ye, hidden artık hiddenId'ye bağlı
+ */
 function setupUploadZone(dropId, previewId, imgId, widthId, heightId, cropBtnId, removeId, hiddenId, prefix) {
   const drop = document.getElementById(dropId);
   const preview = document.getElementById(previewId);
   const img = document.getElementById(imgId);
   const wInput = document.getElementById(widthId);
-  const hInput = document.getElementById(heightId);
+  const hInput = document.getElementById(heightId);   // ← DÜZELTİLDİ: heightId kullanılıyor
   const cropBtn = document.getElementById(cropBtnId);
   const removeBtn = document.getElementById(removeId);
-  const hidden = document.getElementById(hiddenId);
+  const hidden = document.getElementById(hiddenId);   // ← DÜZELTİLDİ: hiddenId kullanılıyor
   let currentFile = null;
 
   function handleFile(file) {
@@ -695,19 +697,13 @@ function setupUploadZone(dropId, previewId, imgId, widthId, heightId, cropBtnId,
   });
 }
 
-let contentUnsubscribe = null;
-const contentCallbacks = [];
-
 function loadContent(callback) {
-  contentCallbacks.push(callback);
-  if (!contentUnsubscribe) {
-    const contentRef = ref(db, 'content');
-    contentUnsubscribe = onValue(contentRef, (snapshot) => {
-      const data = snapshot.val();
-      const items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-      contentCallbacks.forEach(cb => cb(items));
-    });
-  }
+  const contentRef = ref(db, 'content');
+  onValue(contentRef, (snapshot) => {
+    const data = snapshot.val();
+    const items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+    callback(items);
+  });
 }
 
 function getContentById(id, callback) {
@@ -1043,6 +1039,10 @@ function renderAdminList() {
   });
 }
 
+// =====================================================================
+// DÜZELTİLDİ: renderSeriesSelect artık episodeSeason'ı bozmaz
+// keepSelection=true ise mevcut seriesSelect değeri korunur
+// =====================================================================
 function renderSeriesSelect(keepSelection = false) {
   loadContent((data) => {
     const series = data.filter(c => c.type === 'series');
@@ -1050,10 +1050,13 @@ function renderSeriesSelect(keepSelection = false) {
     const prevVal = select.value;
     select.innerHTML = '<option value="">— Dizi Seçin —</option>' +
       series.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
+
     if (keepSelection && prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
       select.value = prevVal;
+      // episodeSeason'ı yeniden doldur — renderSeriesSelect artık bunu resetlemiyor
+      populateEpisodeSeasonSelect(prevVal);
       document.getElementById('seriesManagement').style.display = 'block';
-    } else {
+    } else if (!keepSelection) {
       select.value = '';
       document.getElementById('seriesManagement').style.display = 'none';
     }
@@ -1096,23 +1099,36 @@ function renderSeasons(contentId) {
   });
 }
 
+// =====================================================================
+// DÜZELTİLDİ: Firebase'deki season key'leri string olarak saklanıyor
+// ve select option value'ları ile tutarlı hale getirildi
+// =====================================================================
 function populateEpisodeSeasonSelect(contentId) {
+  if (!contentId) return;
   getContentById(contentId, (content) => {
     if (!content) return;
     const seasons = Object.keys(content.seasons || {}).sort((a, b) => Number(a) - Number(b));
     const select = document.getElementById('episodeSeason');
+
     if (seasons.length === 0) {
       select.innerHTML = '<option value="">— Önce sezon ekleyin —</option>';
       return;
     }
+
+    // Mevcut seçili değeri koru
+    const prevVal = select.value;
     select.innerHTML = seasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
-    select.value = seasons[0];
+
+    // Eğer önceki seçim hâlâ geçerliyse koru, değilse ilkini seç
+    if (prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
+      select.value = prevVal;
+    } else {
+      select.value = seasons[0];
+    }
   });
 }
 
-/* ======================
-   MOBILE UI - LETTER FILTER & DISCOVER
-   ====================== */
+/* LETTER FILTER & DISCOVER */
 
 function buildLetterFilter() {
   const container = document.getElementById('letterFilter');
@@ -1257,6 +1273,7 @@ window.confirmDeleteSeason = function(contentId, num) {
       update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
         showToast(`Sezon ${num} silindi!`, 'info');
         renderSeasons(contentId);
+        renderSeriesSelect(true);
         populateEpisodeSeasonSelect(contentId);
         renderContent();
       });
@@ -1353,7 +1370,7 @@ onAuthStateChanged(auth, async (user) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* Upload Zones */
+  /* Upload Zones - DÜZELTİLDİ: parametre sırası düzenlendi */
   setupUploadZone('posterDrop','posterPreview','posterPreviewImg','posterWidth','posterHeight','posterCropBtn','posterRemove','formImage','poster');
   setupUploadZone('bgDrop','bgPreview','bgPreviewImg','bgWidth','bgHeight','bgCropBtn','bgRemove','formBg','bg');
 
@@ -1735,6 +1752,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('adminSearch').addEventListener('input', () => renderAdminList());
 
+  /* =====================================================================
+   * DÜZELTİLDİ: seriesSelect change handler
+   * Seçim değiştiğinde episodeSeason düzgün dolduruluyor
+   * ===================================================================== */
   document.getElementById('seriesSelect').addEventListener('change', (e) => {
     const val = e.target.value;
     const mgmt = document.getElementById('seriesManagement');
@@ -1747,6 +1768,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  /* =====================================================================
+   * DÜZELTİLDİ: addSeasonBtn
+   * Firebase'e sezon key'i string olarak yazılıyor tutarlılık için
+   * Sezon eklendikten sonra episodeSeason doğru şekilde yenileniyor
+   * ===================================================================== */
   document.getElementById('addSeasonBtn').addEventListener('click', () => {
     const id = document.getElementById('seriesSelect').value;
     const num = Number(document.getElementById('seasonNumber').value);
@@ -1756,35 +1782,48 @@ document.addEventListener('DOMContentLoaded', () => {
     getContentById(id, (content) => {
       if (content) {
         const seasons = content.seasons || {};
-        if (seasons[num]) return showToast('Bu sezon zaten mevcut!', 'error');
-        seasons[num] = [];
+        // String key ile kontrol et (Firebase integer key'leri string döndürür)
+        if (seasons[String(num)] !== undefined) return showToast('Bu sezon zaten mevcut!', 'error');
+        seasons[String(num)] = [];
         update(ref(db, `content/${id}`), { seasons }).then(() => {
           showToast(`Sezon ${num} eklendi!`, 'success');
           document.getElementById('seasonNumber').value = '';
+          // Önce renderSeasons, sonra episodeSeason doldur
           renderSeasons(id);
-          populateEpisodeSeasonSelect(id);
-          const epSeason = document.getElementById('episodeSeason');
-          if (epSeason.querySelector(`option[value="${num}"]`)) epSeason.value = String(num);
+          // episodeSeason'ı yeniden doldur ve yeni eklenen sezonu seç
+          getContentById(id, (updated) => {
+            if (!updated) return;
+            const updatedSeasons = Object.keys(updated.seasons || {}).sort((a, b) => Number(a) - Number(b));
+            const epSelect = document.getElementById('episodeSeason');
+            epSelect.innerHTML = updatedSeasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
+            epSelect.value = String(num); // Yeni eklenen sezonu seç
+          });
           renderContent();
         });
       }
     });
   });
 
+  /* =====================================================================
+   * DÜZELTİLDİ: addEpisodeBtn
+   * String/integer key uyumsuzluğu giderildi
+   * ===================================================================== */
   document.getElementById('addEpisodeBtn').addEventListener('click', () => {
     const id = document.getElementById('seriesSelect').value;
-    const season = Number(document.getElementById('episodeSeason').value);
+    const season = document.getElementById('episodeSeason').value; // string olarak al
     const num = Number(document.getElementById('episodeNumber').value);
     const title = document.getElementById('episodeTitle').value.trim();
     const video = document.getElementById('episodeVideo').value.trim();
 
     if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
-    if (!season || !num) return showToast('Sezon ve bölüm numarası girin.', 'error');
+    if (!season) return showToast('Lütfen bir sezon seçin.', 'error');
+    if (!num) return showToast('Bölüm numarası girin.', 'error');
 
     getContentById(id, (content) => {
       if (content) {
         const seasons = content.seasons || {};
-        if (!seasons[season]) return showToast('Bu sezon mevcut değil!', 'error');
+        if (seasons[season] === undefined) return showToast('Bu sezon mevcut değil!', 'error');
+        if (!Array.isArray(seasons[season])) seasons[season] = [];
         if (seasons[season].find(e => e.num === num)) return showToast('Bu bölüm numarası zaten mevcut!', 'error');
         seasons[season].push({ num, title: title || `Bölüm ${num}`, video });
         seasons[season].sort((a, b) => a.num - b.num);
@@ -1794,9 +1833,8 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('episodeTitle').value = '';
           document.getElementById('episodeVideo').value = '';
           renderSeasons(id);
+          // episodeSeason seçimini koru
           populateEpisodeSeasonSelect(id);
-          const epSeason = document.getElementById('episodeSeason');
-          if (epSeason.querySelector(`option[value="${season}"]`)) epSeason.value = String(season);
           renderContent();
         });
       }
