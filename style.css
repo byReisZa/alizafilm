@@ -4122,3 +4122,206 @@ textarea:focus-visible {
    ALIZA - SON
    Tüm Hakları Saklıdır © 2025
    ============================ */
+/* ============================
+   ALIZA - Sezon Seç Dropdown Düzeltmesi
+   Tüm Hakları Saklıdır © 2025
+   ============================ */
+
+/* ============================
+   SORUN: "Sezon Seç" dropdown'u tıklanamıyor veya 
+   altındaki elementler tarafından kapatılıyor.
+
+   ÇÖZÜM: z-index ve position düzeltmeleri + 
+   parent container overflow düzeltmeleri
+   ============================ */
+
+/* 1. ANA DÜZELTME - Sezon Seç select elementi */
+#episodeSeason {
+  position: relative;
+  z-index: 100 !important;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* Select focus durumunda daha da öne çıkar */
+#episodeSeason:focus,
+#episodeSeason:active {
+  z-index: 200 !important;
+  position: relative;
+}
+
+/* 2. Select'in bulunduğu form grubu */
+#episodeSeason.closest('.form-group'),
+.add-episode .form-group:has(#episodeSeason) {
+  position: relative;
+  z-index: 50;
+}
+
+/* 3. Altındaki form row'ların üstüne çıkmasını engelle */
+.add-episode .form-row {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 16px;
+}
+
+/* 4. Input elementlerinin z-index'ini düşük tut */
+#episodeNumber,
+#episodeTitle,
+#episodeVideo {
+  position: relative;
+  z-index: 1;
+}
+
+/* 5. Admin panel içindeki tüm select'ler */
+.admin-panel select {
+  position: relative;
+  z-index: 10;
+}
+
+.admin-panel select:focus {
+  z-index: 100;
+}
+
+/* 6. Form grupları arası boşluk */
+.add-episode .form-group {
+  position: relative;
+  margin-bottom: 20px;
+  clear: both;
+}
+
+/* 7. Admin içerik alanı */
+.admin-content {
+  position: relative;
+  overflow: visible;
+}
+
+/* 8. Panel düzeltmesi */
+#panel-manage-series {
+  overflow: visible;
+}
+
+#panel-manage-series .add-episode {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+/* 9. Sezon listesi - formun üstüne çıkmasın */
+.seasons-list {
+  position: relative;
+  z-index: 1;
+  margin-top: 30px;
+}
+
+.season-block {
+  position: relative;
+  z-index: 1;
+}
+
+/* 10. Dizi Seç select'i de düzelt */
+#seriesSelect {
+  position: relative;
+  z-index: 10;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+#seriesSelect:focus {
+  z-index: 100;
+}
+
+/* 11. Label düzeltmesi */
+.add-episode label {
+  position: relative;
+  z-index: 1;
+  display: block;
+  margin-bottom: 6px;
+  pointer-events: none; /* Tıklamaları select'e geçir */
+}
+
+/* 12. Admin container ve body düzeltmeleri */
+.admin-container {
+  overflow: visible;
+}
+
+.admin-body {
+  overflow-x: visible;
+  overflow-y: auto;
+}
+
+/* 13. Mobil düzeltmeler */
+@media (max-width: 768px) {
+  #episodeSeason,
+  #seriesSelect {
+    font-size: 16px;
+    min-height: 48px;
+  }
+
+  .add-episode .form-group {
+    margin-bottom: 24px;
+  }
+
+  .add-episode .form-row {
+    margin-bottom: 16px;
+  }
+}
+
+/* 14. Safari düzeltmesi */
+@supports (-webkit-touch-callout: none) {
+  #episodeSeason,
+  #seriesSelect {
+    -webkit-appearance: menulist;
+    appearance: menulist;
+  }
+}
+
+/* 15. Option stil düzeltmesi */
+#episodeSeason option,
+#seriesSelect option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 10px;
+  font-size: 0.875rem;
+}
+
+/* 16. Focus görsel geri bildirim */
+#episodeSeason:focus,
+#seriesSelect:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(108, 60, 225, 0.15);
+  outline: none;
+}
+
+/* 17. Butonun select'in üstüne çıkmasını engelle */
+#addEpisodeBtn {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+}
+
+#addSeasonBtn {
+  position: relative;
+  z-index: 1;
+}
+
+/* 18. Sezon ekleme alanı düzeltmesi */
+.add-season {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+}
+
+/* 19. Bölüm ekleme alanı düzeltmesi */
+.add-episode {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+  padding: 20px;
+}
+
+/* 20. Series management container */
+.series-management {
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
