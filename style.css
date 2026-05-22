@@ -214,6 +214,13 @@ ul, ol {
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
   border-bottom: 1px solid var(--border-light);
+  transition: var(--transition-base);
+}
+
+.top-header.scrolled {
+  background: rgba(8, 8, 15, 0.98);
+  box-shadow: var(--shadow-lg);
+  border-bottom-color: var(--border-color);
 }
 
 .header-row {
@@ -2844,76 +2851,79 @@ ul, ol {
 }
 
 @media (max-width: 768px) {
-  :root {
-    --navbar-height: 64px;
-  }
-
-  .nav-links {
-    display: none;
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
-    right: 0;
-    background: rgba(8, 8, 15, 0.98);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    flex-direction: column;
-    padding: 16px;
-    gap: 4px;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: var(--shadow-xl);
-  }
-
-  .nav-links.active {
-    display: flex;
-  }
-
-  .nav-link {
-    width: 100%;
-    padding: 12px 16px;
-    font-size: 0.95rem;
-  }
-
-  .mobile-menu-btn {
-    display: flex;
-  }
-
-  .search-box {
-    width: 160px;
-  }
-
   .hero {
-    height: 70vh;
-    min-height: 500px;
-    padding-bottom: 60px;
+    height: 50vh;
+    min-height: 350px;
+    padding-bottom: 40px;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
 
   .hero-desc {
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     -webkit-line-clamp: 2;
   }
 
   .hero-meta {
-    gap: 8px;
+    gap: 6px;
   }
 
   .hero-meta span {
-    font-size: 0.75rem;
-    padding: 3px 10px;
+    font-size: 0.7rem;
+    padding: 2px 8px;
   }
 
   .hero-badge {
-    font-size: 0.6rem;
-    padding: 4px 12px;
+    font-size: 0.55rem;
+    padding: 3px 10px;
+  }
+
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary {
+    padding: 10px 20px;
+    font-size: 0.8rem;
   }
 
   .content-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .content-card-poster {
+    padding-top: 140%;
+  }
+
+  .content-card-body {
+    padding: 10px;
+  }
+
+  .content-card-title {
+    font-size: 0.82rem;
+  }
+
+  .content-card-meta {
+    font-size: 0.68rem;
+    gap: 6px;
+  }
+
+  .content-card-badges {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    gap: 4px;
+  }
+
+  .content-card-badge {
+    font-size: 0.55rem;
+    padding: 2px 7px;
+  }
+
+  .content-card-play {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
   }
 
   .stats-grid {
@@ -2931,19 +2941,6 @@ ul, ol {
 
   .stat-icon {
     font-size: 1.5rem;
-  }
-
-  .section-title {
-    font-size: 1.25rem;
-  }
-
-  .filter-tabs {
-    gap: 6px;
-  }
-
-  .filter-tab {
-    padding: 6px 14px;
-    font-size: 0.75rem;
   }
 
   .admin-container,
@@ -3058,6 +3055,22 @@ ul, ol {
     font-size: 0.75rem;
     padding: 3px 10px;
   }
+
+  .discover-card {
+    width: 110px;
+  }
+
+  .discover-card-info {
+    padding: 6px 8px;
+  }
+
+  .discover-card-info h4 {
+    font-size: 0.68rem;
+  }
+
+  .discover-card-info span {
+    font-size: 0.58rem;
+  }
 }
 
 /* ============================
@@ -3066,46 +3079,35 @@ ul, ol {
 
 @media (max-width: 480px) {
   .container {
-    padding: 0 16px;
+    padding: 0 12px;
   }
 
-  .nav-container {
-    padding: 0 16px;
-    gap: 12px;
+  .header-row {
+    padding: 0 12px;
   }
 
-  .logo-text {
-    font-size: 1.4rem;
-    letter-spacing: 2px;
+  .search-row {
+    padding: 0 12px 10px;
   }
 
-  .search-box {
-    width: 120px;
+  .logo-text-sm {
+    font-size: 1rem;
   }
 
-  .search-box input {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
-
-  .search-btn {
-    padding: 8px 10px;
-  }
-
-  .nav-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 0.9rem;
+  .header-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
   }
 
   .hero {
-    height: 60vh;
-    min-height: 400px;
-    padding-bottom: 40px;
+    height: 45vh;
+    min-height: 300px;
+    padding-bottom: 30px;
   }
 
   .hero-title {
-    font-size: 1.6rem;
+    font-size: 1.3rem;
   }
 
   .hero-desc {
@@ -3113,43 +3115,46 @@ ul, ol {
   }
 
   .hero-meta span {
-    font-size: 0.7rem;
-    padding: 2px 8px;
+    font-size: 0.65rem;
+    padding: 2px 7px;
   }
 
   .hero-actions .btn-primary,
   .hero-actions .btn-secondary {
-    padding: 10px 20px;
-    font-size: 0.8rem;
+    padding: 8px 16px;
+    font-size: 0.75rem;
   }
 
   .content-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
+  }
+
+  .content-card-poster {
+    padding-top: 135%;
   }
 
   .content-card-body {
-    padding: 12px;
+    padding: 8px;
   }
 
   .content-card-title {
-    font-size: 0.82rem;
+    font-size: 0.75rem;
   }
 
   .content-card-meta {
-    font-size: 0.7rem;
-    gap: 8px;
+    font-size: 0.62rem;
+    gap: 4px;
   }
 
   .content-card-badge {
-    font-size: 0.55rem;
-    padding: 2px 8px;
+    font-size: 0.5rem;
+    padding: 1px 6px;
   }
 
   .content-card-play {
-    width: 44px;
-    height: 44px;
-    font-size: 1.1rem;
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
   }
 
   .stats-grid {
@@ -3172,15 +3177,6 @@ ul, ol {
   .stat-icon {
     font-size: 1.2rem;
     margin-bottom: 8px;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-  }
-
-  .filter-tab {
-    padding: 5px 12px;
-    font-size: 0.7rem;
   }
 
   .footer {
@@ -3265,6 +3261,46 @@ ul, ol {
   .placeholder-content h3 {
     font-size: 1rem;
   }
+
+  .discover-card {
+    width: 100px;
+  }
+
+  .discover-card-info {
+    padding: 4px 6px;
+  }
+
+  .discover-card-info h4 {
+    font-size: 0.65rem;
+  }
+
+  .letter-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.65rem;
+  }
+
+  .filter-chip {
+    padding: 5px 12px;
+    font-size: 0.68rem;
+  }
+
+  .nav-item {
+    padding: 4px 8px;
+    min-width: 48px;
+  }
+
+  .nav-item i {
+    font-size: 1.05rem;
+  }
+
+  .nav-item span {
+    font-size: 0.55rem;
+  }
+
+  .bottom-nav {
+    height: 56px;
+  }
 }
 
 /* ============================
@@ -3273,36 +3309,60 @@ ul, ol {
 
 @media (max-width: 360px) {
   .content-grid {
-    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
 
+  .content-card-poster {
+    padding-top: 130%;
+  }
+
   .content-card-body {
-    padding: 8px;
+    padding: 6px;
   }
 
   .content-card-title {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 
   .content-card-meta {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .hero-title {
-    font-size: 1.3rem;
-  }
-
-  .search-box {
-    width: 100px;
+    font-size: 1.1rem;
   }
 
   .container {
-    padding: 0 12px;
+    padding: 0 8px;
   }
 
-  .nav-container {
-    padding: 0 12px;
+  .header-row {
+    padding: 0 8px;
+  }
+
+  .search-row {
+    padding: 0 8px 8px;
+  }
+
+  .discover-card {
+    width: 85px;
+  }
+
+  .nav-item span {
+    display: none;
+  }
+
+  .nav-item i {
+    font-size: 1.15rem;
+  }
+
+  .nav-item {
+    padding: 8px;
+    min-width: unset;
+  }
+
+  .bottom-nav {
+    height: 50px;
   }
 }
 
@@ -3339,7 +3399,7 @@ ul, ol {
    ============================ */
 
 @media print {
-  .navbar, .hero, .admin-overlay, .player-overlay, .modal-overlay,
+  .top-header, .bottom-nav, .hero, .admin-overlay, .player-overlay, .modal-overlay,
   .toast-container, .noise-overlay, .stats-section, .footer {
     display: none !important;
   }
