@@ -3,74 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALİZA - Admin Paneli</title>
+  <title>ALİZA - Film & Dizi İzle</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="admin-body">
+<body>
 
-  <!-- LOGIN -->
-  <div class="login-wrap" id="loginWrap">
-    <div class="login-box">
-      <h1>ALİZA</h1>
-      <p>Admin paneli &mdash; giriş yapın</p>
-      <form id="loginForm">
-        <input type="password" id="passwordInput" placeholder="Admin şifresi" required autofocus>
-        <button type="submit">Giriş Yap</button>
-        <div class="login-error" id="loginError">❌ Şifre hatalı. Tekrar deneyin.</div>
-      </form>
-      <p style="margin-top:18px;font-size:12px;color:var(--text-dim);">Admin değilseniz <a href="index.html" style="color:var(--gold);">ana sayfaya</a> dönün.</p>
+  <nav>
+    <div class="nav-logo">ALİZA</div>
+    <div class="nav-links">
+      <a class="active" data-category="all">Ana Sayfa</a>
+      <a data-category="film">Filmler</a>
+      <a data-category="dizi">Diziler</a>
+    </div>
+    <div class="nav-search">
+      <input id="searchInput" type="text" placeholder="Ara...">
+      <span>🔍</span>
+    </div>
+    <button class="btn-admin" onclick="location.href='admin.html'">Admin</button>
+  </nav>
+
+  <section class="hero">
+    <h1>ALİZA</h1>
+    <p>En kaliteli film ve dizileri ücretsiz izleyin.</p>
+  </section>
+
+  <div class="tabs">
+    <button class="tab active" data-category="all">Tümü</button>
+    <button class="tab" data-category="film">Filmler</button>
+    <button class="tab" data-category="dizi">Diziler</button>
+  </div>
+
+  <div id="movieGrid" class="movie-grid"></div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Başlık</h2>
+        <button class="modal-close" id="modalCloseBtn">✕</button>
+      </div>
+      <div class="player-wrap" id="playerWrap">
+        <div class="no-embed">Yükleniyor...</div>
+      </div>
+      <div class="modal-body">
+        <span id="modalBadge" class="badge badge-film"></span>
+        <p id="modalDesc"></p>
+      </div>
     </div>
   </div>
 
-  <!-- DASHBOARD -->
-  <div class="dashboard" id="dashboard">
-    <div class="dash-header">
-      <h2>🔐 Admin Paneli</h2>
-      <div style="display:flex;gap:10px;">
-        <button class="btn-admin" onclick="location.href='index.html'">Ana Sayfa</button>
-        <button class="btn-logout" id="logoutBtn">Çıkış Yap</button>
-      </div>
-    </div>
-
-    <div class="dash-grid">
-      <!-- ADD / EDIT FORM -->
-      <div class="dash-card">
-        <h3><span>📺</span> İçerik Ekle / Düzenle</h3>
-        <form id="movieForm">
-          <div class="form-group">
-            <label>Başlık *</label>
-            <input type="text" name="title" placeholder="Film / dizi adı" required>
-          </div>
-          <div class="form-group">
-            <label>Görsel URL</label>
-            <input type="url" name="image" placeholder="https://...poster.jpg">
-          </div>
-          <div class="form-group">
-            <label>Kategori</label>
-            <select name="category">
-              <option value="film">Film</option>
-              <option value="dizi">Dizi</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Embed Kodu / Link</label>
-            <input type="text" name="embed" placeholder="iframe kodu veya video URL'si">
-          </div>
-          <div class="form-group">
-            <label>Açıklama</label>
-            <textarea name="description" placeholder="Kısa açıklama..."></textarea>
-          </div>
-          <button type="submit" class="btn-submit">Ekle</button>
-        </form>
-      </div>
-
-      <!-- MOVIE LIST -->
-      <div class="dash-card">
-        <h3><span>📋</span> Mevcut İçerikler</h3>
-        <div id="adminMovieList"></div>
-      </div>
-    </div>
-  </div>
+  <footer>
+    ALİZA &copy; 2026 &mdash; Tüm hakları saklıdır.
+  </footer>
 
   <div class="toast" id="toast"></div>
 
