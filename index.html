@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<base target="_blank">
 </head>
 <body>
 
@@ -410,11 +411,9 @@
                 <div class="add-episode">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Bölüm Ekle</h4>
                   <div class="form-group">
-                    <label>Sezon Seç</label>
-                    <select id="episodeSeason">
-                      <option value="">— Önce sezon ekleyin —</option>
-                    </select>
-                  </div>
+                  <label>Sezon No *</label>
+                  <input type="number" id="episodeSeason" placeholder="örn: 2" min="1" value="1">
+                </div>
                   <div class="form-row">
                     <div class="form-group">
                       <label>Bölüm No *</label>
@@ -1053,8 +1052,6 @@ function renderSeriesSelect(keepSelection = false) {
 
     if (keepSelection && prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
       select.value = prevVal;
-      // episodeSeason'ı yeniden doldur — renderSeriesSelect artık bunu resetlemiyor
-      populateEpisodeSeasonSelect(prevVal);
       document.getElementById('seriesManagement').style.display = 'block';
     } else if (!keepSelection) {
       select.value = '';
@@ -1103,30 +1100,7 @@ function renderSeasons(contentId) {
 // DÜZELTİLDİ: Firebase'deki season key'leri string olarak saklanıyor
 // ve select option value'ları ile tutarlı hale getirildi
 // =====================================================================
-function populateEpisodeSeasonSelect(contentId) {
-  if (!contentId) return;
-  getContentById(contentId, (content) => {
-    if (!content) return;
-    const seasons = Object.keys(content.seasons || {}).sort((a, b) => Number(a) - Number(b));
-    const select = document.getElementById('episodeSeason');
 
-    if (seasons.length === 0) {
-      select.innerHTML = '<option value="">— Önce sezon ekleyin —</option>';
-      return;
-    }
-
-    // Mevcut seçili değeri koru
-    const prevVal = select.value;
-    select.innerHTML = seasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
-
-    // Eğer önceki seçim hâlâ geçerliyse koru, değilse ilkini seç
-    if (prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
-      select.value = prevVal;
-    } else {
-      select.value = seasons[0];
-    }
-  });
-}
 
 /* LETTER FILTER & DISCOVER */
 
@@ -1274,7 +1248,7 @@ window.confirmDeleteSeason = function(contentId, num) {
         showToast(`Sezon ${num} silindi!`, 'info');
         renderSeasons(contentId);
         renderSeriesSelect(true);
-        populateEpisodeSeasonSelect(contentId);
+        
         renderContent();
       });
     }
@@ -1289,7 +1263,7 @@ window.confirmDeleteEpisode = function(contentId, seasonNum, epNum) {
       update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
         showToast(`Bölüm ${epNum} silindi!`, 'info');
         renderSeasons(contentId);
-        populateEpisodeSeasonSelect(contentId);
+        
         renderContent();
       });
     }
@@ -1761,7 +1735,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mgmt = document.getElementById('seriesManagement');
     if (val) {
       mgmt.style.display = 'block';
-      populateEpisodeSeasonSelect(val);
       renderSeasons(val);
     } else {
       mgmt.style.display = 'none';
@@ -1810,13 +1783,13 @@ document.addEventListener('DOMContentLoaded', () => {
    * ===================================================================== */
   document.getElementById('addEpisodeBtn').addEventListener('click', () => {
     const id = document.getElementById('seriesSelect').value;
-    const season = document.getElementById('episodeSeason').value; // string olarak al
+    const season = String(document.getElementById('episodeSeason').value); // number input'dan string olarak al
     const num = Number(document.getElementById('episodeNumber').value);
     const title = document.getElementById('episodeTitle').value.trim();
     const video = document.getElementById('episodeVideo').value.trim();
 
     if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
-    if (!season) return showToast('Lütfen bir sezon seçin.', 'error');
+    if (!season || season < 1) return showToast('Lütfen geçerli bir sezon numarası girin.', 'error');
     if (!num) return showToast('Bölüm numarası girin.', 'error');
 
     getContentById(id, (content) => {
@@ -1833,8 +1806,8 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('episodeTitle').value = '';
           document.getElementById('episodeVideo').value = '';
           renderSeasons(id);
-          // episodeSeason seçimini koru
-          populateEpisodeSeasonSelect(id);
+          
+          
           renderContent();
         });
       }
