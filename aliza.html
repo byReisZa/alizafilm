@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALIZA - Film & Dizi İzle</title>
+<link rel="stylesheet" href="aliza.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div id="app">
+  <div class="noise-overlay"></div>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <div class="logo-glow"></div>
+        <span class="logo-text">ALIZA</span>
+        <span class="logo-beta">beta</span>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="#" class="nav-link active" data-filter="all">Ana Sayfa</a>
+        <a href="#" class="nav-link" data-filter="movie">Filmler</a>
+        <a href="#" class="nav-link" data-filter="series">Diziler</a>
+        <a href="#" class="nav-link" data-filter="turkish">Türkçe Dublaj</a>
+        <a href="#" class="nav-link" data-filter="original">Orijinal Dil</a>
+      </div>
+      <div class="nav-actions">
+        <div class="search-box" id="searchBox">
+          <input type="text" id="searchInput" placeholder="Film veya dizi ara...">
+          <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+        <button class="admin-toggle" id="adminToggle" title="Admin Paneli"><i class="fas fa-shield-halved"></i></button>
+        <button class="admin-toggle" id="userToggle" title="Giriş Yap / Kayıt Ol"><i class="fas fa-user"></i></button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">POPÜLER</div>
+      <h1 class="hero-title" id="heroTitle">Sonsuzluk Oyunu</h1>
+      <p class="hero-desc" id="heroDesc">Yükleniyor...</p>
+      <div class="hero-meta">
+        <span class="hero-year" id="heroYear">—</span>
+        <span class="hero-rating"><i class="fas fa-star"></i> <span id="heroRating">—</span></span>
+        <span class="hero-quality">4K Ultra HD</span>
+        <span class="hero-lang" id="heroLang"><i class="fas fa-language"></i> —</span>
+      </div>
+      <div class="hero-actions">
+        <button class="btn-primary hero-play" id="heroPlay"><i class="fas fa-play"></i> İzle</button>
+        <button class="btn-secondary hero-info"><i class="fas fa-circle-info"></i> Detay</button>
+      </div>
+    </div>
+    <div class="hero-scroll"><i class="fas fa-chevron-down"></i></div>
+  </section>
+
+  <main class="main-content">
+    <section class="filters-section">
+      <div class="container">
+        <div class="filter-header">
+          <h2 class="section-title"><span class="title-glow">İçerikler</span></h2>
+          <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-filter="all">Tümü</button>
+            <button class="filter-tab" data-filter="movie">Filmler</button>
+            <button class="filter-tab" data-filter="series">Diziler</button>
+            <button class="filter-tab" data-filter="turkish">Türkçe Dublaj</button>
+            <button class="filter-tab" data-filter="original">Orijinal Dil</button>
+            <button class="filter-tab" data-filter="action">Aksiyon</button>
+            <button class="filter-tab" data-filter="comedy">Komedi</button>
+            <button class="filter-tab" data-filter="sci-fi">Bilim Kurgu</button>
+            <button class="filter-tab" data-filter="drama">Dram</button>
+            <button class="filter-tab" data-filter="horror">Korku</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="container">
+        <div class="content-grid" id="contentGrid"></div>
+        <div class="empty-state" id="emptyState">
+          <i class="fas fa-film"></i>
+          <h3>İçerik Bulunamadı</h3>
+          <p>Henüz hiç film veya dizi eklenmemiş.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-film"></i></div>
+            <div class="stat-number" id="totalMovies">0</div>
+            <div class="stat-label">Film</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-tv"></i></div>
+            <div class="stat-number" id="totalSeries">0</div>
+            <div class="stat-label">Dizi</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-closed-captioning"></i></div>
+            <div class="stat-number" id="totalTurkish">0</div>
+            <div class="stat-label">Türkçe Dublaj</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-headphones"></i></div>
+            <div class="stat-number" id="totalOriginal">0</div>
+            <div class="stat-label">Orijinal Dil</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="player-overlay" id="playerOverlay">
+    <div class="player-container">
+      <div class="player-header">
+        <div class="player-info">
+          <h3 id="playerTitle">Film Adı</h3>
+          <span id="playerMeta">Sezon 1 - Bölüm 1</span>
+        </div>
+        <div class="player-controls-top">
+          <button class="player-btn" id="playerFullscreen"><i class="fas fa-expand"></i></button>
+          <button class="player-btn" id="playerClose"><i class="fas fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="player-wrapper" id="playerWrapper">
+        <div class="player-placeholder" id="playerPlaceholder">
+          <div class="placeholder-content">
+            <i class="fas fa-play-circle"></i>
+            <h3>Oynatmak İçin Tıkla</h3>
+            <p id="placeholderInfo">Video yükleniyor...</p>
+          </div>
+        </div>
+        <video class="player-video" id="playerVideo" controls></video>
+      </div>
+      <div class="player-episodes" id="playerEpisodes">
+        <div class="episodes-header">
+          <h4><i class="fas fa-list"></i> Bölümler</h4>
+          <select class="episode-select" id="seasonSelect"></select>
+        </div>
+        <div class="episodes-list" id="episodesList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="modalTitle">İçerik Detayı</h2>
+        <button class="modal-close" id="modalClose"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="user-overlay" id="userOverlay">
+    <div class="user-container">
+      <div class="user-header">
+        <h2 id="userModalTitle">Giriş Yap</h2>
+        <button class="user-close" id="userClose"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="user-body">
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-auth="login">Giriş Yap</button>
+          <button class="auth-tab" data-auth="register">Kayıt Ol</button>
+        </div>
+        <div class="auth-form active" id="authLogin">
+          <div class="form-group">
+            <label><i class="fas fa-envelope"></i> E-posta veya Telefon</label>
+            <input type="text" id="loginEmail" placeholder="ornek@email.com">
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-key"></i> Şifre</label>
+            <input type="password" id="loginPass" placeholder="••••••••">
+          </div>
+          <button class="btn-primary login-btn" id="loginBtn"><i class="fas fa-right-to-bracket"></i> Giriş Yap</button>
+          <p class="auth-switch">Hesabın yok mu? <a href="#" id="switchToRegister">Kayıt Ol</a></p>
+        </div>
+        <div class="auth-form" id="authRegister">
+          <div class="form-group">
+            <label><i class="fas fa-user"></i> Kullanıcı Adı *</label>
+            <input type="text" id="regUsername" placeholder="kullaniciadi">
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-envelope"></i> E-posta *</label>
+            <input type="email" id="regEmail" placeholder="ornek@email.com">
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-phone"></i> Telefon (isteğe bağlı)</label>
+            <input type="tel" id="regPhone" placeholder="+90 5XX XXX XX XX">
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-key"></i> Şifre *</label>
+            <input type="password" id="regPass" placeholder="••••••••">
+          </div>
+          <button class="btn-primary login-btn" id="registerBtn"><i class="fas fa-user-plus"></i> Kayıt Ol</button>
+          <p class="auth-switch">Zaten hesabın var mı? <a href="#" id="switchToLogin">Giriş Yap</a></p>
+        </div>
+      </div>
+      <div class="user-profile" id="userProfile" style="display:none">
+        <div class="profile-info">
+          <div class="profile-avatar" id="profileAvatar"><i class="fas fa-user"></i></div>
+          <div class="profile-detail">
+            <h3 id="profileName">—</h3>
+            <p id="profileEmail">—</p>
+            <span class="profile-badge" id="profileBadge">Üye</span>
+          </div>
+        </div>
+        <button class="btn-secondary logout-btn" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Çıkış Yap</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-overlay" id="adminOverlay">
+    <div class="admin-container">
+      <div class="admin-header">
+        <div class="admin-header-left">
+          <i class="fas fa-shield-halved"></i>
+          <h2>Admin Panel</h2>
+        </div>
+        <button class="admin-close" id="adminClose"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="admin-body" id="adminBody">
+        <div class="admin-not-auth" id="adminNotAuth">
+          <div class="login-icon"><i class="fas fa-lock"></i></div>
+          <h3>Yetkiniz Yok</h3>
+          <p>Bu panele sadece admin kullanıcılar erişebilir.</p>
+          <button class="btn-primary" id="adminGoLogin"><i class="fas fa-right-to-bracket"></i> Giriş Yap</button>
+        </div>
+        <div class="admin-dashboard" id="adminDashboard" style="display:none">
+          <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="add-content"><i class="fas fa-plus-circle"></i> İçerik Ekle</button>
+            <button class="admin-tab" data-tab="manage-content"><i class="fas fa-list"></i> İçerikler</button>
+            <button class="admin-tab" data-tab="manage-series"><i class="fas fa-layer-group"></i> Sezon/Bölüm</button>
+            <button class="admin-tab logout-tab" id="adminLogoutBtn"><i class="fas fa-right-from-bracket"></i> Çıkış</button>
+          </div>
+          <div class="admin-content">
+            <div class="admin-panel active" id="panel-add-content">
+              <h3>Yeni İçerik Ekle</h3>
+              <form id="addContentForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Başlık *</label>
+                    <input type="text" id="formTitle" required placeholder="İçerik başlığı">
+                  </div>
+                  <div class="form-group">
+                    <label>Tür *</label>
+                    <select id="formType" required>
+                      <option value="movie">Film</option>
+                      <option value="series">Dizi</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="formCategory">
+                      <option value="action">Aksiyon</option>
+                      <option value="comedy">Komedi</option>
+                      <option value="sci-fi">Bilim Kurgu</option>
+                      <option value="drama">Dram</option>
+                      <option value="horror">Korku</option>
+                      <option value="thriller">Gerilim</option>
+                      <option value="romance">Romantik</option>
+                      <option value="documentary">Belgesel</option>
+                      <option value="animation">Animasyon</option>
+                      <option value="fantasy">Fantastik</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Dil *</label>
+                    <select id="formLang" required>
+                      <option value="turkish">Türkçe Dublaj</option>
+                      <option value="original">Orijinal Dil</option>
+                      <option value="both">Her İkisi</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Yıl</label>
+                    <input type="number" id="formYear" placeholder="2025" min="1900" max="2030">
+                  </div>
+                  <div class="form-group">
+                    <label>Puan (0-10)</label>
+                    <input type="number" id="formRating" placeholder="8.5" min="0" max="10" step="0.1">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Görsel URL</label>
+                    <input type="url" id="formImage" placeholder="https://example.com/poster.jpg">
+                  </div>
+                  <div class="form-group">
+                    <label>Arkaplan URL</label>
+                    <input type="url" id="formBg" placeholder="https://example.com/background.jpg">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Video URL (Film için)</label>
+                  <input type="url" id="formVideo" placeholder="https://example.com/video.mp4">
+                </div>
+                <div class="form-group">
+                  <label>Açıklama</label>
+                  <textarea id="formDesc" rows="3" placeholder="İçerik açıklaması..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> İçeriği Ekle</button>
+              </form>
+            </div>
+            <div class="admin-panel" id="panel-manage-content">
+              <h3>Tüm İçerikler</h3>
+              <div class="admin-search">
+                <input type="text" id="adminSearch" placeholder="İçerik ara...">
+              </div>
+              <div class="admin-list" id="adminContentList"></div>
+            </div>
+            <div class="admin-panel" id="panel-manage-series">
+              <h3>Sezon & Bölüm Yönetimi</h3>
+              <div class="form-group">
+                <label>Dizi Seç</label>
+                <select id="seriesSelect"></select>
+              </div>
+              <div class="series-management" id="seriesManagement">
+                <div class="add-season">
+                  <h4><i class="fas fa-plus"></i> Yeni Sezon Ekle</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Sezon Numarası</label>
+                      <input type="number" id="seasonNumber" placeholder="1" min="1">
+                    </div>
+                    <button class="btn-secondary" id="addSeasonBtn"><i class="fas fa-plus"></i> Sezon Ekle</button>
+                  </div>
+                </div>
+                <div class="add-episode">
+                  <h4><i class="fas fa-plus"></i> Yeni Bölüm Ekle</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Sezon</label>
+                      <select id="episodeSeason"></select>
+                    </div>
+                    <div class="form-group">
+                      <label>Bölüm Numarası</label>
+                      <input type="number" id="episodeNumber" placeholder="1" min="1">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Bölüm Başlığı</label>
+                    <input type="text" id="episodeTitle" placeholder="Bölüm başlığı">
+                  </div>
+                  <div class="form-group">
+                    <label>Video URL</label>
+                    <input type="url" id="episodeVideo" placeholder="https://example.com/episode.mp4">
+                  </div>
+                  <button class="btn-primary" id="addEpisodeBtn"><i class="fas fa-plus"></i> Bölüm Ekle</button>
+                </div>
+                <div class="seasons-list" id="seasonsList">
+                  <h4>Mevcut Sezonlar & Bölümler</h4>
+                  <div id="seasonsContainer"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="logo-text">ALIZA</div>
+          <p>En kaliteli film ve dizi izleme deneyimi. Türkçe dublaj ve orijinal dil seçenekleriyle.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Kategoriler</h4>
+          <a href="#">Filmler</a>
+          <a href="#">Diziler</a>
+          <a href="#">Türkçe Dublaj</a>
+          <a href="#">Orijinal Dil</a>
+        </div>
+        <div class="footer-links">
+          <h4>Destek</h4>
+          <a href="#">Yardım</a>
+          <a href="#">Gizlilik</a>
+          <a href="#">Kullanım Koşulları</a>
+          <a href="#">İletişim</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 ALIZA. Tüm hakları saklıdır.</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, signInWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBK3mnQL99Lfqx7cWkufo3HKDkp7SIGznA",
+  authDomain: "filmsitesi-50a15.firebaseapp.com",
+  databaseURL: "https://filmsitesi-50a15-default-rtdb.firebaseio.com",
+  projectId: "filmsitesi-50a15",
+  storageBucket: "filmsitesi-50a15.firebasestorage.app",
+  messagingSenderId: "255235074044",
+  appId: "1:255235074044:web:a1aca4a9045aacfd92f479",
+  measurementId: "G-9BP4FL2Y47"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+const ADMIN_EMAIL = 'alininsiteleri27@gmail.com';
+const ADMIN_USERNAME = 'adminali';
+
+let currentUser = null;
+let currentFilter = 'all';
+let currentPlayer = null;
+let currentEpisode = null;
+let editingId = null;
+
+function isAdmin(user) {
+  return user && user.email === ADMIN_EMAIL && user.displayName === ADMIN_USERNAME;
+}
+
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></div>
+    <span class="toast-message">${message}</span>
+    <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+  `;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    toast.style.transition = '0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+function loadContent(callback) {
+  const contentRef = ref(db, 'content');
+  onValue(contentRef, (snapshot) => {
+    const data = snapshot.val();
+    const items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+    callback(items);
+  });
+}
+
+function getContentById(id, callback) {
+  get(child(ref(db), `content/${id}`)).then((snapshot) => {
+    callback(snapshot.val() ? { id, ...snapshot.val() } : null);
+  });
+}
+
+function renderContent(filter = currentFilter) {
+  const grid = document.getElementById('contentGrid');
+  const empty = document.getElementById('emptyState');
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  loadContent((data) => {
+    let filtered = [...data];
+
+    if (filter === 'movie') filtered = filtered.filter(c => c.type === 'movie');
+    else if (filter === 'series') filtered = filtered.filter(c => c.type === 'series');
+    else if (filter === 'turkish') filtered = filtered.filter(c => c.lang === 'turkish' || c.lang === 'both');
+    else if (filter === 'original') filtered = filtered.filter(c => c.lang === 'original' || c.lang === 'both');
+    else if (filter !== 'all') filtered = filtered.filter(c => c.category === filter);
+
+    if (query) filtered = filtered.filter(c => c.title?.toLowerCase().includes(query));
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      empty.style.display = 'flex';
+      updateStats([]);
+      updateHero([]);
+      return;
+    }
+
+    empty.style.display = 'none';
+    grid.innerHTML = filtered.map((item, idx) => {
+      const isSeries = item.type === 'series';
+      const seasons = item.seasons || {};
+      const seasonKeys = Object.keys(seasons);
+      const totalSeasons = seasonKeys.length;
+      const totalEpisodes = seasonKeys.reduce((a, s) => a + (seasons[s]?.length || 0), 0);
+
+      return `
+        <div class="content-card" data-id="${item.id}" style="animation: cardAppear 0.4s ease-out ${idx * 0.05}s both">
+          <div class="content-card-poster">
+            <img src="${item.image || 'https://picsum.photos/seed/placeholder/400/600'}" alt="${item.title || ''}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'background:var(--bg-surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--text-muted)\\'><i class=\\'fas fa-film\\'></i></div>'">
+            <div class="content-card-overlay">
+              <div class="content-card-play"><i class="fas fa-play"></i></div>
+            </div>
+            <div class="content-card-badges">
+              <span class="content-card-badge type-${item.type}">${isSeries ? 'DİZİ' : 'FİLM'}</span>
+              <span class="content-card-badge lang-${item.lang}">${item.lang === 'turkish' ? 'TR' : item.lang === 'original' ? 'ORJ' : 'TR+ORJ'}</span>
+              <span class="content-card-badge quality">${item.year || '—'}</span>
+            </div>
+            ${item.rating ? `<div class="content-card-rating-bar" style="width:${(item.rating / 10) * 100}%"></div>` : ''}
+          </div>
+          <div class="content-card-body">
+            <h3 class="content-card-title">${item.title || 'İsimsiz'}</h3>
+            <div class="content-card-meta">
+              ${item.rating ? `<span class="rating"><i class="fas fa-star"></i>${item.rating}</span>` : ''}
+              <span><i class="fas fa-${isSeries ? 'tv' : 'film'}"></i>${isSeries ? `${totalSeasons} Sezon, ${totalEpisodes} Bölüm` : 'Film'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.content-card').forEach(card => {
+      card.addEventListener('click', () => showDetail(card.dataset.id));
+    });
+
+    updateStats(data);
+    updateHero(data);
+  });
+}
+
+function updateStats(data) {
+  document.getElementById('totalMovies').textContent = data.filter(c => c.type === 'movie').length;
+  document.getElementById('totalSeries').textContent = data.filter(c => c.type === 'series').length;
+  document.getElementById('totalTurkish').textContent = data.filter(c => c.lang === 'turkish' || c.lang === 'both').length;
+  document.getElementById('totalOriginal').textContent = data.filter(c => c.lang === 'original' || c.lang === 'both').length;
+}
+
+function updateHero(data) {
+  if (data.length === 0) {
+    document.getElementById('heroTitle').textContent = 'Hoş Geldiniz';
+    document.getElementById('heroDesc').textContent = 'ALIZA\'ya hoş geldiniz. En kaliteli film ve diziler burada.';
+    document.getElementById('heroYear').textContent = '—';
+    document.getElementById('heroRating').textContent = '—';
+    document.getElementById('heroLang').innerHTML = '<i class="fas fa-language"></i> ALIZA';
+    return;
+  }
+  const featured = data[0];
+  document.getElementById('heroTitle').textContent = featured.title || '—';
+  document.getElementById('heroDesc').textContent = featured.desc || 'Açıklama bulunamadı.';
+  document.getElementById('heroYear').textContent = featured.year || '—';
+  document.getElementById('heroRating').textContent = featured.rating || '—';
+  document.getElementById('heroLang').innerHTML = `<i class="fas fa-language"></i> ${featured.lang === 'turkish' ? 'Türkçe Dublaj' : featured.lang === 'original' ? 'Orijinal Dil' : 'Türkçe + Orijinal'}`;
+  if (featured.bg) {
+    document.getElementById('heroBg').style.backgroundImage = `url(${featured.bg})`;
+    document.getElementById('heroBg').style.backgroundSize = 'cover';
+    document.getElementById('heroBg').style.backgroundPosition = 'center';
+  }
+}
+
+function showDetail(id) {
+  getContentById(id, (content) => {
+    if (!content) return;
+    const overlay = document.getElementById('modalOverlay');
+    const body = document.getElementById('modalBody');
+    const isSeries = content.type === 'series';
+    const seasons = content.seasons || {};
+    const seasonKeys = Object.keys(seasons).sort((a, b) => Number(a) - Number(b));
+
+    let seasonsHtml = '';
+    if (isSeries && seasonKeys.length > 0) {
+      seasonsHtml = '<div class="detail-episodes">';
+      seasonKeys.forEach(sNum => {
+        const eps = seasons[sNum] || [];
+        seasonsHtml += `
+          <div class="detail-season">
+            <h5><i class="fas fa-layer-group"></i> Sezon ${sNum}</h5>
+            ${eps.map(ep => `
+              <div class="detail-episode-item" data-content="${content.id}" data-season="${sNum}" data-episode="${ep.num}">
+                <span class="ep-num">${ep.num}</span>
+                <span class="ep-title">${ep.title || `Bölüm ${ep.num}`}</span>
+                <span class="ep-play"><i class="fas fa-play"></i></span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      });
+      seasonsHtml += '</div>';
+    }
+
+    document.getElementById('modalTitle').textContent = content.title || 'Detay';
+    body.innerHTML = `
+      <div class="detail-content">
+        <img class="detail-poster" src="${content.image || 'https://picsum.photos/seed/placeholder/400/600'}" alt="${content.title || ''}" onerror="this.outerHTML='<div style=\\'background:var(--bg-surface);height:200px;border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--text-muted)\\'><i class=\\'fas fa-film\\'></i></div>'">
+        <div class="detail-info">
+          <h3>${content.title || '—'}</h3>
+          <div class="detail-meta">
+            <span><i class="fas fa-calendar"></i> ${content.year || '—'}</span>
+            <span><i class="fas fa-star" style="color:var(--warning)"></i> ${content.rating || '—'}/10</span>
+            <span><i class="fas fa-${isSeries ? 'tv' : 'film'}"></i> ${isSeries ? 'Dizi' : 'Film'}</span>
+            <span><i class="fas fa-language"></i> ${content.lang === 'turkish' ? 'Türkçe Dublaj' : content.lang === 'original' ? 'Orijinal Dil' : 'Türkçe + Orijinal'}</span>
+            <span><i class="fas fa-tag"></i> ${content.category || '—'}</span>
+          </div>
+          <p class="detail-desc">${content.desc || 'Açıklama bulunamadı.'}</p>
+          <div class="detail-actions">
+            <button class="btn-primary detail-play-btn" data-id="${content.id}"><i class="fas fa-play"></i> ${isSeries && seasonKeys.length > 0 ? 'İzlemeye Başla' : 'İzle'}</button>
+          </div>
+        </div>
+        ${seasonsHtml}
+      </div>
+    `;
+
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    body.querySelector('.detail-play-btn')?.addEventListener('click', () => {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+      openPlayer(content.id);
+    });
+
+    body.querySelectorAll('.detail-episode-item').forEach(el => {
+      el.addEventListener('click', () => {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+        openPlayer(el.dataset.content, Number(el.dataset.season), Number(el.dataset.episode));
+      });
+    });
+  });
+}
+
+function openPlayer(contentId, season, episode) {
+  getContentById(contentId, (content) => {
+    if (!content) return;
+    const overlay = document.getElementById('playerOverlay');
+    const title = document.getElementById('playerTitle');
+    const meta = document.getElementById('playerMeta');
+    const video = document.getElementById('playerVideo');
+    const placeholder = document.getElementById('playerPlaceholder');
+    const info = document.getElementById('placeholderInfo');
+    const episodesSection = document.getElementById('playerEpisodes');
+
+    currentPlayer = contentId;
+    title.textContent = content.title || '—';
+
+    if (content.type === 'series' && content.seasons) {
+      const seasons = content.seasons;
+      const seasonKeys = Object.keys(seasons).sort((a, b) => Number(a) - Number(b));
+      episodesSection.classList.add('active');
+
+      const seasonSelect = document.getElementById('seasonSelect');
+      seasonSelect.innerHTML = seasonKeys.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
+
+      if (season && episode) {
+        seasonSelect.value = String(season);
+        currentEpisode = { season, episode };
+        const ep = seasons[season]?.find(e => e.num === episode);
+        meta.textContent = `Sezon ${season} - Bölüm ${episode}${ep?.title ? ': ' + ep.title : ''}`;
+        if (ep?.video) {
+          placeholder.style.display = 'none';
+          video.style.display = 'block';
+          video.src = ep.video;
+          video.load();
+        } else {
+          placeholder.style.display = 'flex';
+          video.style.display = 'none';
+          video.src = '';
+          info.textContent = `Sezon ${season} - Bölüm ${episode} · Video bağlantısı eklenmemiş`;
+        }
+      } else if (seasonKeys.length > 0) {
+        const firstSeason = seasonKeys[0];
+        seasonSelect.value = String(firstSeason);
+        currentEpisode = { season: firstSeason, episode: 1 };
+        const firstEp = seasons[firstSeason]?.[0];
+        meta.textContent = `Sezon ${firstSeason} - Bölüm 1${firstEp?.title ? ': ' + firstEp.title : ''}`;
+        if (firstEp?.video) {
+          placeholder.style.display = 'none';
+          video.style.display = 'block';
+          video.src = firstEp.video;
+          video.load();
+        } else {
+          placeholder.style.display = 'flex';
+          video.style.display = 'none';
+          info.textContent = 'Video bağlantısı eklenmemiş';
+        }
+      }
+
+      renderEpisodesList(contentId, Number(seasonSelect.value));
+      seasonSelect.onchange = () => {
+        currentEpisode = { season: Number(seasonSelect.value), episode: 1 };
+        const eps = seasons[Number(seasonSelect.value)] || [];
+        if (eps.length > 0) {
+          meta.textContent = `Sezon ${seasonSelect.value} - Bölüm 1${eps[0]?.title ? ': ' + eps[0].title : ''}`;
+          if (eps[0]?.video) {
+            placeholder.style.display = 'none';
+            video.style.display = 'block';
+            video.src = eps[0].video;
+            video.load();
+          } else {
+            placeholder.style.display = 'flex';
+            video.style.display = 'none';
+            info.textContent = 'Video bağlantısı eklenmemiş';
+          }
+        }
+        renderEpisodesList(contentId, Number(seasonSelect.value));
+      };
+    } else {
+      episodesSection.classList.remove('active');
+      meta.textContent = 'Film';
+      if (content.video) {
+        placeholder.style.display = 'none';
+        video.style.display = 'block';
+        video.src = content.video;
+        video.load();
+      } else {
+        placeholder.style.display = 'flex';
+        video.style.display = 'none';
+        video.src = '';
+        info.textContent = 'Video bağlantısı eklenmemiş';
+      }
+    }
+
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+}
+
+function renderEpisodesList(contentId, seasonNum) {
+  getContentById(contentId, (content) => {
+    if (!content) return;
+    const container = document.getElementById('episodesList');
+    const episodes = content.seasons?.[seasonNum] || [];
+    container.innerHTML = episodes.map(ep => {
+      const isActive = currentEpisode?.season === seasonNum && currentEpisode?.episode === ep.num;
+      return `
+        <div class="episode-item ${isActive ? 'active' : ''}" data-season="${seasonNum}" data-episode="${ep.num}">
+          <div class="episode-number">${ep.num}</div>
+          <div class="episode-info">
+            <h5>${ep.title || `Bölüm ${ep.num}`}</h5>
+            <span>${ep.video ? 'Video mevcut' : 'Video eklenmemiş'}</span>
+          </div>
+          <div class="episode-play-icon"><i class="fas fa-play"></i></div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.episode-item').forEach(el => {
+      el.addEventListener('click', () => {
+        playEpisode(contentId, Number(el.dataset.season), Number(el.dataset.episode));
+      });
+    });
+  });
+}
+
+function playEpisode(contentId, season, episode) {
+  getContentById(contentId, (content) => {
+    if (!content) return;
+    const meta = document.getElementById('playerMeta');
+    const video = document.getElementById('playerVideo');
+    const placeholder = document.getElementById('playerPlaceholder');
+    const info = document.getElementById('placeholderInfo');
+
+    currentEpisode = { season, episode };
+    const ep = content.seasons?.[season]?.find(e => e.num === episode);
+    meta.textContent = `Sezon ${season} - Bölüm ${episode}${ep?.title ? ': ' + ep.title : ''}`;
+
+    if (ep?.video) {
+      placeholder.style.display = 'none';
+      video.style.display = 'block';
+      video.src = ep.video;
+      video.load();
+      video.play().catch(() => {});
+    } else {
+      placeholder.style.display = 'flex';
+      video.style.display = 'none';
+      video.src = '';
+      video.pause();
+      info.textContent = 'Bu bölüm için video bağlantısı eklenmemiş';
+    }
+    renderEpisodesList(contentId, season);
+  });
+}
+
+/* ADMIN FUNCTIONS */
+
+function renderAdminList() {
+  const container = document.getElementById('adminContentList');
+  const search = document.getElementById('adminSearch').value.toLowerCase();
+
+  loadContent((data) => {
+    let filtered = data;
+    if (search) filtered = filtered.filter(c => c.title?.toLowerCase().includes(search));
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted);padding:20px;text-align:center;">İçerik bulunamadı.</p>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(item => `
+      <div class="admin-list-item">
+        <img src="${item.image || 'https://picsum.photos/seed/placeholder/400/600'}" alt="" onerror="this.outerHTML='<div class=\\'no-image\\'><i class=\\'fas fa-film\\'></i></div>'">
+        <div class="admin-list-info">
+          <h5>${item.title || 'İsimsiz'}</h5>
+          <span>${item.type === 'movie' ? 'Film' : 'Dizi'} · ${item.year || '—'} · ${item.rating || '—'}/10</span>
+        </div>
+        <div class="admin-list-actions">
+          <button class="admin-edit-btn" onclick="editContent('${item.id}')"><i class="fas fa-pen"></i></button>
+          <button class="admin-delete-btn" onclick="deleteContent('${item.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    `).join('');
+  });
+}
+
+function renderSeriesSelect() {
+  loadContent((data) => {
+    const series = data.filter(c => c.type === 'series');
+    const select = document.getElementById('seriesSelect');
+    select.innerHTML = '<option value="">— Dizi Seçin —</option>' +
+      series.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
+    select.value = '';
+    document.getElementById('seriesManagement').style.display = 'none';
+  });
+}
+
+function renderSeasons(contentId) {
+  getContentById(contentId, (content) => {
+    const container = document.getElementById('seasonsContainer');
+    if (!content) { container.innerHTML = '<p style="color:var(--text-muted)">Dizi seçilmedi.</p>'; return; }
+
+    const seasons = content.seasons || {};
+    const seasonKeys = Object.keys(seasons).sort((a, b) => Number(a) - Number(b));
+
+    if (seasonKeys.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted)">Henüz sezon eklenmemiş.</p>';
+      return;
+    }
+
+    container.innerHTML = seasonKeys.map(sNum => {
+      const episodes = seasons[sNum] || [];
+      return `
+        <div class="season-block">
+          <div class="season-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'flex':'none'">
+            <h5><i class="fas fa-layer-group"></i> Sezon ${sNum} <span class="episode-count">(${episodes.length} bölüm)</span></h5>
+            <button class="season-delete-btn" onclick="event.stopPropagation();confirmDeleteSeason('${contentId}',${sNum})"><i class="fas fa-trash"></i></button>
+          </div>
+          <div class="season-episodes" style="display:${episodes.length > 0 ? 'flex' : 'none'}">
+            ${episodes.length === 0 ? '<p style="color:var(--text-muted);padding:8px 0;font-size:0.8rem">Henüz bölüm yok.</p>' :
+              episodes.map(ep => `
+                <div class="season-episode-item">
+                  <span><strong>${ep.num}.</strong> ${ep.title || `Bölüm ${ep.num}`}</span>
+                  <button class="ep-delete" onclick="confirmDeleteEpisode('${contentId}',${sNum},${ep.num})"><i class="fas fa-times"></i></button>
+                </div>
+              `).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+function populateEpisodeSeasonSelect(contentId) {
+  getContentById(contentId, (content) => {
+    const select = document.getElementById('episodeSeason');
+    if (!content) return;
+    const seasons = Object.keys(content.seasons || {}).sort((a, b) => Number(a) - Number(b));
+    select.innerHTML = seasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
+  });
+}
+
+window.editContent = function(id) {
+  getContentById(id, (content) => {
+    if (!content) return;
+    editingId = id;
+    document.getElementById('formTitle').value = content.title || '';
+    document.getElementById('formType').value = content.type || 'movie';
+    document.getElementById('formCategory').value = content.category || 'action';
+    document.getElementById('formLang').value = content.lang || 'turkish';
+    document.getElementById('formYear').value = content.year || '';
+    document.getElementById('formRating').value = content.rating || '';
+    document.getElementById('formImage').value = content.image || '';
+    document.getElementById('formBg').value = content.bg || '';
+    document.getElementById('formVideo').value = content.video || '';
+    document.getElementById('formDesc').value = content.desc || '';
+
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('[data-tab="add-content"]').classList.add('active');
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-add-content').classList.add('active');
+    document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Güncelle';
+  });
+};
+
+window.deleteContent = function(id) {
+  if (!confirm('Bu içeriği silmek istediğinize emin misiniz?')) return;
+  remove(ref(db, `content/${id}`)).then(() => {
+    showToast('İçerik silindi!', 'info');
+    renderContent();
+    renderAdminList();
+    renderSeriesSelect();
+  });
+};
+
+window.confirmDeleteSeason = function(contentId, num) {
+  if (!confirm(`Sezon ${num} ve tüm bölümleri silinsin mi?`)) return;
+  getContentById(contentId, (content) => {
+    if (content && content.seasons) {
+      delete content.seasons[num];
+      update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
+        showToast(`Sezon ${num} silindi!`, 'info');
+        renderSeasons(contentId);
+        renderSeriesSelect();
+        renderContent();
+      });
+    }
+  });
+};
+
+window.confirmDeleteEpisode = function(contentId, seasonNum, epNum) {
+  if (!confirm(`Bölüm ${epNum} silinsin mi?`)) return;
+  getContentById(contentId, (content) => {
+    if (content && content.seasons?.[seasonNum]) {
+      content.seasons[seasonNum] = content.seasons[seasonNum].filter(e => e.num !== epNum);
+      update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
+        showToast(`Bölüm ${epNum} silindi!`, 'info');
+        renderSeasons(contentId);
+        renderContent();
+      });
+    }
+  });
+};
+
+/* AUTH */
+
+function updateAuthUI(user) {
+  currentUser = user;
+  const toggle = document.getElementById('adminToggle');
+  const userToggle = document.getElementById('userToggle');
+
+  if (user) {
+    userToggle.innerHTML = `<i class="fas fa-user-check"></i>`;
+    userToggle.title = user.displayName || user.email || 'Hesabım';
+  } else {
+    userToggle.innerHTML = `<i class="fas fa-user"></i>`;
+    userToggle.title = 'Giriş Yap / Kayıt Ol';
+  }
+
+  if (isAdmin(user)) {
+    toggle.style.display = 'flex';
+  } else {
+    toggle.style.display = 'none';
+  }
+
+  const profile = document.getElementById('userProfile');
+  const authForms = document.querySelector('.auth-tabs')?.parentElement;
+  if (user) {
+    if (authForms) authForms.style.display = 'none';
+    profile.style.display = 'block';
+    const name = user.displayName || user.email?.split('@')[0] || 'Kullanıcı';
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('profileEmail').textContent = user.email || user.phoneNumber || '—';
+    document.getElementById('profileBadge').textContent = isAdmin(user) ? 'Admin 👑' : 'Üye';
+    const avatar = document.getElementById('profileAvatar');
+    if (user.photoURL) {
+      avatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    } else {
+      avatar.innerHTML = `<i class="fas fa-user"></i>`;
+    }
+    document.getElementById('userModalTitle').textContent = 'Hesabım';
+  } else {
+    if (authForms) authForms.style.display = 'block';
+    profile.style.display = 'none';
+    document.getElementById('userModalTitle').textContent = 'Giriş Yap';
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  updateAuthUI(user);
+  if (user && isAdmin(user)) {
+    document.getElementById('adminToggle').style.display = 'flex';
+  }
+});
+
+/* DOM EVENT SETUP */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* Navbar */
+  document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('active');
+  });
+
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      document.getElementById('navLinks').classList.remove('active');
+      currentFilter = link.dataset.filter;
+      renderContent(currentFilter);
+    });
+  });
+
+  /* Filters */
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      renderContent(currentFilter);
+    });
+  });
+
+  /* Search */
+  document.getElementById('searchInput').addEventListener('input', () => renderContent(currentFilter));
+  document.getElementById('searchBtn').addEventListener('click', () => renderContent(currentFilter));
+  document.getElementById('searchInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') renderContent(currentFilter);
+  });
+
+  /* Modal */
+  document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+  document.getElementById('modalClose').addEventListener('click', () => {
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  /* Hero Play */
+  document.getElementById('heroPlay').addEventListener('click', () => {
+    loadContent((data) => {
+      if (data.length > 0) openPlayer(data[0].id);
+    });
+  });
+
+  /* Player Controls */
+  document.getElementById('playerClose').addEventListener('click', () => {
+    const overlay = document.getElementById('playerOverlay');
+    const video = document.getElementById('playerVideo');
+    video.pause();
+    video.src = '';
+    video.style.display = 'none';
+    document.getElementById('playerPlaceholder').style.display = 'flex';
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  document.getElementById('playerFullscreen').addEventListener('click', () => {
+    const wrapper = document.getElementById('playerWrapper');
+    if (!document.fullscreenElement) {
+      wrapper.requestFullscreen?.() || wrapper.webkitRequestFullscreen?.();
+    } else {
+      document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+    }
+  });
+
+  document.getElementById('playerPlaceholder').addEventListener('click', () => {
+    getContentById(currentPlayer, (content) => {
+      if (!content) return;
+      const video = document.getElementById('playerVideo');
+      const placeholder = document.getElementById('playerPlaceholder');
+      if (content.type === 'series' && currentEpisode) {
+        const ep = content.seasons?.[currentEpisode.season]?.find(e => e.num === currentEpisode.episode);
+        if (ep?.video) {
+          placeholder.style.display = 'none';
+          video.style.display = 'block';
+          video.src = ep.video;
+          video.load();
+          video.play().catch(() => {});
+        }
+      } else if (content.type === 'movie' && content.video) {
+        placeholder.style.display = 'none';
+        video.style.display = 'block';
+        video.src = content.video;
+        video.load();
+        video.play().catch(() => {});
+      }
+    });
+  });
+
+  document.getElementById('playerOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('playerOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  /* User Overlay */
+  document.getElementById('userToggle').addEventListener('click', () => {
+    document.getElementById('userOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  });
+
+  document.getElementById('userClose').addEventListener('click', () => {
+    document.getElementById('userOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  document.getElementById('userOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('userOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      document.getElementById(`auth${tab.dataset.auth.charAt(0).toUpperCase() + tab.dataset.auth.slice(1)}`).classList.add('active');
+      document.getElementById('userModalTitle').textContent = tab.dataset.auth === 'login' ? 'Giriş Yap' : 'Kayıt Ol';
+    });
+  });
+
+  document.getElementById('switchToRegister').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('[data-auth="register"]').classList.add('active');
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    document.getElementById('authRegister').classList.add('active');
+    document.getElementById('userModalTitle').textContent = 'Kayıt Ol';
+  });
+
+  document.getElementById('switchToLogin').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('[data-auth="login"]').classList.add('active');
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    document.getElementById('authLogin').classList.add('active');
+    document.getElementById('userModalTitle').textContent = 'Giriş Yap';
+  });
+
+  /* Auth Actions */
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    if (!email || !pass) return showToast('E-posta ve şifre girin.', 'error');
+    signInWithEmailAndPassword(auth, email, pass)
+      .then(() => {
+        showToast('Giriş başarılı!', 'success');
+        document.getElementById('userOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPass').value = '';
+      })
+      .catch((err) => showToast(err.message, 'error'));
+  });
+
+  document.getElementById('loginPass').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  document.getElementById('registerBtn').addEventListener('click', () => {
+    const username = document.getElementById('regUsername').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const pass = document.getElementById('regPass').value;
+
+    if (!username) return showToast('Kullanıcı adı zorunlu!', 'error');
+    if (!email) return showToast('E-posta zorunlu!', 'error');
+    if (pass.length < 6) return showToast('Şifre en az 6 karakter olmalı!', 'error');
+
+    createUserWithEmailAndPassword(auth, email, pass)
+      .then((result) => {
+        return updateProfile(result.user, { displayName: username });
+      })
+      .then(() => {
+        showToast('Kayıt başarılı! Hoş geldin!', 'success');
+        document.getElementById('userOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+        document.getElementById('regUsername').value = '';
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regPhone').value = '';
+        document.getElementById('regPass').value = '';
+      })
+      .catch((err) => showToast(err.message, 'error'));
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    signOut(auth).then(() => {
+      showToast('Çıkış yapıldı.', 'info');
+      document.getElementById('userOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  });
+
+  /* Admin */
+  document.getElementById('adminToggle').addEventListener('click', () => {
+    if (!currentUser) {
+      showToast('Önce giriş yapmalısın!', 'error');
+      document.getElementById('userOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      return;
+    }
+    if (!isAdmin(currentUser)) {
+      showToast('Admin yetkiniz yok!', 'error');
+      return;
+    }
+    document.getElementById('adminOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderAdminList();
+    renderSeriesSelect();
+  });
+
+  document.getElementById('adminClose').addEventListener('click', () => {
+    document.getElementById('adminOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  document.getElementById('adminOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('adminOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.getElementById('adminGoLogin').addEventListener('click', () => {
+    document.getElementById('adminOverlay').classList.remove('active');
+    document.getElementById('userOverlay').classList.add('active');
+  });
+
+  document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+    signOut(auth).then(() => {
+      document.getElementById('adminOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+      showToast('Admin çıkışı yapıldı.', 'info');
+    });
+  });
+
+  document.querySelectorAll('.admin-tab[data-tab]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (tab.dataset.tab === 'logout') return;
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+      if (tab.dataset.tab === 'manage-content') renderAdminList();
+      if (tab.dataset.tab === 'manage-series') renderSeriesSelect();
+    });
+  });
+
+  document.getElementById('addContentForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = document.getElementById('formTitle').value.trim();
+    const type = document.getElementById('formType').value;
+    const category = document.getElementById('formCategory').value;
+    const lang = document.getElementById('formLang').value;
+    const year = Number(document.getElementById('formYear').value) || new Date().getFullYear();
+    const rating = Number(document.getElementById('formRating').value) || 0;
+    const image = document.getElementById('formImage').value.trim();
+    const bg = document.getElementById('formBg').value.trim();
+    const video = document.getElementById('formVideo').value.trim();
+    const desc = document.getElementById('formDesc').value.trim();
+
+    if (!title) return showToast('Başlık zorunludur!', 'error');
+
+    const contentData = { title, type, category, lang, year, rating, image, bg, video, desc };
+
+    if (editingId) {
+      getContentById(editingId, (existing) => {
+        const seasons = existing?.seasons || {};
+        update(ref(db, `content/${editingId}`), { ...contentData, seasons }).then(() => {
+          showToast('İçerik güncellendi!', 'success');
+          editingId = null;
+          document.getElementById('addContentForm').reset();
+          document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> İçeriği Ekle';
+          renderContent();
+          renderAdminList();
+          renderSeriesSelect();
+        });
+      });
+    } else {
+      const newRef = push(ref(db, 'content'));
+      set(newRef, contentData).then(() => {
+        showToast('İçerik eklendi!', 'success');
+        document.getElementById('addContentForm').reset();
+        renderContent();
+        renderAdminList();
+        renderSeriesSelect();
+      });
+    }
+  });
+
+  document.getElementById('adminSearch').addEventListener('input', () => renderAdminList());
+
+  document.getElementById('seriesSelect').addEventListener('change', (e) => {
+    const val = e.target.value;
+    const mgmt = document.getElementById('seriesManagement');
+    if (val) {
+      mgmt.style.display = 'block';
+      populateEpisodeSeasonSelect(val);
+      renderSeasons(val);
+    } else {
+      mgmt.style.display = 'none';
+    }
+  });
+
+  document.getElementById('addSeasonBtn').addEventListener('click', () => {
+    const id = document.getElementById('seriesSelect').value;
+    const num = Number(document.getElementById('seasonNumber').value);
+    if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
+    if (!num || num < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
+
+    getContentById(id, (content) => {
+      if (content) {
+        const seasons = content.seasons || {};
+        if (seasons[num]) return showToast('Bu sezon zaten mevcut!', 'error');
+        seasons[num] = [];
+        update(ref(db, `content/${id}`), { seasons }).then(() => {
+          showToast(`Sezon ${num} eklendi!`, 'success');
+          renderSeasons(id);
+          renderSeriesSelect();
+          renderContent();
+        });
+      }
+    });
+  });
+
+  document.getElementById('addEpisodeBtn').addEventListener('click', () => {
+    const id = document.getElementById('seriesSelect').value;
+    const season = Number(document.getElementById('episodeSeason').value);
+    const num = Number(document.getElementById('episodeNumber').value);
+    const title = document.getElementById('episodeTitle').value.trim();
+    const video = document.getElementById('episodeVideo').value.trim();
+
+    if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
+    if (!season || !num) return showToast('Sezon ve bölüm numarası girin.', 'error');
+
+    getContentById(id, (content) => {
+      if (content) {
+        const seasons = content.seasons || {};
+        if (!seasons[season]) return showToast('Bu sezon mevcut değil!', 'error');
+        if (seasons[season].find(e => e.num === num)) return showToast('Bu bölüm numarası zaten mevcut!', 'error');
+        seasons[season].push({ num, title: title || `Bölüm ${num}`, video });
+        seasons[season].sort((a, b) => a.num - b.num);
+        update(ref(db, `content/${id}`), { seasons }).then(() => {
+          showToast(`Bölüm ${num} eklendi!`, 'success');
+          document.getElementById('episodeNumber').value = '';
+          document.getElementById('episodeTitle').value = '';
+          document.getElementById('episodeVideo').value = '';
+          renderSeasons(id);
+          renderSeriesSelect();
+          renderContent();
+        });
+      }
+    });
+  });
+
+  /* Initial Render */
+  renderContent();
+
+  /* Check admin on auth state */
+  onAuthStateChanged(auth, (user) => {
+    if (user && isAdmin(user)) {
+      document.getElementById('adminNotAuth').style.display = 'none';
+      document.getElementById('adminDashboard').style.display = 'block';
+    } else {
+      document.getElementById('adminNotAuth').style.display = 'block';
+      document.getElementById('adminDashboard').style.display = 'none';
+    }
+  });
+
+});
+</script>
+</body>
+</html>
