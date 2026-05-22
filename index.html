@@ -1802,7 +1802,8 @@ function renderSeriesSelect(keepSelection = false) {
 }
 
 function renderSeasons(contentId) {
-  getContentById(contentId, (content) => {
+  get(child(ref(db), `content/${contentId}`)).then((snap) => {
+    const content = snap.val();
     const container = document.getElementById('seasonsContainer');
     const tagsContainer = document.getElementById('seasonTags');
     const noSeasonsMsg = document.getElementById('noSeasons');
@@ -1814,7 +1815,12 @@ function renderSeasons(contentId) {
       return;
     }
 
-    const seasons = content.seasons || {};
+    // Ensure seasons is an object
+    let seasons = content.seasons || {};
+    if (typeof seasons !== 'object' || seasons === null) {
+      seasons = {};
+    }
+
     const seasonKeys = Object.keys(seasons).sort((a, b) => Number(a) - Number(b));
 
     // Render season tags (clickable buttons)
@@ -1825,7 +1831,13 @@ function renderSeasons(contentId) {
       noSeasonsMsg.style.display = 'none';
       tagsContainer.innerHTML = seasonKeys.map(sNum => {
         const isSelected = currentSelectedSeason === sNum;
-        const episodeCount = (seasons[sNum] || []).length;
+        const seasonData = seasons[sNum];
+        let episodeCount = 0;
+        if (Array.isArray(seasonData)) {
+          episodeCount = seasonData.length;
+        } else if (typeof seasonData === 'object' && seasonData !== null) {
+          episodeCount = Object.keys(seasonData).length;
+        }
         return `
           <button class="season-tag ${isSelected ? 'active' : ''}" data-season="${sNum}" onclick="selectSeasonForEpisode('${sNum}')">
             <i class="fas fa-layer-group"></i> Sezon ${sNum}
@@ -1842,7 +1854,14 @@ function renderSeasons(contentId) {
     }
 
     container.innerHTML = seasonKeys.map(sNum => {
-      const episodes = seasons[sNum] || [];
+      let episodes = [];
+      const seasonData = seasons[sNum];
+      if (Array.isArray(seasonData)) {
+        episodes = seasonData;
+      } else if (typeof seasonData === 'object' && seasonData !== null) {
+        episodes = Object.values(seasonData).filter(item => item && typeof item === 'object');
+      }
+
       return `
         <div class="season-block">
           <div class="season-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'flex':'none'">
@@ -1860,7 +1879,7 @@ function renderSeasons(contentId) {
             ${episodes.length === 0 ? '<p style="color:var(--text-muted);padding:8px 0;font-size:0.8rem">Henüz bölüm yok.</p>' :
               episodes.map(ep => `
                 <div class="season-episode-item">
-                  <span><strong>${ep.num}.</strong> ${ep.title || `Bölüm ${ep.num}`}</span>
+                  <span><strong>${ep.num || '?' }.</strong> ${ep.title || `Bölüm ${ep.num || '?'}`}</span>
                   <button class="ep-delete" onclick="confirmDeleteEpisode('${contentId}',${sNum},${ep.num})"><i class="fas fa-times"></i></button>
                 </div>
               `).join('')}
@@ -1868,6 +1887,9 @@ function renderSeasons(contentId) {
         </div>
       `;
     }).join('');
+  }).catch(err => {
+    console.error('renderSeasons error:', err);
+    document.getElementById('seasonsContainer').innerHTML = '<p style="color:var(--error)">Veri yüklenirken hata oluştu.</p>';
   });
 }
 
@@ -1930,30 +1952,31 @@ document.getElementById('addSeasonBtn').addEventListener('click', () => {
   if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
   if (!num || num < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
 
-  getContentById(id, (content) => {
-    if (!content) return showToast('Dizi bulunamadı!', 'error');
+  const seasonKey = String(num);
 
-    const seasons = content.seasons || {};
-    const seasonKey = String(num);
-
-    if (seasons[seasonKey] !== undefined) {
+  // Check if season already exists first
+  get(child(ref(db), `content/${id}/seasons/${seasonKey}`)).then((snap) => {
+    if (snap.exists()) {
       return showToast(`Sezon ${num} zaten mevcut!`, 'error');
     }
 
-    seasons[seasonKey] = [];
-
-    update(ref(db, `content/${id}`), { seasons })
+    // Add season directly to specific path
+    set(ref(db, `content/${id}/seasons/${seasonKey}`), [])
       .then(() => {
         showToast(`Sezon ${num} eklendi!`, 'success');
         document.getElementById('seasonNumber').value = '';
         renderSeasons(id);
         renderContent();
-        // Auto-select the new season after render
+        // Auto-select the new season
         setTimeout(() => selectSeasonForEpisode(seasonKey), 100);
       })
       .catch(err => {
         showToast('Sezon eklenirken hata: ' + err.message, 'error');
+        console.error('Add season error:', err);
       });
+  }).catch(err => {
+    showToast('Kontrol hatası: ' + err.message, 'error');
+    console.error('Check season error:', err);
   });
 });
 
@@ -1965,31 +1988,35 @@ document.getElementById('addEpisodeBtn').addEventListener('click', () => {
   const video = document.getElementById('episodeVideo').value.trim();
 
   if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
-  if (!currentSelectedSeason) return showToast('Önce bir sezon seçin!', 'error');
+  if (!currentSelectedSeason) return showToast('Önce bir sezon seçin! Sezon butonlarından birine tıklayın.', 'error');
   if (!num || num < 1) return showToast('Geçerli bir bölüm numarası girin.', 'error');
 
-  getContentById(id, (content) => {
-    if (!content) return showToast('Dizi bulunamadı!', 'error');
+  const seasonKey = currentSelectedSeason;
 
-    const seasons = content.seasons || {};
-    const seasonKey = currentSelectedSeason;
-
-    if (seasons[seasonKey] === undefined) {
-      return showToast(`Sezon ${seasonKey} mevcut değil! Önce sezon ekleyin.`, 'error');
+  // Read current season data directly from Firebase
+  get(child(ref(db), `content/${id}/seasons/${seasonKey}`)).then((snap) => {
+    let episodes = [];
+    if (snap.exists()) {
+      const val = snap.val();
+      if (Array.isArray(val)) {
+        episodes = val;
+      } else if (typeof val === 'object' && val !== null) {
+        // Handle case where data might be stored as object
+        episodes = Object.values(val).filter(item => item && typeof item === 'object');
+      }
     }
 
-    if (!Array.isArray(seasons[seasonKey])) {
-      seasons[seasonKey] = [];
-    }
-
-    if (seasons[seasonKey].find(e => e.num === num)) {
+    // Check if episode already exists
+    if (episodes.find(e => e && e.num === num)) {
       return showToast(`Bölüm ${num} zaten mevcut!`, 'error');
     }
 
-    seasons[seasonKey].push({ num, title: title || `Bölüm ${num}`, video });
-    seasons[seasonKey].sort((a, b) => a.num - b.num);
+    // Add new episode
+    episodes.push({ num, title: title || `Bölüm ${num}`, video });
+    episodes.sort((a, b) => (a.num || 0) - (b.num || 0));
 
-    update(ref(db, `content/${id}`), { seasons })
+    // Update specific season path
+    set(ref(db, `content/${id}/seasons/${seasonKey}`), episodes)
       .then(() => {
         showToast(`Bölüm ${num} eklendi!`, 'success');
         document.getElementById('episodeNumber').value = '';
@@ -2000,7 +2027,11 @@ document.getElementById('addEpisodeBtn').addEventListener('click', () => {
       })
       .catch(err => {
         showToast('Bölüm eklenirken hata: ' + err.message, 'error');
+        console.error('Add episode error:', err);
       });
+  }).catch(err => {
+    showToast('Sezon okuma hatası: ' + err.message, 'error');
+    console.error('Read season error:', err);
   });
 });
 
@@ -2012,46 +2043,54 @@ document.getElementById('addEpisodeBtn').addEventListener('click', () => {
 window.confirmDeleteSeason = function(contentId, num) {
   if (!confirm(`Sezon ${num} ve tüm bölümleri silinsin mi?`)) return;
 
-  getContentById(contentId, (content) => {
-    if (content && content.seasons) {
-      const seasons = { ...content.seasons };
-      delete seasons[String(num)];
+  const seasonKey = String(num);
 
-      update(ref(db, `content/${contentId}`), { seasons })
-        .then(() => {
-          showToast(`Sezon ${num} silindi!`, 'info');
-          if (currentSelectedSeason === String(num)) {
-            clearSelectedSeason();
-          }
-          renderSeasons(contentId);
-          renderSeriesSelect(true);
-          renderContent();
-        })
-        .catch(err => {
-          showToast('Silme hatası: ' + err.message, 'error');
-        });
-    }
-  });
+  remove(ref(db, `content/${contentId}/seasons/${seasonKey}`))
+    .then(() => {
+      showToast(`Sezon ${num} silindi!`, 'info');
+      if (currentSelectedSeason === seasonKey) {
+        clearSelectedSeason();
+      }
+      renderSeasons(contentId);
+      renderSeriesSelect(true);
+      renderContent();
+    })
+    .catch(err => {
+      showToast('Silme hatası: ' + err.message, 'error');
+      console.error('Delete season error:', err);
+    });
 };
 
 window.confirmDeleteEpisode = function(contentId, seasonNum, epNum) {
   if (!confirm(`Bölüm ${epNum} silinsin mi?`)) return;
 
-  getContentById(contentId, (content) => {
-    if (content && content.seasons?.[String(seasonNum)]) {
-      const seasons = { ...content.seasons };
-      seasons[String(seasonNum)] = seasons[String(seasonNum)].filter(e => e.num !== epNum);
+  const seasonKey = String(seasonNum);
 
-      update(ref(db, `content/${contentId}`), { seasons })
-        .then(() => {
-          showToast(`Bölüm ${epNum} silindi!`, 'info');
-          renderSeasons(contentId);
-          renderContent();
-        })
-        .catch(err => {
-          showToast('Silme hatası: ' + err.message, 'error');
-        });
+  get(child(ref(db), `content/${contentId}/seasons/${seasonKey}`)).then((snap) => {
+    if (!snap.exists()) {
+      return showToast('Sezon bulunamadı!', 'error');
     }
+
+    let episodes = [];
+    const val = snap.val();
+    if (Array.isArray(val)) {
+      episodes = val.filter(e => e && e.num !== epNum);
+    } else if (typeof val === 'object' && val !== null) {
+      episodes = Object.values(val).filter(e => e && e.num !== epNum);
+    }
+
+    set(ref(db, `content/${contentId}/seasons/${seasonKey}`), episodes)
+      .then(() => {
+        showToast(`Bölüm ${epNum} silindi!`, 'info');
+        renderSeasons(contentId);
+        renderContent();
+      })
+      .catch(err => {
+        showToast('Silme hatası: ' + err.message, 'error');
+        console.error('Delete episode error:', err);
+      });
+  }).catch(err => {
+    showToast('Veri okuma hatası: ' + err.message, 'error');
   });
 };
 
