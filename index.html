@@ -1196,7 +1196,7 @@ async function searchTMDB(query, type = 'movie') {
 async function getTMDBDetails(id, type = 'movie') {
   if (!tmdbCheckKey()) return null;
   const endpoint = type === 'tv' ? 'tv' : 'movie';
-  const url = `https://api.themoviedb.org/3/${endpoint}/${id}?language=tr-TR&append_to_response=credits,external_ids,videos`;
+  const url = `https://api.themoviedb.org/3/${endpoint}/${id}?language=tr-TR&append_to_response=credits,external_ids,videos&include_video_language=tr,en`;
   try {
     return await tmdbFetch(url);
   } catch (err) {
@@ -1280,7 +1280,8 @@ function fillFormFromTMDB(item, type) {
   document.getElementById('formCast').value = JSON.stringify({ cast, crew });
   
   const videos = item.videos?.results || [];
-  const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube')
+  const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube' && v.iso_639_1 === 'tr')
+               || videos.find(v => v.type === 'Trailer' && v.site === 'YouTube')
                || videos.find(v => v.site === 'YouTube');
   if (trailer) {
     document.getElementById('formTrailer').value =
