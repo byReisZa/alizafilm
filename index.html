@@ -403,6 +403,7 @@
                     </div>
                   </div>
                 </div>
+                <input type="hidden" id="formCast">
                 <div class="form-group" id="videoUrlGroup">
                   <label>Video URL <span id="videoLabelSuffix">(Film)</span></label>
                   <input type="url" id="formVideo" placeholder="https://example.com/video.mp4">
@@ -866,7 +867,28 @@ function showDetail(id) {
       bodyHtml += '</div>';
     }
 
-    // Similar / info section
+    // Cast
+    const castData = content.cast;
+    if (castData && castData.cast && castData.cast.length > 0) {
+      bodyHtml += `
+        <div class="detail-body-section">
+          <h3 class="detail-body-title"><i class="fas fa-users"></i> Oyuncular</h3>
+          <div class="detail-cast-grid">
+            ${castData.cast.map(c => `
+              <div class="detail-cast-card">
+                <div class="cast-photo">
+                  ${c.photo ? `<img src="${c.photo}" alt="${c.name}" loading="lazy">` : '<i class="fas fa-user"></i>'}
+                </div>
+                <div class="cast-name">${c.name}</div>
+                <div class="cast-role">${c.character || ''}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Info section
     bodyHtml += `
       <div class="detail-body-section">
         <h3 class="detail-body-title"><i class="fas fa-circle-info"></i> Bilgiler</h3>
@@ -1341,6 +1363,18 @@ function fillFormFromTMDB(item, type) {
     bgInput.dispatchEvent(new Event('input'));
   }
   
+  // Cast & crew
+  const cast = (item.credits?.cast || []).slice(0, 12).map(c => ({
+    name: c.name,
+    character: c.character,
+    photo: c.profile_path ? `${TMDB_IMG_URL}w92${c.profile_path}` : ''
+  }));
+  const crew = (item.credits?.crew || []).slice(0, 5).map(c => ({
+    name: c.name,
+    job: c.job || c.department
+  }));
+  document.getElementById('formCast').value = JSON.stringify({ cast, crew });
+  
   showToast(`"${item.title || item.name}" formu dolduruldu!`, 'success');
 }
 
@@ -1433,6 +1467,7 @@ window.editContent = function(id) {
     document.getElementById('formRating').value = content.rating || '';
     document.getElementById('formVideo').value = content.video || '';
     document.getElementById('formDesc').value = content.desc || '';
+    document.getElementById('formCast').value = content.cast ? JSON.stringify(content.cast) : '';
 
     const formImage = document.getElementById('formImage');
     formImage.value = content.image || '';
@@ -1921,7 +1956,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!title) return showToast('Başlık zorunludur!', 'error');
 
-    const contentData = { title, type, category, lang, year, rating, image, bg, video, desc };
+    const castRaw = document.getElementById('formCast').value;
+    const cast = castRaw ? JSON.parse(castRaw) : null;
+    const contentData = { title, type, category, lang, year, rating, image, bg, video, desc, cast };
 
     if (editingId) {
       getContentById(editingId, (existing) => {
