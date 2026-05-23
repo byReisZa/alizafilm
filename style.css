@@ -575,7 +575,7 @@ ul, ol {
 }
 
 .discover-card:hover {
-  transform: translateY(-6px) scale(1.02);
+  transform: translateY(-4px);
   border-color: var(--primary);
   box-shadow: 0 8px 30px rgba(10, 132, 255, 0.2);
 }
@@ -1005,7 +1005,7 @@ ul, ol {
 }
 
 .content-card:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-4px);
   border-color: var(--border-color);
   box-shadow: var(--shadow-xl), 0 0 40px rgba(10, 132, 255, 0.15);
 }
@@ -4182,14 +4182,8 @@ ul, ol {
 .btn-primary,
 .btn-secondary,
 .admin-tab,
-.nav-link,
-.episode-item,
-.toast,
-.admin-list-item,
-.season-header,
-.modal-container,
-.admin-container,
-.player-container {
+.discover-card,
+.content-card {
   will-change: transform;
 }
 
@@ -5519,6 +5513,20 @@ textarea:focus-visible {
    MOBILE IMPROVEMENTS
    ============================ */
 
+@media (hover: none) {
+  .discover-card:hover,
+  .content-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .discover-card:active {
+    transform: scale(0.98);
+  }
+  .content-card:active {
+    transform: scale(0.98);
+  }
+}
+
 @media (max-width: 768px) {
   .hero {
     height: 55vh;
@@ -5547,6 +5555,14 @@ textarea:focus-visible {
   }
   .discover-row-header h3 {
     font-size: 0.82rem;
+  }
+  .bottom-nav {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .top-header.scrolled {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }
 
