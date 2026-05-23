@@ -24,6 +24,7 @@
       <div class="header-actions">
         <button class="header-btn" id="fullscreenApp" title="Tam Ekran"><i class="fas fa-expand"></i></button>
         <button class="header-btn" id="searchToggleBtn" title="Ara"><i class="fas fa-search"></i></button>
+        <button class="header-btn" id="settingsBtn" title="Ayarlar"><i class="fas fa-cog"></i></button>
         <button class="header-btn" id="userToggle" title="Hesabım"><i class="fas fa-user"></i></button>
         <button class="header-btn" id="adminToggle" title="Admin"><i class="fas fa-shield-halved"></i></button>
       </div>
@@ -76,7 +77,6 @@
     <button class="nav-item" data-page="discover"><i class="fas fa-compass"></i><span>Keşfet</span></button>
     <button class="nav-item" data-page="movies"><i class="fas fa-film"></i><span>Filmler</span></button>
     <button class="nav-item" data-page="series"><i class="fas fa-tv"></i><span>Diziler</span></button>
-    <button class="nav-item" data-page="account"><i class="fas fa-user"></i><span>Hesap</span></button>
   </nav>
 
   <div class="player-overlay" id="playerOverlay">
@@ -191,6 +191,16 @@
             <p id="profileEmail">—</p>
             <span class="profile-badge" id="profileBadge">Üye</span>
           </div>
+        </div>
+        <div class="profile-stats" id="profileStats">
+          <div class="stat-item"><i class="fas fa-film"></i><span class="stat-value" id="statMovies">0</span><span class="stat-label">Film</span></div>
+          <div class="stat-item"><i class="fas fa-tv"></i><span class="stat-value" id="statSeries">0</span><span class="stat-label">Dizi</span></div>
+          <div class="stat-item"><i class="fas fa-clock"></i><span class="stat-value" id="statTime">0</span><span class="stat-label">Dk</span></div>
+          <div class="stat-item"><i class="fas fa-star"></i><span class="stat-value" id="statFavCat">—</span><span class="stat-label">Kategori</span></div>
+        </div>
+        <div class="profile-lastwatched" id="profileLastWatched" style="display:none">
+          <h4><i class="fas fa-history"></i> Son İzlenen</h4>
+          <p id="lastWatchedInfo">—</p>
         </div>
         <button class="btn-secondary logout-btn" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Çıkış Yap</button>
       </div>
@@ -411,6 +421,72 @@
     </div>
   </div>
 
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-container">
+      <div class="settings-header">
+        <h2><i class="fas fa-cog"></i> Ayarlar</h2>
+        <button class="settings-close" id="settingsClose"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="settings-body" id="settingsBody">
+
+        <div class="settings-section">
+          <h3><i class="fas fa-key"></i> Şifre Değiştir</h3>
+          <div class="form-group">
+            <label>Yeni Şifre</label>
+            <input type="password" id="settingsNewPass" placeholder="••••••••">
+          </div>
+          <button class="btn-primary" id="settingsChangePassBtn"><i class="fas fa-save"></i> Şifreyi Değiştir</button>
+        </div>
+
+        <div class="settings-section">
+          <h3><i class="fas fa-user"></i> Kullanıcı Adını Değiştir <span class="settings-badge">Ayda 1 kez</span></h3>
+          <div class="form-group">
+            <label>Yeni Kullanıcı Adı</label>
+            <input type="text" id="settingsNewUsername" placeholder="yeni_kullanici_adi">
+          </div>
+          <button class="btn-primary" id="settingsChangeUsernameBtn"><i class="fas fa-save"></i> Kullanıcı Adını Değiştir</button>
+          <p class="settings-note" id="usernameNote"></p>
+        </div>
+
+        <div class="settings-section">
+          <h3><i class="fas fa-palette"></i> Tema Seç</h3>
+          <div class="theme-grid" id="themeGrid">
+            <button class="theme-option active" data-theme="aliza"><span class="theme-preview" style="background:linear-gradient(135deg,#0A84FF,#00E5FF)"></span> ALIZA Mavi</button>
+            <button class="theme-option" data-theme="crimson"><span class="theme-preview" style="background:linear-gradient(135deg,#DC143C,#FF6B6B)"></span> Koyu Kırmızı</button>
+            <button class="theme-option" data-theme="emerald"><span class="theme-preview" style="background:linear-gradient(135deg,#10B981,#34D399)"></span> Zümrüt Yeşil</button>
+            <button class="theme-option" data-theme="purple"><span class="theme-preview" style="background:linear-gradient(135deg,#7C3AED,#A78BFA)"></span> Gece Moru</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3><i class="fas fa-info-circle"></i> Site Nasıl Kullanılır</h3>
+          <div class="settings-guide">
+            <p><strong>1.</strong> Ana sayfada popüler içerikleri keşfedin.</p>
+            <p><strong>2.</strong> Alt menüden Filmler veya Diziler arasında geçiş yapın.</p>
+            <p><strong>3.</strong> Bir içeriğe tıklayarak detayları görün ve izleyin.</p>
+            <p><strong>4.</strong> Keşfet bölümünde tüm kategorilere göz atın.</p>
+            <p><strong>5.</strong> Admin panelinden yeni içerik ekleyebilirsiniz (admin yetkisi gereklidir).</p>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3><i class="fas fa-envelope"></i> İletişim & Şikayet</h3>
+          <div class="settings-contact">
+            <p><i class="fas fa-envelope"></i> <strong>E-posta:</strong> alininsiteleri27@gmail.com</p>
+            <p><i class="fas fa-phone"></i> <strong>Telefon:</strong> +90 5XX XXX XX XX</p>
+          </div>
+          <div class="form-group">
+            <label>Şikayet / Öneri (günde en fazla 5)</label>
+            <textarea id="complaintText" rows="3" placeholder="Şikayet veya önerinizi yazın..."></textarea>
+          </div>
+          <button class="btn-primary" id="sendComplaintBtn"><i class="fas fa-paper-plane"></i> Gönder</button>
+          <p class="settings-note" id="complaintNote"></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <footer class="footer">
@@ -445,7 +521,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getDatabase, ref, set, push, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut, updateProfile, signInWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut, updateProfile, updatePassword, signInWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBK3mnQL99Lfqx7cWkufo3HKDkp7SIGznA",
@@ -798,6 +874,7 @@ function openPlayer(contentId, season, episode) {
     const episodesSection = document.getElementById('playerEpisodes');
 
     currentPlayer = contentId;
+    trackWatch(content);
     title.textContent = content.title || '—';
     video.style.display = 'none';
     video.src = '';
@@ -1020,12 +1097,17 @@ function buildLetterFilter() {}
 
 function filterByLetter() {}
 
-function renderDiscover(filter) {
+function renderDiscover(filter, searchQuery) {
   const container = document.getElementById('discoverRows');
   loadContent((data) => {
     if (!data || data.length === 0) { container.innerHTML = ''; return; }
     let categories;
-    if (filter === 'movie') {
+    if (filter === 'search' && searchQuery) {
+      const matched = data.filter(c => c.title?.toLowerCase().includes(searchQuery));
+      categories = matched.length > 0
+        ? [{ key: 'search', label: `"${searchQuery}" için sonuçlar`, icon: 'fa-search', items: matched.slice(0, 30) }]
+        : [{ key: 'noresult', label: `"${searchQuery}" için sonuç bulunamadı`, icon: 'fa-search', items: [] }];
+    } else if (filter === 'movie') {
       categories = [{ key: 'movie', label: 'Filmler', icon: 'fa-film', items: data.filter(c => c.type === 'movie').slice(0, 20) }];
     } else if (filter === 'series') {
       categories = [{ key: 'series', label: 'Diziler', icon: 'fa-tv', items: data.filter(c => c.type === 'series').slice(0, 20) }];
@@ -1039,6 +1121,10 @@ function renderDiscover(filter) {
       ];
     } else {
       categories = [{ key: 'popular', label: 'Popüler', icon: 'fa-fire', items: [...data].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 20) }];
+    }
+    if (filter === 'search' && searchQuery && !data.some(c => c.title?.toLowerCase().includes(searchQuery))) {
+      container.innerHTML = `<div class="discover-row"><div class="discover-row-header"><h3><i class="fas fa-search"></i> "${searchQuery}" için sonuç bulunamadı</h3></div></div>`;
+      return;
     }
     container.innerHTML = categories.filter(g => g.items.length > 0).map(group => `
       <div class="discover-row">
@@ -1390,6 +1476,123 @@ function updateAuthUI(user) {
   }
 }
 
+/* USER STATS & SETTINGS HELPERS */
+
+function getUserStatsRef() {
+  if (!currentUser) return null;
+  return ref(db, `users/${currentUser.uid}/stats`);
+}
+
+function loadUserStats() {
+  const statsRef = getUserStatsRef();
+  if (!statsRef) return;
+  get(statsRef).then((snap) => {
+    const s = snap.val() || {};
+    document.getElementById('statMovies').textContent = s.moviesWatched || 0;
+    document.getElementById('statSeries').textContent = s.seriesWatched || 0;
+    document.getElementById('statTime').textContent = s.totalMinutes || 0;
+    document.getElementById('statFavCat').textContent = s.favCategory || '—';
+    const lw = s.lastWatched;
+    if (lw) {
+      document.getElementById('profileLastWatched').style.display = 'block';
+      document.getElementById('lastWatchedInfo').textContent = `${lw.title} · ${new Date(lw.timestamp).toLocaleDateString('tr-TR')}`;
+    }
+  }).catch(() => {});
+}
+
+function saveUserStats(stats) {
+  const statsRef = getUserStatsRef();
+  if (!statsRef) return;
+  get(statsRef).then((snap) => {
+    const current = snap.val() || {};
+    update(statsRef, { ...current, ...stats });
+  }).catch(() => {});
+}
+
+function trackWatch(content) {
+  if (!currentUser || currentUser.isAnonymous) return;
+  const isMovie = content.type === 'movie';
+  const statsRef = getUserStatsRef();
+  if (!statsRef) return;
+  get(statsRef).then((snap) => {
+    const s = snap.val() || {};
+    const updates = {
+      lastWatched: { id: content.id, title: content.title, timestamp: Date.now() },
+      totalMinutes: (s.totalMinutes || 0) + (isMovie ? 90 : 30),
+    };
+    if (isMovie) {
+      updates.moviesWatched = (s.moviesWatched || 0) + 1;
+    } else {
+      updates.seriesWatched = (s.seriesWatched || 0) + 1;
+    }
+    const cat = content.category;
+    if (cat) {
+      const catCount = s.categoryCounts || {};
+      catCount[cat] = (catCount[cat] || 0) + 1;
+      updates.categoryCounts = catCount;
+      let maxCat = cat;
+      let maxCount = 0;
+      Object.entries(catCount).forEach(([k, v]) => { if (v > maxCount) { maxCat = k; maxCount = v; } });
+      updates.favCategory = maxCat;
+    }
+    if (content.cast?.cast?.length > 0) {
+      const actorCounts = s.actorCounts || {};
+      content.cast.cast.slice(0, 5).forEach(a => {
+        if (a.name) actorCounts[a.name] = (actorCounts[a.name] || 0) + 1;
+      });
+      updates.actorCounts = actorCounts;
+      let maxActor = '—';
+      let maxCount2 = 0;
+      Object.entries(actorCounts).forEach(([k, v]) => { if (v > maxCount2) { maxActor = k; maxCount2 = v; } });
+      updates.favActor = maxActor;
+    }
+    update(statsRef, updates);
+  }).catch(() => {});
+}
+
+function applyTheme(theme) {
+  document.body.classList.remove('theme-crimson', 'theme-emerald', 'theme-purple');
+  if (theme && theme !== 'aliza') {
+    document.body.classList.add(`theme-${theme}`);
+  }
+  document.querySelectorAll('.theme-option').forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+  localStorage.setItem('aliza-theme', theme || 'aliza');
+}
+
+function getSavedTheme() {
+  return localStorage.getItem('aliza-theme') || 'aliza';
+}
+
+/* COMPLAINT HELPERS */
+
+function getComplaintCount() {
+  try { return Number(localStorage.getItem('aliza-complaint-date') === new Date().toDateString() ? localStorage.getItem('aliza-complaint-count') || 0 : 0); } catch { return 0; }
+}
+
+function incComplaintCount() {
+  const today = new Date().toDateString();
+  const count = getComplaintCount() + 1;
+  localStorage.setItem('aliza-complaint-date', today);
+  localStorage.setItem('aliza-complaint-count', count);
+}
+
+/* USERNAME CHANGE TRACKING */
+
+function getUsernameLastChange() {
+  return localStorage.getItem('aliza-username-last') ? new Date(localStorage.getItem('aliza-username-last')) : null;
+}
+
+function canChangeUsername() {
+  const last = getUsernameLastChange();
+  if (!last) return true;
+  const diff = new Date() - last;
+  return diff >= 30 * 24 * 60 * 60 * 1000;
+}
+
+function setUsernameChanged() {
+  localStorage.setItem('aliza-username-last', new Date().toISOString());
+}
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUserRole = await getUserRole(user.uid);
@@ -1463,11 +1666,6 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (page === 'series') {
         document.getElementById('discoverSection').style.display = 'block';
         renderDiscover('series');
-      } else if (page === 'account') {
-        document.getElementById('userOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-        item.classList.remove('active');
-        document.querySelector('.nav-item[data-page="home"]').classList.add('active');
       }
     });
   });
@@ -1490,7 +1688,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
   });
   document.getElementById('searchInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {}
+    if (e.key === 'Enter') {
+      const val = document.getElementById('searchInput').value.trim().toLowerCase();
+      if (!val) return;
+      document.getElementById('hero').style.display = 'none';
+      document.getElementById('discoverSection').style.display = 'block';
+      renderDiscover('search', val);
+    }
   });
 
   /* Detail Overlay */
@@ -1974,12 +2178,101 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* Settings Overlay */
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    applyTheme(getSavedTheme());
+  });
+
+  document.getElementById('settingsClose').addEventListener('click', () => {
+    document.getElementById('settingsOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  document.getElementById('settingsOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('settingsOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  /* Change Password */
+  document.getElementById('settingsChangePassBtn').addEventListener('click', () => {
+    const newPass = document.getElementById('settingsNewPass').value;
+    if (!newPass || newPass.length < 6) return showToast('Şifre en az 6 karakter olmalı!', 'error');
+    if (!currentUser) return showToast('Önce giriş yapmalısın!', 'error');
+    updatePassword(currentUser, newPass)
+      .then(() => { showToast('Şifre değiştirildi!', 'success'); document.getElementById('settingsNewPass').value = ''; })
+      .catch((err) => showToast(err.message, 'error'));
+  });
+
+  /* Change Username */
+  document.getElementById('settingsChangeUsernameBtn').addEventListener('click', () => {
+    const newName = document.getElementById('settingsNewUsername').value.trim();
+    if (!newName) return showToast('Kullanıcı adı gir!', 'error');
+    if (!currentUser) return showToast('Önce giriş yapmalısın!', 'error');
+    if (!canChangeUsername()) {
+      const last = getUsernameLastChange();
+      const daysLeft = Math.ceil(30 - (new Date() - last) / (24*60*60*1000));
+      return showToast(`Kullanıcı adını ${daysLeft} gün sonra değiştirebilirsin.`, 'warning');
+    }
+    updateProfile(currentUser, { displayName: newName })
+      .then(() => {
+        setUsernameChanged();
+        showToast('Kullanıcı adı değiştirildi!', 'success');
+        document.getElementById('settingsNewUsername').value = '';
+        updateAuthUI(currentUser);
+      })
+      .catch((err) => showToast(err.message, 'error'));
+  });
+
+  /* Theme Selection */
+  document.querySelectorAll('.theme-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.dataset.theme;
+      applyTheme(theme);
+      showToast('Tema değiştirildi!', 'success');
+    });
+  });
+
+  /* Send Complaint */
+  document.getElementById('sendComplaintBtn').addEventListener('click', () => {
+    const text = document.getElementById('complaintText').value.trim();
+    if (!text) return showToast('Şikayet metni girin.', 'error');
+    if (!currentUser) return showToast('Önce giriş yapmalısın!', 'error');
+    const count = getComplaintCount();
+    if (count >= 5) return showToast('Günde en fazla 5 şikayet gönderebilirsin.', 'warning');
+    const complaintsRef = ref(db, `complaints/${Date.now()}`);
+    set(complaintsRef, {
+      userId: currentUser.uid,
+      email: currentUser.email || 'anon',
+      text,
+      createdAt: Date.now()
+    }).then(() => {
+      incComplaintCount();
+      showToast('Şikayetiniz gönderildi!', 'success');
+      document.getElementById('complaintText').value = '';
+      document.getElementById('complaintNote').textContent = `Bugün ${count + 1}/5 şikayet gönderdin.`;
+    }).catch((err) => showToast(err.message, 'error'));
+  });
+
+  /* Load stats when user modal opens */
+  document.getElementById('userToggle').addEventListener('click', () => {
+    document.getElementById('userOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (currentUser && !currentUser.isAnonymous) loadUserStats();
+  });
+
   /* Hero Info Button */
   document.getElementById('heroInfo').addEventListener('click', () => {
     loadContent((data) => {
       if (data.length > 0) showDetail(data[0].id);
     });
   });
+
+  /* Apply saved theme on load */
+  applyTheme(getSavedTheme());
 
   /* Initial Render */
   renderContent();
