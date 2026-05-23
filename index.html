@@ -1028,15 +1028,15 @@ function renderAdminList() {
   });
 }
 
-function renderSeriesSelect(keepSelection = false) {
+function renderSeriesSelect() {
   loadContent((data) => {
     const series = data.filter(c => c.type === 'series');
     const select = document.getElementById('seriesSelect');
-    const prevVal = select.value;
+    const currentVal = select.value;
     select.innerHTML = '<option value="">— Dizi Seçin —</option>' +
       series.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
-    if (keepSelection && prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
-      select.value = prevVal;
+    if (currentVal && select.querySelector(`option[value="${currentVal}"]`)) {
+      select.value = currentVal;
       document.getElementById('seriesManagement').style.display = 'block';
     } else {
       select.value = '';
