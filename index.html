@@ -1019,17 +1019,26 @@ function buildLetterFilter() {}
 
 function filterByLetter() {}
 
-function renderDiscover() {
+function renderDiscover(filter) {
   const container = document.getElementById('discoverRows');
   loadContent((data) => {
     if (!data || data.length === 0) { container.innerHTML = ''; return; }
-    const categories = [
-      { key: 'popular', label: 'Popüler', icon: 'fa-fire', items: [...data].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 15) },
-      { key: 'latest', label: 'Son Eklenenler', icon: 'fa-clock', items: [...data].reverse().slice(0, 15) },
-      { key: 'movie', label: 'Filmler', icon: 'fa-film', items: data.filter(c => c.type === 'movie').slice(0, 15) },
-      { key: 'series', label: 'Diziler', icon: 'fa-tv', items: data.filter(c => c.type === 'series').slice(0, 15) },
-      { key: 'turkish', label: 'Türkçe Dublaj', icon: 'fa-language', items: data.filter(c => c.lang === 'turkish' || c.lang === 'both').slice(0, 15) },
-    ];
+    let categories;
+    if (filter === 'movie') {
+      categories = [{ key: 'movie', label: 'Filmler', icon: 'fa-film', items: data.filter(c => c.type === 'movie').slice(0, 20) }];
+    } else if (filter === 'series') {
+      categories = [{ key: 'series', label: 'Diziler', icon: 'fa-tv', items: data.filter(c => c.type === 'series').slice(0, 20) }];
+    } else if (filter === 'discover') {
+      categories = [
+        { key: 'popular', label: 'Popüler', icon: 'fa-fire', items: [...data].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 15) },
+        { key: 'latest', label: 'Son Eklenenler', icon: 'fa-clock', items: [...data].reverse().slice(0, 15) },
+        { key: 'movie', label: 'Filmler', icon: 'fa-film', items: data.filter(c => c.type === 'movie').slice(0, 15) },
+        { key: 'series', label: 'Diziler', icon: 'fa-tv', items: data.filter(c => c.type === 'series').slice(0, 15) },
+        { key: 'turkish', label: 'Türkçe Dublaj', icon: 'fa-language', items: data.filter(c => c.lang === 'turkish' || c.lang === 'both').slice(0, 15) },
+      ];
+    } else {
+      categories = [{ key: 'popular', label: 'Popüler', icon: 'fa-fire', items: [...data].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 20) }];
+    }
     container.innerHTML = categories.filter(g => g.items.length > 0).map(group => `
       <div class="discover-row">
         <div class="discover-row-header">
@@ -1055,16 +1064,7 @@ function renderDiscover() {
     container.querySelectorAll('.discover-card').forEach(card => {
       card.addEventListener('click', () => showDetail(card.dataset.id));
     });
-    container.querySelectorAll('.see-all').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const filter = btn.dataset.filter;
-        const navMap = { movie: 'movies', series: 'series' };
-        const navPage = navMap[filter] || 'home';
-        const navItem = document.querySelector(`.nav-item[data-page="${navPage}"]`);
-        if (navItem) navItem.click();
-      });
-    });
+
   });
 }
 
@@ -1440,7 +1440,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* Bottom Nav */
-  document.querySelectorAll('.nav-item').forEach(item => {
+    document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       item.classList.add('active');
@@ -1452,8 +1452,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (page === 'home') {
         document.getElementById('hero').style.display = 'block';
         document.getElementById('discoverSection').style.display = 'block';
+        renderDiscover();
       } else if (page === 'discover') {
         document.getElementById('discoverSection').style.display = 'block';
+        renderDiscover('discover');
+      } else if (page === 'movies') {
+        document.getElementById('discoverSection').style.display = 'block';
+        renderDiscover('movie');
+      } else if (page === 'series') {
+        document.getElementById('discoverSection').style.display = 'block';
+        renderDiscover('series');
       } else if (page === 'account') {
         document.getElementById('userOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
