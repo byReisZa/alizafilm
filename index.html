@@ -86,6 +86,10 @@
           <h3 id="playerTitle">Film Adı</h3>
           <span id="playerMeta">Sezon 1 - Bölüm 1</span>
         </div>
+        <div class="player-episode-nav" id="episodeNav" style="display:none">
+          <button class="player-btn" id="prevEpisodeBtn" title="Önceki Bölüm"><i class="fas fa-step-backward"></i></button>
+          <button class="player-btn" id="nextEpisodeBtn" title="Sonraki Bölüm"><i class="fas fa-step-forward"></i></button>
+        </div>
         <div class="player-controls-top">
           <button class="player-btn" id="playerFullscreen"><i class="fas fa-expand"></i></button>
           <button class="player-btn" id="playerClose"><i class="fas fa-xmark"></i></button>
@@ -493,6 +497,8 @@ let currentPlayer = null;
 let currentEpisode = null;
 let editingId = null;
 let currentPage = null;
+let currentPlayerContent = null;
+let currentPlayerEpisodes = [];
 
 function getUserRole(uid) {
   return new Promise((resolve) => {
@@ -815,10 +821,18 @@ function openPlayer(contentId, season, episode) {
     const placeholder = document.getElementById('playerPlaceholder');
     const info = document.getElementById('placeholderInfo');
     const episodesSection = document.getElementById('playerEpisodes');
+    const episodeNav = document.getElementById('episodeNav');
 
     currentPlayer = contentId;
+    currentPlayerContent = content;
     trackWatch(content);
     title.textContent = content.title || '—';
+
+    if (content.type === 'series' && content.seasons) {
+      episodeNav.style.display = 'flex';
+    } else {
+      episodeNav.style.display = 'none';
+    }
     video.style.display = 'none';
     video.src = '';
     iframe.style.display = 'none';
@@ -836,6 +850,12 @@ function openPlayer(contentId, season, episode) {
         currentEpisode = { season: s, episode: ep };
         const epData = seasons[s]?.find(e => e.num === ep);
         meta.textContent = `Sezon ${s} - Bölüm ${ep}${epData?.title ? ': ' + epData.title : ''}`;
+        currentPlayerEpisodes = (seasons[s] || []).filter(e => !e.__placeholder).sort((a, b) => a.num - b.num);
+        const prevBtn = document.getElementById('prevEpisodeBtn');
+        const nextBtn = document.getElementById('nextEpisodeBtn');
+        const epIdx = currentPlayerEpisodes.findIndex(e => e.num === ep);
+        prevBtn.style.opacity = epIdx > 0 ? '1' : '0.25';
+        nextBtn.style.opacity = epIdx >= 0 && epIdx < currentPlayerEpisodes.length - 1 ? '1' : '0.25';
         if (epData?.video) {
           playUrl('auto', epData.video, video, iframe, placeholder);
         } else {
@@ -916,8 +936,13 @@ function playEpisode(contentId, season, episode) {
     const info = document.getElementById('placeholderInfo');
 
     currentEpisode = { season, episode };
+    currentPlayerContent = content;
     const ep = content.seasons?.[season]?.find(e => e.num === episode);
     meta.textContent = `Sezon ${season} - Bölüm ${episode}${ep?.title ? ': ' + ep.title : ''}`;
+
+    currentPlayerEpisodes = (content.seasons?.[season] || []).filter(e => !e.__placeholder).sort((a, b) => a.num - b.num);
+    document.getElementById('prevEpisodeBtn').style.opacity = currentPlayerEpisodes.length > 0 && currentPlayerEpisodes[0].num < episode ? '1' : '0.3';
+    document.getElementById('nextEpisodeBtn').style.opacity = currentPlayerEpisodes.length > 0 && currentPlayerEpisodes[currentPlayerEpisodes.length - 1].num > episode ? '1' : '0.3';
 
     if (ep?.video) {
       playUrl('auto', ep.video, video, iframe, placeholder);
@@ -1734,6 +1759,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('playerPlaceholder').style.display = 'flex';
     overlay.classList.remove('active');
     document.body.style.overflow = '';
+    document.getElementById('episodeNav').style.display = 'none';
   });
 
   document.getElementById('playerFullscreen').addEventListener('click', () => {
@@ -1742,6 +1768,24 @@ document.addEventListener('DOMContentLoaded', () => {
       wrapper.requestFullscreen?.() || wrapper.webkitRequestFullscreen?.();
     } else {
       document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+    }
+  });
+
+  document.getElementById('prevEpisodeBtn').addEventListener('click', () => {
+    if (!currentPlayerContent || !currentEpisode || currentPlayerEpisodes.length === 0) return;
+    const idx = currentPlayerEpisodes.findIndex(e => e.num === currentEpisode.episode);
+    if (idx > 0) {
+      const prev = currentPlayerEpisodes[idx - 1];
+      playEpisode(currentPlayer, currentEpisode.season, prev.num);
+    }
+  });
+
+  document.getElementById('nextEpisodeBtn').addEventListener('click', () => {
+    if (!currentPlayerContent || !currentEpisode || currentPlayerEpisodes.length === 0) return;
+    const idx = currentPlayerEpisodes.findIndex(e => e.num === currentEpisode.episode);
+    if (idx < currentPlayerEpisodes.length - 1) {
+      const next = currentPlayerEpisodes[idx + 1];
+      playEpisode(currentPlayer, currentEpisode.season, next.num);
     }
   });
 
