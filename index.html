@@ -56,6 +56,7 @@
         </div>
         <div class="hero-actions">
           <button class="btn-primary hero-play" id="heroPlay"><i class="fas fa-play"></i> İzle</button>
+          <button class="btn-secondary hero-trailer" id="heroTrailer" style="display:none"><i class="fas fa-film"></i> Fragman</button>
           <button class="btn-secondary hero-info" id="heroInfo"><i class="fas fa-circle-info"></i> Detay</button>
         </div>
       </div>
@@ -668,6 +669,8 @@ function renderContent() {
 
 function updateStats() {}
 
+let currentHeroData = null;
+
 function updateHero(data) {
   if (data.length === 0) {
     document.getElementById('heroTitle').textContent = 'Hoş Geldiniz';
@@ -675,14 +678,23 @@ function updateHero(data) {
     document.getElementById('heroYear').textContent = '—';
     document.getElementById('heroRating').textContent = '—';
     document.getElementById('heroLang').innerHTML = '<i class="fas fa-language"></i> ALIZA';
+    document.getElementById('heroTrailer').style.display = 'none';
     return;
   }
   const featured = data[Math.floor(Math.random() * Math.min(data.length, 10))];
+  currentHeroData = featured;
   document.getElementById('heroTitle').textContent = featured.title || '—';
   document.getElementById('heroDesc').textContent = featured.desc || 'Açıklama bulunamadı.';
   document.getElementById('heroYear').textContent = featured.year || '—';
   document.getElementById('heroRating').textContent = featured.rating || '—';
   document.getElementById('heroLang').innerHTML = `<i class="fas fa-language"></i> ${featured.lang === 'turkish' ? 'Türkçe Dublaj' : featured.lang === 'original' ? 'Orijinal Dil' : 'Türkçe + Orijinal'}`;
+  const trailerBtn = document.getElementById('heroTrailer');
+  if (featured.trailer) {
+    trailerBtn.style.display = 'inline-flex';
+    trailerBtn.onclick = () => openTrailer(featured.trailer);
+  } else {
+    trailerBtn.style.display = 'none';
+  }
   if (featured.bg) {
     document.getElementById('heroBg').style.backgroundImage = `url(${featured.bg})`;
     document.getElementById('heroBg').style.backgroundSize = 'cover';
@@ -1118,7 +1130,7 @@ function renderDiscover(filter, searchQuery) {
       categories = [{ key: 'popular', label: 'Popüler', icon: 'fa-fire', items: [...data].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 20) }];
     }
     if (filter === 'search' && searchQuery && !data.some(c => c.title?.toLowerCase().includes(searchQuery) || c.originalTitle?.toLowerCase().includes(searchQuery))) {
-      container.innerHTML = `<div class="discover-row"><div class="discover-row-header"><h3><i class="fas fa-search"></i> "${searchQuery}" için sonuç bulunamadı</h3></div></div>`;
+      container.innerHTML = `<div class="discover-row" style="text-align:center;padding:40px 20px"><div style="font-size:3rem;color:var(--text-muted);margin-bottom:16px;opacity:0.3"><i class="fas fa-search"></i></div><h3 style="color:var(--text-secondary);font-size:1.1rem">"${searchQuery}" için sonuç bulunamadı</h3><p style="color:var(--text-muted);font-size:0.85rem;margin-top:8px">Farklı bir kelime deneyin veya kategorilere göz atın</p></div>`;
       return;
     }
     container.innerHTML = categories.filter(g => g.items.length > 0).map(group => `
@@ -1128,11 +1140,12 @@ function renderDiscover(filter, searchQuery) {
           <span class="see-all" data-filter="${group.key}">Tümü</span>
         </div>
         <div class="discover-scroll">
-          ${group.items.map(item => `
+              ${group.items.map(item => `
             <div class="discover-card" data-id="${item.id}">
               <div class="discover-card-img">
                 <img src="${item.image || 'https://picsum.photos/seed/p' + item.id + '/260/390'}" alt="${item.title || ''}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'background:var(--bg-surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--text-muted)\\'><i class=\\'fas fa-film\\'></i></div>'">
                 ${item.rating ? `<span class="card-rating"><i class="fas fa-star"></i> ${item.rating}</span>` : ''}
+                ${item.trailer ? `<span class="card-trailer-badge" title="Fragman var"><i class="fas fa-film"></i></span>` : ''}
               </div>
               <div class="discover-card-info">
                 <h4>${item.title || '—'}</h4>
@@ -1754,9 +1767,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Hero Play */
   document.getElementById('heroPlay').addEventListener('click', () => {
-    loadContent((data) => {
-      if (data.length > 0) openPlayer(data[0].id);
-    });
+    if (currentHeroData) openPlayer(currentHeroData.id);
   });
 
   /* Player Controls */
@@ -2316,9 +2327,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Hero Info Button */
   document.getElementById('heroInfo').addEventListener('click', () => {
-    loadContent((data) => {
-      if (data.length > 0) showDetail(data[0].id);
-    });
+    if (currentHeroData) showDetail(currentHeroData.id);
   });
 
   /* Apply saved theme on load */
