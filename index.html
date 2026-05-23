@@ -21,6 +21,13 @@
         <div class="logo-glow-sm"></div>
         <span class="logo-text-sm">ALIZA</span>
       </div>
+      <div class="header-search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="headerSearch" placeholder="Film veya dizi ara...">
+        <button class="header-search-clear" id="headerSearchClear" style="display:none">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
       <div class="header-actions">
         <button class="header-btn" id="fullscreenApp" title="Tam Ekran"><i class="fas fa-expand"></i></button>
         <button class="header-btn" id="settingsBtn" title="Ayarlar"><i class="fas fa-cog"></i></button>
@@ -1625,6 +1632,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   typeSelect.addEventListener('change', toggleVideoField);
   toggleVideoField();
+
+  /* Header Search */
+  const headerSearchInput = document.getElementById('headerSearch');
+  const headerSearchClear = document.getElementById('headerSearchClear');
+
+  headerSearchInput.addEventListener('input', () => {
+    const q = headerSearchInput.value.trim().toLowerCase();
+    headerSearchClear.style.display = q ? 'block' : 'none';
+    document.getElementById('hero').style.display = q ? 'none' : 'block';
+    document.getElementById('discoverSection').style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    renderDiscover(q ? 'search' : undefined, q || undefined);
+  });
+
+  headerSearchClear.addEventListener('click', () => {
+    headerSearchInput.value = '';
+    headerSearchClear.style.display = 'none';
+    document.getElementById('hero').style.display = 'block';
+    renderDiscover();
+    const homeNav = document.querySelector('[data-page="home"]');
+    if (homeNav) { homeNav.classList.add('active'); }
+  });
 
   window.addEventListener('scroll', () => {
     document.getElementById('topHeader').classList.toggle('scrolled', window.scrollY > 50);
