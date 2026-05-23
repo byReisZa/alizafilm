@@ -656,6 +656,11 @@ function loadContent(callback) {
 }
 
 function getContentById(id, callback) {
+  const cached = contentDataCache.find(c => c.id === id);
+  if (cached) {
+    callback(cached);
+    return;
+  }
   get(child(ref(db), `content/${id}`)).then((snapshot) => {
     callback(snapshot.val() ? { id, ...snapshot.val() } : null);
   });
