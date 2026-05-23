@@ -321,8 +321,7 @@ ul, ol {
 }
 
 .search-bar:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15), 0 0 20px rgba(10, 132, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.08), 0 0 25px rgba(10, 132, 255, 0.15);
 }
 
 .search-bar i {
@@ -4895,6 +4894,216 @@ textarea:focus-visible {
   .tmdb-result-info h5 {
     font-size: 0.8rem;
   }
+}
+
+/* ============================
+   ADMIN IMPROVEMENTS
+   ============================ */
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.admin-section-header i {
+  font-size: 1.5rem;
+  color: var(--primary);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 132, 255, 0.1);
+  border-radius: var(--radius-md);
+}
+
+.admin-section-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.admin-section-header p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.admin-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.admin-divider::before,
+.admin-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+}
+
+.admin-form .form-row {
+  gap: 12px;
+}
+
+.admin-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+.admin-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0 14px;
+  margin-bottom: 16px;
+  transition: var(--transition-base);
+}
+
+.admin-search:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+}
+
+.admin-search i {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.admin-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px 0;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  min-width: 0;
+  outline: none;
+}
+
+.admin-search input:focus {
+  box-shadow: none;
+}
+
+.tmdb-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.series-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 12px;
+}
+
+.series-card h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.series-card h4 i {
+  color: var(--primary);
+}
+
+/* Complaints */
+
+.complaints-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--success);
+}
+
+.complaints-empty i {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.complaints-empty p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.complaint-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.complaint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.complaint-user {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.complaint-user i {
+  color: var(--primary);
+}
+
+.complaint-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.complaint-text {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.complaint-delete {
+  font-size: 0.75rem;
+  padding: 6px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.complaint-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
 }
 
 /* ============================
