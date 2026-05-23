@@ -228,14 +228,20 @@
             <button class="admin-tab active" data-tab="add-content"><i class="fas fa-plus-circle"></i> İçerik Ekle</button>
             <button class="admin-tab" data-tab="manage-content"><i class="fas fa-list"></i> İçerikler</button>
             <button class="admin-tab" data-tab="manage-series"><i class="fas fa-layer-group"></i> Sezon/Bölüm</button>
+            <button class="admin-tab" data-tab="complaints"><i class="fas fa-flag"></i> Şikayetler</button>
             <button class="admin-tab logout-tab" id="adminLogoutBtn"><i class="fas fa-right-from-bracket"></i> Çıkış</button>
           </div>
           <div class="admin-content">
             <div class="admin-panel active" id="panel-add-content">
-              <h3>Yeni İçerik Ekle</h3>
+              <div class="admin-section-header">
+                <i class="fas fa-plus-circle"></i>
+                <div>
+                  <h3>Yeni İçerik Ekle</h3>
+                  <p>TMDB'den otomatik doldur veya manuel ekle</p>
+                </div>
+              </div>
 
-              <!-- TMDB AUTO-FILL SECTION -->
-              <div class="tmdb-section">
+              <div class="tmdb-card">
                 <div class="tmdb-header">
                   <div class="tmdb-header-left">
                     <i class="fas fa-magic"></i>
@@ -243,29 +249,17 @@
                   </div>
                   <span class="tmdb-badge">BETA</span>
                 </div>
-                <div class="tmdb-info">
-                  <i class="fas fa-info-circle"></i>
-                  TMDB'de ara, tüm bilgileri (afiş, açıklama, puan, oyuncular) otomatik doldur.
-                  <span class="tmdb-apikey-warning" id="tmdbApiWarning" style="display:none">
-                    <i class="fas fa-exclamation-triangle"></i> API anahtarı girilmedi!
-                  </span>
-                </div>
                 <div class="tmdb-controls">
                   <div class="tmdb-search-box">
-                    <input type="text" id="tmdbSearchInput" placeholder="Film veya dizi adı yazın... (örn: Esaretin Bedeli)">
-                    <button class="btn-primary tmdb-search-btn" id="tmdbSearchBtn">
-                      <i class="fas fa-search"></i> Ara
-                    </button>
+                    <input type="text" id="tmdbSearchInput" placeholder="Film veya dizi adı...">
+                    <button class="btn-primary tmdb-search-btn" id="tmdbSearchBtn"><i class="fas fa-search"></i> Ara</button>
                   </div>
                   <div class="tmdb-type-selector">
                     <button class="tmdb-type-btn active" data-tmdb-type="movie">🎬 Film</button>
                     <button class="tmdb-type-btn" data-tmdb-type="tv">📺 Dizi</button>
                   </div>
                 </div>
-                <div class="tmdb-loading" id="tmdbLoading" style="display:none">
-                  <div class="spinner"></div>
-                  <p>TMDB taranıyor...</p>
-                </div>
+                <div class="tmdb-loading" id="tmdbLoading" style="display:none"><div class="spinner"></div><p>TMDB taranıyor...</p></div>
                 <div class="tmdb-results" id="tmdbResults"></div>
                 <div class="tmdb-detail" id="tmdbDetail" style="display:none">
                   <div class="tmdb-detail-header">
@@ -279,142 +273,91 @@
                 </div>
               </div>
 
-              <div class="tmdb-divider"><span>veya manuel ekle</span></div>
+              <div class="admin-divider"><span>veya manuel ekle</span></div>
 
-              <form id="addContentForm">
+              <form id="addContentForm" class="admin-form">
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>Başlık *</label>
-                    <input type="text" id="formTitle" required placeholder="İçerik başlığı">
-                  </div>
-                  <div class="form-group">
-                    <label>Tür *</label>
-                    <select id="formType" required>
-                      <option value="movie">Film</option>
-                      <option value="series">Dizi</option>
-                    </select>
-                  </div>
+                  <div class="form-group"><label>Başlık *</label><input type="text" id="formTitle" required placeholder="İçerik başlığı"></div>
+                  <div class="form-group"><label>Tür *</label><select id="formType" required><option value="movie">Film</option><option value="series">Dizi</option></select></div>
                 </div>
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>Kategori</label>
-                    <select id="formCategory">
-                      <option value="action">Aksiyon</option>
-                      <option value="comedy">Komedi</option>
-                      <option value="sci-fi">Bilim Kurgu</option>
-                      <option value="drama">Dram</option>
-                      <option value="horror">Korku</option>
-                      <option value="thriller">Gerilim</option>
-                      <option value="romance">Romantik</option>
-                      <option value="documentary">Belgesel</option>
-                      <option value="animation">Animasyon</option>
-                      <option value="fantasy">Fantastik</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label>Dil *</label>
-                    <select id="formLang" required>
-                      <option value="turkish">Türkçe Dublaj</option>
-                      <option value="original">Orijinal Dil</option>
-                      <option value="both">Her İkisi</option>
-                    </select>
-                  </div>
+                  <div class="form-group"><label>Kategori</label><select id="formCategory"><option value="action">Aksiyon</option><option value="comedy">Komedi</option><option value="sci-fi">Bilim Kurgu</option><option value="drama">Dram</option><option value="horror">Korku</option><option value="thriller">Gerilim</option><option value="romance">Romantik</option><option value="documentary">Belgesel</option><option value="animation">Animasyon</option><option value="fantasy">Fantastik</option></select></div>
+                  <div class="form-group"><label>Dil *</label><select id="formLang" required><option value="turkish">Türkçe Dublaj</option><option value="original">Orijinal Dil</option><option value="both">Her İkisi</option></select></div>
                 </div>
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>Yıl</label>
-                    <input type="number" id="formYear" placeholder="2025" min="1900" max="2030">
-                  </div>
-                  <div class="form-group">
-                    <label>Puan (0-10)</label>
-                    <input type="number" id="formRating" placeholder="8.5" min="0" max="10" step="0.1">
-                  </div>
+                  <div class="form-group"><label>Yıl</label><input type="number" id="formYear" placeholder="2025"></div>
+                  <div class="form-group"><label>Puan (0-10)</label><input type="number" id="formRating" placeholder="8.5" step="0.1"></div>
                 </div>
                 <div class="form-row">
-                  <div class="form-group">
-                    <label>Poster Görseli URL</label>
-                    <input type="url" id="formImage" class="img-input" placeholder="TMDB otomatik doldurur veya URL yapıştır">
-                    <div class="img-preview-wrap" id="posterPreview" style="display:none">
-                      <img id="posterPreviewImg" alt="">
-                      <button type="button" class="img-clear" id="posterRemove" title="Kaldır"><i class="fas fa-times"></i></button>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label>Arkaplan Görseli URL</label>
-                    <input type="url" id="formBg" class="img-input" placeholder="TMDB otomatik doldurur veya URL yapıştır">
-                    <div class="img-preview-wrap" id="bgPreview" style="display:none">
-                      <img id="bgPreviewImg" alt="">
-                      <button type="button" class="img-clear" id="bgRemove" title="Kaldır"><i class="fas fa-times"></i></button>
-                    </div>
-                  </div>
+                  <div class="form-group"><label>Poster URL</label><input type="url" id="formImage" class="img-input" placeholder="TMDB otomatik doldurur"><div class="img-preview-wrap" id="posterPreview" style="display:none"><img id="posterPreviewImg" alt=""><button type="button" class="img-clear" id="posterRemove"><i class="fas fa-times"></i></button></div></div>
+                  <div class="form-group"><label>Arkaplan URL</label><input type="url" id="formBg" class="img-input" placeholder="TMDB otomatik doldurur"><div class="img-preview-wrap" id="bgPreview" style="display:none"><img id="bgPreviewImg" alt=""><button type="button" class="img-clear" id="bgRemove"><i class="fas fa-times"></i></button></div></div>
                 </div>
                 <input type="hidden" id="formCast">
-                <div class="form-group" id="videoUrlGroup">
-                  <label>Video URL <span id="videoLabelSuffix">(Film)</span></label>
-                  <input type="url" id="formVideo" placeholder="https://example.com/video.mp4">
-                  <small style="color:var(--text-muted);font-size:0.72rem;display:block;margin-top:4px">Dizilerde video her bölüme ayrı eklenir.</small>
-                </div>
-                <div class="form-group">
-                  <label>Açıklama</label>
-                  <textarea id="formDesc" rows="3" placeholder="İçerik açıklaması..."></textarea>
-                </div>
-                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> İçeriği Ekle</button>
+                <div class="form-group" id="videoUrlGroup"><label>Video URL <span id="videoLabelSuffix">(Film)</span></label><input type="url" id="formVideo" placeholder="https://..."><small style="color:var(--text-muted);font-size:0.72rem;display:block;margin-top:4px">Dizilerde video her bölüme ayrı eklenir.</small></div>
+                <div class="form-group"><label>Açıklama</label><textarea id="formDesc" rows="3" placeholder="İçerik açıklaması..."></textarea></div>
+                <button type="submit" class="btn-primary admin-submit"><i class="fas fa-save"></i> İçeriği Ekle</button>
               </form>
             </div>
+
             <div class="admin-panel" id="panel-manage-content">
-              <h3>Tüm İçerikler</h3>
-              <div class="admin-search">
-                <input type="text" id="adminSearch" placeholder="İçerik ara...">
+              <div class="admin-section-header">
+                <i class="fas fa-list"></i>
+                <div>
+                  <h3>Tüm İçerikler</h3>
+                  <p>Mevcut film ve dizileri yönet</p>
+                </div>
               </div>
+              <div class="admin-search"><i class="fas fa-search"></i><input type="text" id="adminSearch" placeholder="İçerik ara..."></div>
               <div class="admin-list" id="adminContentList"></div>
             </div>
+
             <div class="admin-panel" id="panel-manage-series">
-              <h3>Sezon & Bölüm Yönetimi</h3>
-              <div class="form-group">
-                <label>Dizi Seç</label>
-                <select id="seriesSelect"></select>
+              <div class="admin-section-header">
+                <i class="fas fa-layer-group"></i>
+                <div>
+                  <h3>Sezon & Bölüm Yönetimi</h3>
+                  <p>Dizilere sezon ve bölüm ekle</p>
+                </div>
               </div>
+              <div class="form-group"><label>Dizi Seç</label><select id="seriesSelect"></select></div>
               <div class="series-management" id="seriesManagement">
-                <div class="add-season">
+                <div class="series-card">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Sezon Ekle</h4>
                   <div class="form-row" style="align-items:flex-end">
-                    <div class="form-group" style="margin-bottom:0">
-                      <label>Sezon Numarası</label>
-                      <input type="number" id="seasonNumber" placeholder="örn: 1" min="1">
-                    </div>
+                    <div class="form-group" style="margin-bottom:0"><label>Sezon Numarası</label><input type="number" id="seasonNumber" placeholder="örn: 1" min="1"></div>
                     <button class="btn-primary" id="addSeasonBtn" style="height:44px"><i class="fas fa-plus"></i> Sezon Ekle</button>
                   </div>
                 </div>
-                <div class="add-episode">
+                <div class="series-card">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Bölüm Ekle</h4>
-                  <div class="form-group">
-                    <label>Sezon Seç</label>
-                    <select id="episodeSeason">
-                      <option value="">— Önce sezon ekleyin —</option>
-                    </select>
-                  </div>
+                  <div class="form-group"><label>Sezon Seç</label><select id="episodeSeason"><option value="">— Önce sezon ekleyin —</option></select></div>
                   <div class="form-row">
-                    <div class="form-group">
-                      <label>Bölüm No *</label>
-                      <input type="number" id="episodeNumber" placeholder="örn: 1" min="1">
-                    </div>
-                    <div class="form-group">
-                      <label>Bölüm Başlığı</label>
-                      <input type="text" id="episodeTitle" placeholder="Bölüm başlığı (opsiyonel)">
-                    </div>
+                    <div class="form-group"><label>Bölüm No *</label><input type="number" id="episodeNumber" placeholder="örn: 1" min="1"></div>
+                    <div class="form-group"><label>Bölüm Başlığı</label><input type="text" id="episodeTitle" placeholder="Bölüm başlığı"></div>
                   </div>
-                  <div class="form-group">
-                    <label>Video URL <span style="color:var(--text-muted);font-weight:400">(opsiyonel)</span></label>
-                    <input type="url" id="episodeVideo" placeholder="https://vidmoly.net/embed-... veya .mp4">
-                  </div>
+                  <div class="form-group"><label>Video URL <span style="color:var(--text-muted);font-weight:400">(opsiyonel)</span></label><input type="url" id="episodeVideo" placeholder="https://..."></div>
                   <button class="btn-primary" id="addEpisodeBtn"><i class="fas fa-plus"></i> Bölüm Ekle</button>
                 </div>
-                <div class="seasons-list" id="seasonsList">
+                <div class="series-card" id="seasonsList">
                   <h4><i class="fas fa-layer-group"></i> Mevcut Sezonlar & Bölümler</h4>
                   <div id="seasonsContainer"></div>
                 </div>
               </div>
             </div>
+
+            <div class="admin-panel" id="panel-complaints">
+              <div class="admin-section-header">
+                <i class="fas fa-flag"></i>
+                <div>
+                  <h3>Şikayetler</h3>
+                  <p>Kullanıcılardan gelen şikayet ve öneriler</p>
+                </div>
+              </div>
+              <div class="complaints-list" id="complaintsList">
+                <p style="color:var(--text-muted);padding:20px;text-align:center">Şikayetler yükleniyor...</p>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1430,6 +1373,32 @@ window.confirmDeleteEpisode = function(contentId, seasonNum, epNum) {
   });
 };
 
+window.renderComplaints = function() {
+  const container = document.getElementById('complaintsList');
+  container.innerHTML = '<p style="color:var(--text-muted);padding:20px;text-align:center">Yükleniyor...</p>';
+  const complaintsRef = ref(db, 'complaints');
+  get(complaintsRef).then((snap) => {
+    const data = snap.val();
+    if (!data) {
+      container.innerHTML = '<div class="complaints-empty"><i class="fas fa-check-circle"></i><p>Henüz şikayet yok.</p></div>';
+      return;
+    }
+    const list = Object.entries(data).sort((a, b) => b[1].createdAt - a[1].createdAt);
+    container.innerHTML = list.map(([key, c]) => `
+      <div class="complaint-item">
+        <div class="complaint-header">
+          <span class="complaint-user"><i class="fas fa-user"></i> ${c.email || 'Anonim'}</span>
+          <span class="complaint-date">${new Date(c.createdAt).toLocaleString('tr-TR')}</span>
+        </div>
+        <p class="complaint-text">${c.text}</p>
+        <button class="complaint-delete" onclick="remove(ref(db, 'complaints/${key}')).then(()=>renderComplaints())"><i class="fas fa-trash"></i> Sil</button>
+      </div>
+    `).join('');
+  }).catch(() => {
+    container.innerHTML = '<p style="color:var(--error);padding:20px;text-align:center">Şikayetler yüklenemedi.</p>';
+  });
+};
+
 /* AUTH */
 
 function updateAuthUI(user) {
@@ -1702,23 +1671,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') document.getElementById('searchOverlay').classList.remove('active');
   });
 
-  document.getElementById('searchInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const val = document.getElementById('searchInput').value.trim().toLowerCase();
-      if (!val) return;
-      document.getElementById('hero').style.display = 'none';
-      document.getElementById('discoverSection').style.display = 'block';
-      renderDiscover('search', val);
-    }
-  });
+  let searchTimer;
   document.getElementById('searchInput').addEventListener('input', () => {
     const val = document.getElementById('searchInput').value.trim().toLowerCase();
     document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
+    clearTimeout(searchTimer);
     if (!val) {
       document.getElementById('hero').style.display = 'block';
       document.getElementById('discoverSection').style.display = 'block';
       renderDiscover();
+      return;
     }
+    searchTimer = setTimeout(() => {
+      document.getElementById('hero').style.display = 'none';
+      document.getElementById('discoverSection').style.display = 'block';
+      renderDiscover('search', val);
+    }, 300);
   });
 
   /* Detail Overlay */
@@ -1966,6 +1934,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
       if (tab.dataset.tab === 'manage-content') renderAdminList();
       if (tab.dataset.tab === 'manage-series') renderSeriesSelect();
+      if (tab.dataset.tab === 'complaints') renderComplaints();
     });
   });
 
