@@ -933,6 +933,8 @@ function openPlayer(contentId, season, episode) {
 
     overlay.classList.add('active');
     overlay.classList.add('playing');
+    document.getElementById('topHeader').style.display = 'none';
+    document.getElementById('bottomNav').style.display = 'none';
   });
 }
 
@@ -1787,6 +1789,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('playerPlaceholder').style.display = 'flex';
     overlay.classList.remove('active');
     overlay.classList.remove('playing');
+    document.getElementById('topHeader').style.display = '';
+    document.getElementById('bottomNav').style.display = '';
     document.getElementById('episodeNav').style.display = 'none';
   });
 
@@ -1845,6 +1849,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === e.currentTarget) {
       document.getElementById('playerOverlay').classList.remove('active');
       document.getElementById('playerOverlay').classList.remove('playing');
+      document.getElementById('topHeader').style.display = '';
+      document.getElementById('bottomNav').style.display = '';
     }
   });
 
