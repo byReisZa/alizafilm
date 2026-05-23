@@ -61,6 +61,16 @@
 
     <main class="main-content" id="mainContent">
 
+      <section class="quick-actions" id="quickActions">
+        <div class="quick-actions-scroll">
+          <button class="quick-btn" data-page="home" id="qaHome"><i class="fas fa-house"></i><span>Ana Sayfa</span></button>
+          <button class="quick-btn" data-page="discover" id="qaDiscover"><i class="fas fa-compass"></i><span>Keşfet</span></button>
+          <button class="quick-btn" data-page="movies" id="qaMovies"><i class="fas fa-film"></i><span>Filmler</span></button>
+          <button class="quick-btn" data-page="series" id="qaSeries"><i class="fas fa-tv"></i><span>Diziler</span></button>
+          <button class="quick-btn" data-page="account" id="qaAccount"><i class="fas fa-user"></i><span>Hesap</span></button>
+        </div>
+      </section>
+
       <section class="discover-section" id="discoverSection">
         <div class="container">
           <div class="section-header">
@@ -80,8 +90,6 @@
             <button class="filter-chip active" data-filter="all">Tümü</button>
             <button class="filter-chip" data-filter="movie">Filmler</button>
             <button class="filter-chip" data-filter="series">Diziler</button>
-            <button class="filter-chip" data-filter="turkish">Türkçe Dublaj</button>
-            <button class="filter-chip" data-filter="original">Orijinal Dil</button>
             <button class="filter-chip" data-filter="action">Aksiyon</button>
             <button class="filter-chip" data-filter="comedy">Komedi</button>
             <button class="filter-chip" data-filter="sci-fi">Bilim Kurgu</button>
@@ -1357,11 +1365,11 @@ function fillFormFromTMDB(item, type) {
   }
   
   // Cast & crew
-  const cast = (item.credits?.cast || []).slice(0, 12).map(c => ({
-    name: c.name,
-    character: c.character,
-    photo: c.profile_path ? `${TMDB_IMG_URL}w92${c.profile_path}` : ''
-  }));
+    const cast = (item.credits?.cast || []).slice(0, 12).map(c => ({
+      name: c.name,
+      character: c.character,
+      photo: c.profile_path ? `${TMDB_IMG_URL}w185${c.profile_path}` : ''
+    }));
   const crew = (item.credits?.crew || []).slice(0, 5).map(c => ({
     name: c.name,
     job: c.job || c.department
@@ -1423,7 +1431,7 @@ function renderTMDBCredits(details) {
           ${cast.map(c => `
             <div class="tmdb-cast-item">
               <div class="tmdb-cast-photo">
-                ${c.profile_path ? `<img src="${TMDB_IMG_URL}w92${c.profile_path}" alt="${c.name}" loading="lazy">` : '<i class="fas fa-user"></i>'}
+                ${c.profile_path ? `<img src="${TMDB_IMG_URL}w185${c.profile_path}" alt="${c.name}" loading="lazy">` : '<i class="fas fa-user"></i>'}
               </div>
               <div class="tmdb-cast-name">${c.name || '—'}</div>
               <div class="tmdb-cast-role">${c.character || '—'}</div>
@@ -1616,6 +1624,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* Bottom Nav */
+  /* Quick action buttons - click the matching nav item */
+  document.querySelectorAll('.quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const navItem = document.querySelector(`.nav-item[data-page="${btn.dataset.page}"]`);
+      if (navItem) navItem.click();
+    });
+  });
+
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
