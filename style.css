@@ -642,10 +642,10 @@ ul, ol {
   width: 100%;
   height: 100%;
   background: linear-gradient(180deg, 
-    rgba(5, 5, 8, 0.2) 0%,
-    rgba(5, 5, 8, 0.1) 40%,
-    rgba(5, 5, 8, 0.5) 65%,
-    rgba(5, 5, 8, 0.85) 85%,
+    rgba(5, 5, 8, 0.75) 0%,
+    rgba(5, 5, 8, 0.45) 25%,
+    rgba(5, 5, 8, 0.6) 45%,
+    rgba(5, 5, 8, 0.85) 65%,
     rgba(5, 5, 8, 1) 100%
   );
   z-index: 1;
@@ -658,7 +658,7 @@ ul, ol {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, rgba(10, 132, 255, 0.08) 0%, transparent 50%);
+  background: linear-gradient(90deg, rgba(5, 5, 8, 0.5) 0%, transparent 50%);
 }
 
 .hero-content {
@@ -682,9 +682,10 @@ ul, ol {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--text-on-primary);
+  color: #fff;
   margin-bottom: 16px;
   box-shadow: 0 0 20px rgba(10, 132, 255, 0.3);
+  text-shadow: 0 0 10px rgba(0,0,0,0.5);
   animation: badgePulse 2s ease-in-out infinite;
 }
 
@@ -698,19 +699,20 @@ ul, ol {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: none;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
 }
 
 .hero-desc {
   font-size: 1rem;
   line-height: 1.7;
-  color: var(--text-secondary);
+  color: #E8E8F0;
   max-width: 600px;
   margin-bottom: 20px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
 }
 
 .hero-meta {
@@ -726,11 +728,12 @@ ul, ol {
   align-items: center;
   gap: 6px;
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: #E0E0F0;
   padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 
 .hero-rating {
