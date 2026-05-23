@@ -460,93 +460,6 @@ ul, ol {
 }
 
 /* ============================
-   7.5. QUICK ACTIONS BAR
-   ============================ */
-
-.quick-actions {
-  padding: 8px 16px;
-  position: sticky;
-  top: var(--header-height);
-  z-index: 25;
-  background: rgba(5, 5, 8, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.quick-actions-scroll {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  justify-content: center;
-}
-
-.quick-actions-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.quick-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: var(--radius-xl);
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-base);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.quick-btn i {
-  font-size: 1rem;
-  color: var(--primary-light);
-  transition: var(--transition-base);
-}
-
-.quick-btn:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-color);
-  color: var(--text-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow-primary);
-}
-
-.quick-btn:hover i {
-  color: var(--primary);
-}
-
-.quick-btn.active {
-  background: var(--gradient-primary);
-  border-color: transparent;
-  color: var(--text-on-primary);
-  box-shadow: 0 4px 15px rgba(10, 132, 255, 0.3);
-}
-
-.quick-btn.active i {
-  color: var(--text-on-primary);
-}
-
-@media (max-width: 768px) {
-  .quick-actions-scroll {
-    justify-content: flex-start;
-  }
-  .quick-btn {
-    padding: 8px 14px;
-    font-size: 0.75rem;
-  }
-  .quick-btn span {
-    display: none;
-  }
-}
-
-/* ============================
    8. DISCOVER SECTION
    ============================ */
 
@@ -924,19 +837,8 @@ ul, ol {
 
 .filter-section {
   padding: 4px 0 8px;
-  position: sticky;
-  top: calc(var(--header-height) + 52px);
-  z-index: 20;
-  background: rgba(5, 5, 8, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-light);
-}
-
-@media (max-width: 768px) {
-  .filter-section {
-    top: calc(var(--header-height) + 44px);
-  }
+  position: relative;
+  z-index: 5;
 }
 
 .filter-scroll {
