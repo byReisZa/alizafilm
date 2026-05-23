@@ -371,51 +371,19 @@
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label>Poster Görseli</label>
-                    <div class="upload-zone" id="posterUpload">
-                      <input type="hidden" id="formImage">
-                      <div class="upload-drop" id="posterDrop">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Sürükle bırak veya <span>tıkla</span></p>
-                        <span class="upload-hint">PNG, JPG, WEBP · Önerilen: 400x600</span>
-                      </div>
-                      <div class="upload-preview" id="posterPreview" style="display:none">
-                        <img id="posterPreviewImg" alt="">
-                        <div class="upload-crop">
-                          <div class="crop-row">
-                            <label>Genişlik</label>
-                            <input type="number" id="posterWidth" value="400" min="50" max="2000">
-                            <label>Yükseklik</label>
-                            <input type="number" id="posterHeight" value="600" min="50" max="2000">
-                          </div>
-                          <button type="button" class="btn-secondary crop-apply" id="posterCropBtn"><i class="fas fa-crop"></i> Kırp & Kaydet</button>
-                        </div>
-                        <button type="button" class="upload-remove" id="posterRemove"><i class="fas fa-times"></i></button>
-                      </div>
+                    <label>Poster Görseli URL</label>
+                    <input type="url" id="formImage" class="img-input" placeholder="TMDB otomatik doldurur veya URL yapıştır">
+                    <div class="img-preview-wrap" id="posterPreview" style="display:none">
+                      <img id="posterPreviewImg" alt="">
+                      <button type="button" class="img-clear" id="posterRemove" title="Kaldır"><i class="fas fa-times"></i></button>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>Arkaplan Görseli</label>
-                    <div class="upload-zone" id="bgUpload">
-                      <input type="hidden" id="formBg">
-                      <div class="upload-drop" id="bgDrop">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Sürükle bırak veya <span>tıkla</span></p>
-                        <span class="upload-hint">PNG, JPG, WEBP · Önerilen: 1920x1080</span>
-                      </div>
-                      <div class="upload-preview" id="bgPreview" style="display:none">
-                        <img id="bgPreviewImg" alt="">
-                        <div class="upload-crop">
-                          <div class="crop-row">
-                            <label>Genişlik</label>
-                            <input type="number" id="bgWidth" value="1920" min="50" max="4000">
-                            <label>Yükseklik</label>
-                            <input type="number" id="bgHeight" value="1080" min="50" max="4000">
-                          </div>
-                          <button type="button" class="btn-secondary crop-apply" id="bgCropBtn"><i class="fas fa-crop"></i> Kırp & Kaydet</button>
-                        </div>
-                        <button type="button" class="upload-remove" id="bgRemove"><i class="fas fa-times"></i></button>
-                      </div>
+                    <label>Arkaplan Görseli URL</label>
+                    <input type="url" id="formBg" class="img-input" placeholder="TMDB otomatik doldurur veya URL yapıştır">
+                    <div class="img-preview-wrap" id="bgPreview" style="display:none">
+                      <img id="bgPreviewImg" alt="">
+                      <button type="button" class="img-clear" id="bgRemove" title="Kaldır"><i class="fas fa-times"></i></button>
                     </div>
                   </div>
                 </div>
@@ -555,8 +523,6 @@ let currentPage = 'home';
 let currentPlayer = null;
 let currentEpisode = null;
 let editingId = null;
-let uploadedPosterUrl = null;
-let uploadedBgUrl = null;
 
 function getUserRole(uid) {
   return new Promise((resolve) => {
@@ -654,98 +620,28 @@ function showToast(message, type = 'info') {
   }, 4000);
 }
 
-/* IMAGE UPLOAD */
+/* IMAGE URL PREVIEW */
 
-function setupUploadZone(dropId, previewId, imgId, widthId, heightId, cropBtnId, removeId, hiddenId, prefix) {
-  const drop = document.getElementById(dropId);
+function setupImagePreview(inputId, previewId, imgId, removeId) {
+  const input = document.getElementById(inputId);
   const preview = document.getElementById(previewId);
   const img = document.getElementById(imgId);
-  const wInput = document.getElementById(widthId);
-  const hInput = document.getElementById(heightId);
-  const cropBtn = document.getElementById(cropBtnId);
-  const removeBtn = document.getElementById(removeId);
-  const hidden = document.getElementById(hiddenId);
-  let currentFile = null;
+  const remove = document.getElementById(removeId);
 
-  function handleFile(file) {
-    if (!file || !file.type.match(/image\/(png|jpeg|webp|jpg|gif)/)) {
-      showToast('Sadece PNG, JPG, WEBP dosyaları desteklenir.', 'error');
-      return;
-    }
-    currentFile = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      img.src = e.target.result;
+  input.addEventListener('input', () => {
+    const url = input.value.trim();
+    if (url) {
+      img.src = url;
       preview.style.display = 'block';
-      drop.style.display = 'none';
-      const temp = new Image();
-      temp.src = e.target.result;
-      temp.onload = () => {
-        wInput.value = temp.naturalWidth;
-        hInput.value = temp.naturalHeight;
-      };
-    };
-    reader.readAsDataURL(file);
-  }
-
-  drop.addEventListener('click', () => {
-    const inp = document.createElement('input');
-    inp.type = 'file';
-    inp.accept = 'image/png,image/jpeg,image/webp';
-    inp.onchange = () => { if (inp.files[0]) handleFile(inp.files[0]); };
-    inp.click();
-  });
-
-  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragover'); });
-  drop.addEventListener('dragleave', () => { drop.classList.remove('dragover'); });
-  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
-
-  cropBtn.addEventListener('click', async () => {
-    if (!currentFile) return showToast('Önce bir görsel seç.', 'error');
-    const w = parseInt(wInput.value) || 400;
-    const h = parseInt(hInput.value) || 600;
-    if (w < 10 || h < 10) return showToast('Boyutlar çok küçük.', 'error');
-
-    cropBtn.disabled = true;
-    cropBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yükleniyor...';
-
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      const tempImg = new Image();
-      tempImg.crossOrigin = 'anonymous';
-      await new Promise((resolve, reject) => {
-        tempImg.onload = resolve;
-        tempImg.onerror = reject;
-        tempImg.src = img.src;
-      });
-      ctx.drawImage(tempImg, 0, 0, w, h);
-      const url = canvas.toDataURL('image/webp', 0.85);
-
-      if (prefix === 'poster') {
-        uploadedPosterUrl = url;
-      } else {
-        uploadedBgUrl = url;
-      }
-      hidden.value = url;
-      showToast('Görsel hazır!', 'success');
-    } catch (err) {
-      showToast('İşleme hatası: ' + err.message, 'error');
+    } else {
+      preview.style.display = 'none';
     }
-
-    cropBtn.disabled = false;
-    cropBtn.innerHTML = '<i class="fas fa-crop"></i> Kırp & Kaydet';
   });
 
-  removeBtn.addEventListener('click', () => {
-    currentFile = null;
+  remove.addEventListener('click', () => {
+    input.value = '';
     preview.style.display = 'none';
-    drop.style.display = 'block';
-    hidden.value = '';
-    if (prefix === 'poster') { uploadedPosterUrl = null; }
-    else { uploadedBgUrl = null; }
+    img.src = '';
   });
 }
 
@@ -1357,21 +1253,23 @@ function fillFormFromTMDB(item, type) {
   }
   
   // Poster image
+  const posterInput = document.getElementById('formImage');
   if (item.poster_path) {
-    const posterUrl = `${TMDB_IMG_URL}w500${item.poster_path}`;
-    document.getElementById('formImage').value = posterUrl;
-    document.getElementById('posterPreviewImg').src = posterUrl;
-    document.getElementById('posterPreview').style.display = 'block';
-    document.getElementById('posterDrop').style.display = 'none';
+    posterInput.value = `${TMDB_IMG_URL}w500${item.poster_path}`;
+    posterInput.dispatchEvent(new Event('input'));
+  } else {
+    posterInput.value = '';
+    posterInput.dispatchEvent(new Event('input'));
   }
   
   // Background image
+  const bgInput = document.getElementById('formBg');
   if (item.backdrop_path) {
-    const bgUrl = `${TMDB_IMG_URL}original${item.backdrop_path}`;
-    document.getElementById('formBg').value = bgUrl;
-    document.getElementById('bgPreviewImg').src = bgUrl;
-    document.getElementById('bgPreview').style.display = 'block';
-    document.getElementById('bgDrop').style.display = 'none';
+    bgInput.value = `${TMDB_IMG_URL}original${item.backdrop_path}`;
+    bgInput.dispatchEvent(new Event('input'));
+  } else {
+    bgInput.value = '';
+    bgInput.dispatchEvent(new Event('input'));
   }
   
   showToast(`"${item.title || item.name}" formu dolduruldu!`, 'success');
@@ -1470,16 +1368,12 @@ window.editContent = function(id) {
     document.getElementById('formDesc').value = content.desc || '';
 
     if (content.image) {
-      uploadedPosterUrl = content.image;
-      document.getElementById('posterPreviewImg').src = content.image;
-      document.getElementById('posterPreview').style.display = 'block';
-      document.getElementById('posterDrop').style.display = 'none';
+      document.getElementById('formImage').value = content.image;
+      document.getElementById('formImage').dispatchEvent(new Event('input'));
     }
     if (content.bg) {
-      uploadedBgUrl = content.bg;
-      document.getElementById('bgPreviewImg').src = content.bg;
-      document.getElementById('bgPreview').style.display = 'block';
-      document.getElementById('bgDrop').style.display = 'none';
+      document.getElementById('formBg').value = content.bg;
+      document.getElementById('formBg').dispatchEvent(new Event('input'));
     }
 
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -1605,9 +1499,9 @@ onAuthStateChanged(auth, async (user) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* Upload Zones */
-  setupUploadZone('posterDrop','posterPreview','posterPreviewImg','posterWidth','posterHeight','posterCropBtn','posterRemove','formImage','poster');
-  setupUploadZone('bgDrop','bgPreview','bgPreviewImg','bgWidth','bgHeight','bgCropBtn','bgRemove','formBg','bg');
+  /* Image URL Preview */
+  setupImagePreview('formImage', 'posterPreview', 'posterPreviewImg', 'posterRemove');
+  setupImagePreview('formBg', 'bgPreview', 'bgPreviewImg', 'bgRemove');
 
   /* Hide video URL for series */
   const typeSelect = document.getElementById('formType');
@@ -1957,11 +1851,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('addContentForm').reset();
           document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> İçeriği Ekle';
           document.getElementById('posterPreview').style.display='none';
-          document.getElementById('posterDrop').style.display='block';
           document.getElementById('bgPreview').style.display='none';
-          document.getElementById('bgDrop').style.display='block';
-          uploadedPosterUrl = null;
-          uploadedBgUrl = null;
           renderContent();
           renderAdminList();
           renderSeriesSelect();
@@ -1973,11 +1863,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('İçerik eklendi!', 'success');
         document.getElementById('addContentForm').reset();
         document.getElementById('posterPreview').style.display='none';
-        document.getElementById('posterDrop').style.display='block';
         document.getElementById('bgPreview').style.display='none';
-        document.getElementById('bgDrop').style.display='block';
-        uploadedPosterUrl = null;
-        uploadedBgUrl = null;
         renderContent();
         renderAdminList();
         renderSeriesSelect();
