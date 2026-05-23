@@ -823,23 +823,7 @@ function showDetail(id) {
 }
 
 function openTrailer(trailerUrl) {
-  const overlay = document.getElementById('playerOverlay');
-  const title = document.getElementById('playerTitle');
-  const meta = document.getElementById('playerMeta');
-  const video = document.getElementById('playerVideo');
-  const iframe = document.getElementById('playerIframe');
-  const placeholder = document.getElementById('playerPlaceholder');
-  const episodesSection = document.getElementById('playerEpisodes');
-  const episodeNav = document.getElementById('episodeNav');
-
-  title.textContent = 'Fragman';
-  meta.textContent = 'Resmi YouTube Fragmanı';
-  episodesSection.classList.remove('active');
-  episodeNav.style.display = 'none';
-
-  playUrl('embed', trailerUrl, video, iframe, placeholder);
-  overlay.classList.add('active');
-  document.body.style.overflow = 'hidden';
+  window.open(trailerUrl, '_blank');
 }
 
 function openPlayer(contentId, season, episode) {
