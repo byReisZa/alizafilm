@@ -1405,11 +1405,22 @@ window.editContent = function(id) {
     formBg.value = content.bg || '';
     formBg.dispatchEvent(new Event('input'));
 
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('[data-tab="add-content"]').classList.add('active');
-    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-add-content').classList.add('active');
-    document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Güncelle';
+    if (content.type === 'series') {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-tab="manage-series"]').classList.add('active');
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-manage-series').classList.add('active');
+      document.getElementById('seriesSelect').value = id;
+      document.getElementById('seriesManagement').style.display = 'block';
+      populateEpisodeSeasonSelect(id);
+      renderSeasons(id);
+    } else {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-tab="add-content"]').classList.add('active');
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-add-content').classList.add('active');
+      document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Güncelle';
+    }
   });
 };
 
