@@ -321,12 +321,23 @@ ul, ol {
 }
 
 .search-bar:focus-within {
-  box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.08), 0 0 25px rgba(10, 132, 255, 0.15);
+  border-color: var(--border-light);
 }
 
-.search-bar i {
+.search-bar-btn {
   color: var(--text-muted);
   font-size: 1rem;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: var(--transition-fast);
+}
+
+.search-bar-btn:hover {
+  color: var(--primary);
 }
 
 .search-bar input {
