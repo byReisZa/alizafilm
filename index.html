@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
 </head>
 <body>
 
@@ -99,7 +100,7 @@
           </div>
         </div>
         <video class="player-video" id="playerVideo" controls></video>
-        <iframe class="player-iframe" id="playerIframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
+        <iframe class="player-iframe" id="playerIframe" allow="autoplay; fullscreen"></iframe>
       </div>
       <div class="player-episodes" id="playerEpisodes">
         <div class="episodes-header">
@@ -469,7 +470,6 @@ const TMDB_IMG_URL = 'https://image.tmdb.org/t/p/';
 
 let currentUser = null;
 let currentUserRole = null;
-let currentFilter = 'all';
 let currentPlayer = null;
 let currentEpisode = null;
 let editingId = null;
@@ -630,56 +630,6 @@ function renderContent() {
   loadContent((data) => {
     updateHero(data);
     renderDiscover();
-  });
-}
-
-function updateStats() {}
-      updateStats(data);
-      updateHero(data);
-      return;
-    }
-
-    empty.style.display = 'none';
-    grid.innerHTML = filtered.map((item, idx) => {
-      const isSeries = item.type === 'series';
-      const seasons = item.seasons || {};
-      const seasonKeys = Object.keys(seasons);
-      const totalSeasons = seasonKeys.length;
-      const totalEpisodes = seasonKeys.reduce((a, s) => a + (seasons[s]?.length || 0), 0);
-
-      return `
-        <div class="content-card" data-id="${item.id}" style="animation: cardAppear 0.4s ease-out ${idx * 0.05}s both">
-          <div class="content-card-poster">
-            <img src="${item.image || 'https://picsum.photos/seed/placeholder/400/600'}" alt="${item.title || ''}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'background:var(--bg-surface);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--text-muted)\\'><i class=\\'fas fa-film\\'></i></div>'">
-            <div class="content-card-overlay">
-              <div class="content-card-play"><i class="fas fa-play"></i></div>
-            </div>
-            <div class="content-card-badges">
-              <span class="content-card-badge type-${item.type}">${isSeries ? 'DİZİ' : 'FİLM'}</span>
-              <span class="content-card-badge lang-${item.lang}">${item.lang === 'turkish' ? 'TR' : item.lang === 'original' ? 'ORJ' : 'TR+ORJ'}</span>
-              <span class="content-card-badge quality">${item.year || '—'}</span>
-            </div>
-            ${item.rating ? `<div class="content-card-rating-bar" style="width:${(item.rating / 10) * 100}%"></div>` : ''}
-          </div>
-          <div class="content-card-body">
-            <h3 class="content-card-title">${item.title || 'İsimsiz'}</h3>
-            <div class="content-card-meta">
-              ${item.rating ? `<span class="rating"><i class="fas fa-star"></i>${item.rating}</span>` : ''}
-              <span><i class="fas fa-${isSeries ? 'tv' : 'film'}"></i>${isSeries ? `${totalSeasons} Sezon, ${totalEpisodes} Bölüm` : 'Film'}</span>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    document.querySelectorAll('.content-card').forEach(card => {
-      card.addEventListener('click', () => showDetail(card.dataset.id));
-    });
-
-    if (currentLetter !== 'all') filterByLetter(currentLetter);
-
-    updateStats(data);
-    updateHero(data);
   });
 }
 
@@ -1066,8 +1016,6 @@ function populateEpisodeSeasonSelect(contentId) {
    ====================== */
 
 function buildLetterFilter() {}
-
-let currentLetter = 'all';
 
 function filterByLetter() {}
   cards.forEach(c => {
@@ -1535,16 +1483,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('searchClear').addEventListener('click', () => {
     document.getElementById('searchInput').value = '';
     document.getElementById('searchClear').classList.remove('visible');
-    renderContent(currentFilter);
     document.getElementById('searchInput').focus();
   });
   document.getElementById('searchInput').addEventListener('input', () => {
     const val = document.getElementById('searchInput').value.trim();
     document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
-    renderContent(currentFilter);
   });
   document.getElementById('searchInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') renderContent(currentFilter);
+    if (e.key === 'Enter') {}
   });
 
   /* Detail Overlay */
