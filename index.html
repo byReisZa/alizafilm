@@ -104,6 +104,7 @@
             <p id="placeholderInfo">Video yükleniyor...</p>
           </div>
         </div>
+        <button class="player-fs-btn" id="playerFsBtn" title="Tam Ekran"><i class="fas fa-expand"></i></button>
         <video class="player-video" id="playerVideo" controls></video>
         <iframe class="player-iframe" id="playerIframe" allow="autoplay; fullscreen"></iframe>
       </div>
@@ -198,10 +199,10 @@
           </div>
         </div>
         <div class="profile-stats" id="profileStats">
-          <div class="stat-item"><i class="fas fa-film"></i><span class="stat-value" id="statMovies">0</span><span class="stat-label">Film</span></div>
-          <div class="stat-item"><i class="fas fa-tv"></i><span class="stat-value" id="statSeries">0</span><span class="stat-label">Dizi</span></div>
-          <div class="stat-item"><i class="fas fa-clock"></i><span class="stat-value" id="statTime">0</span><span class="stat-label">Dk</span></div>
-          <div class="stat-item"><i class="fas fa-star"></i><span class="stat-value" id="statFavCat">—</span><span class="stat-label">Kategori</span></div>
+          <button class="stat-btn" id="statMoviesBtn"><i class="fas fa-film"></i><span>İzlenen Filmler</span><span class="stat-val" id="statMovies">0</span></button>
+          <button class="stat-btn" id="statSeriesBtn"><i class="fas fa-tv"></i><span>İzlenen Diziler</span><span class="stat-val" id="statSeries">0</span></button>
+          <button class="stat-btn" id="statTimeBtn"><i class="fas fa-clock"></i><span>İzleme Süresi</span><span class="stat-val" id="statTime">0 dk</span></button>
+          <button class="stat-btn" id="statFavBtn"><i class="fas fa-star"></i><span>Favori Kategori</span><span class="stat-val" id="statFavCat">—</span></button>
         </div>
         <div class="profile-lastwatched" id="profileLastWatched" style="display:none">
           <h4><i class="fas fa-history"></i> Son İzlenen</h4>
@@ -931,7 +932,7 @@ function openPlayer(contentId, season, episode) {
     }
 
     overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
+    overlay.classList.add('playing');
   });
 }
 
@@ -1537,7 +1538,7 @@ function loadUserStats() {
     const s = snap.val() || {};
     document.getElementById('statMovies').textContent = s.moviesWatched || 0;
     document.getElementById('statSeries').textContent = s.seriesWatched || 0;
-    document.getElementById('statTime').textContent = s.totalMinutes || 0;
+    document.getElementById('statTime').textContent = (s.totalMinutes || 0) + ' dk';
     document.getElementById('statFavCat').textContent = s.favCategory || '—';
     const lw = s.lastWatched;
     if (lw) {
@@ -1761,8 +1762,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   document.addEventListener('fullscreenchange', () => {
+    const isFs = !!document.fullscreenElement;
     const icon = document.getElementById('fullscreenApp');
-    if (icon) icon.innerHTML = document.fullscreenElement ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+    if (icon) icon.innerHTML = isFs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+    const fsBtn = document.getElementById('playerFsBtn');
+    if (fsBtn) fsBtn.innerHTML = isFs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
   });
 
   /* Hero Play */
@@ -1782,17 +1786,24 @@ document.addEventListener('DOMContentLoaded', () => {
     iframe.style.display = 'none';
     document.getElementById('playerPlaceholder').style.display = 'flex';
     overlay.classList.remove('active');
-    document.body.style.overflow = '';
+    overlay.classList.remove('playing');
     document.getElementById('episodeNav').style.display = 'none';
   });
 
-  document.getElementById('playerFullscreen').addEventListener('click', () => {
-    const wrapper = document.getElementById('playerWrapper');
+  function toggleFullscreen(el) {
     if (!document.fullscreenElement) {
-      wrapper.requestFullscreen?.() || wrapper.webkitRequestFullscreen?.();
+      (el || document.documentElement).requestFullscreen?.() || (el || document.documentElement).webkitRequestFullscreen?.();
     } else {
       document.exitFullscreen?.() || document.webkitExitFullscreen?.();
     }
+  }
+
+  document.getElementById('playerFullscreen').addEventListener('click', () => {
+    toggleFullscreen(document.getElementById('playerWrapper'));
+  });
+
+  document.getElementById('playerFsBtn').addEventListener('click', () => {
+    toggleFullscreen(document.getElementById('playerWrapper'));
   });
 
   document.getElementById('prevEpisodeBtn').addEventListener('click', () => {
@@ -1833,7 +1844,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('playerOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) {
       document.getElementById('playerOverlay').classList.remove('active');
-      document.body.style.overflow = '';
+      document.getElementById('playerOverlay').classList.remove('playing');
     }
   });
 
