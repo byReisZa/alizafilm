@@ -310,6 +310,10 @@
                 <div class="form-group"><label>Açıklama</label><textarea id="formDesc" rows="3" placeholder="İçerik açıklaması..."></textarea></div>
                 <button type="submit" class="btn-primary admin-submit"><i class="fas fa-save"></i> İçeriği Ekle</button>
               </form>
+              <div id="inlineSeriesManagement" style="display:none;margin-top:24px">
+                <div class="admin-divider"><span>Sezon & Bölüm Yönetimi</span></div>
+                <div class="series-management" id="inlineSeriesMgmt"></div>
+              </div>
             </div>
 
             <div class="admin-panel" id="panel-manage-content">
@@ -1101,6 +1105,54 @@ function populateEpisodeSeasonSelect(contentId) {
   });
 }
 
+function populateInlineEpisodeSeason(contentId) {
+  getContentById(contentId, (content) => {
+    if (!content) return;
+    const seasons = Object.keys(content.seasons || {}).sort((a, b) => Number(a) - Number(b));
+    const select = document.getElementById('inlineEpisodeSeason');
+    if (seasons.length === 0) {
+      select.innerHTML = '<option value="">— Önce sezon ekleyin —</option>';
+      return;
+    }
+    select.innerHTML = seasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
+    select.value = seasons[0];
+  });
+}
+
+function renderInlineSeasons(contentId) {
+  getContentById(contentId, (content) => {
+    const container = document.getElementById('inlineSeasonsContainer');
+    if (!content) { container.innerHTML = '<p style="color:var(--text-muted)">Dizi seçilmedi.</p>'; return; }
+    const seasons = content.seasons || {};
+    const seasonKeys = Object.keys(seasons).sort((a, b) => Number(a) - Number(b));
+    if (seasonKeys.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted)">Henüz sezon eklenmemiş.</p>';
+      return;
+    }
+    container.innerHTML = seasonKeys.map(sNum => {
+      const episodesRaw = seasons[sNum] || [];
+      const episodes = episodesRaw.filter(e => !(e && e.__placeholder));
+      return `
+        <div class="season-block">
+          <div class="season-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'flex':'none'">
+            <h5><i class="fas fa-layer-group"></i> Sezon ${sNum} <span class="episode-count">(${episodes.length} bölüm)</span></h5>
+            <button class="season-delete-btn" onclick="event.stopPropagation();confirmDeleteSeason('${contentId}',${sNum})"><i class="fas fa-trash"></i></button>
+          </div>
+          <div class="season-episodes" style="display:${episodes.length > 0 ? 'flex' : 'none'}">
+            ${episodes.length === 0 ? '<p style="color:var(--text-muted);padding:8px 0;font-size:0.8rem">Henüz bölüm yok.</p>' :
+              episodes.map(ep => `
+                <div class="season-episode-item">
+                  <span><strong>${ep.num}.</strong> ${ep.title || `Bölüm ${ep.num}`}</span>
+                  <button class="ep-delete" onclick="confirmDeleteEpisode('${contentId}',${sNum},${ep.num})"><i class="fas fa-times"></i></button>
+                </div>
+              `).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
 /* ======================
    MOBILE UI - LETTER FILTER & DISCOVER
    ====================== */
@@ -1410,21 +1462,87 @@ window.editContent = function(id) {
     formBg.value = content.bg || '';
     formBg.dispatchEvent(new Event('input'));
 
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('[data-tab="add-content"]').classList.add('active');
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-add-content').classList.add('active');
+    document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Güncelle';
     if (content.type === 'series') {
-      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector('[data-tab="manage-series"]').classList.add('active');
-      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('panel-manage-series').classList.add('active');
-      document.getElementById('seriesSelect').value = id;
-      document.getElementById('seriesManagement').style.display = 'block';
-      populateEpisodeSeasonSelect(id);
-      renderSeasons(id);
-    } else {
-      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector('[data-tab="add-content"]').classList.add('active');
-      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('panel-add-content').classList.add('active');
-      document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> Güncelle';
+      const inlineMgmt = document.getElementById('inlineSeriesManagement');
+      const container = document.getElementById('inlineSeriesMgmt');
+      inlineMgmt.style.display = 'block';
+      container.innerHTML = `
+        <div class="form-group"><label>Dizi Seç</label><select id="inlineSeriesSelect"><option value="${id}">${content.title}</option></select></div>
+        <div class="series-card">
+          <h4><i class="fas fa-plus-circle"></i> Yeni Sezon Ekle</h4>
+          <div class="form-row" style="align-items:flex-end">
+            <div class="form-group" style="margin-bottom:0"><label>Sezon Numarası</label><input type="number" id="inlineSeasonNumber" placeholder="örn: 1" min="1"></div>
+            <button class="btn-primary" id="inlineAddSeasonBtn" style="height:44px"><i class="fas fa-plus"></i> Sezon Ekle</button>
+          </div>
+        </div>
+        <div class="series-card">
+          <h4><i class="fas fa-plus-circle"></i> Yeni Bölüm Ekle</h4>
+          <div class="form-group"><label>Sezon Seç</label><select id="inlineEpisodeSeason"></select></div>
+          <div class="form-row">
+            <div class="form-group"><label>Bölüm No *</label><input type="number" id="inlineEpisodeNumber" placeholder="örn: 1" min="1"></div>
+            <div class="form-group"><label>Bölüm Başlığı</label><input type="text" id="inlineEpisodeTitle" placeholder="Bölüm başlığı"></div>
+          </div>
+          <div class="form-group"><label>Video URL <span style="color:var(--text-muted);font-weight:400">(opsiyonel)</span></label><input type="url" id="inlineEpisodeVideo" placeholder="https://..."></div>
+          <button class="btn-primary" id="inlineAddEpisodeBtn"><i class="fas fa-plus"></i> Bölüm Ekle</button>
+        </div>
+        <div class="series-card" id="inlineSeasonsList">
+          <h4><i class="fas fa-layer-group"></i> Mevcut Sezonlar & Bölümler</h4>
+          <div id="inlineSeasonsContainer"></div>
+        </div>
+      `;
+      populateInlineEpisodeSeason(id);
+      renderInlineSeasons(id);
+      document.getElementById('inlineAddSeasonBtn').addEventListener('click', () => {
+        const num = Number(document.getElementById('inlineSeasonNumber').value);
+        if (!num || num < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
+        getContentById(id, (content) => {
+          if (content) {
+            const seasons = content.seasons || {};
+            if (seasons[num]) return showToast('Bu sezon zaten mevcut!', 'error');
+            seasons[num] = [{ __placeholder: true }];
+            update(ref(db, `content/${id}`), { seasons }).then(() => {
+              showToast(`Sezon ${num} eklendi!`, 'success');
+              document.getElementById('inlineSeasonNumber').value = '';
+              populateInlineEpisodeSeason(id);
+              renderInlineSeasons(id);
+            });
+          }
+        });
+      });
+      document.getElementById('inlineAddEpisodeBtn').addEventListener('click', () => {
+        const season = Number(document.getElementById('inlineEpisodeSeason').value);
+        const num = Number(document.getElementById('inlineEpisodeNumber').value);
+        const title = document.getElementById('inlineEpisodeTitle').value.trim();
+        const video = document.getElementById('inlineEpisodeVideo').value.trim();
+        if (!season || !num) return showToast('Sezon ve bölüm numarası girin.', 'error');
+        getContentById(id, (content) => {
+          if (content) {
+            const seasons = content.seasons || {};
+            if (!seasons[season]) return showToast('Bu sezon mevcut değil!', 'error');
+            const realEpisodes = seasons[season].filter(e => !(e && e.__placeholder));
+            if (realEpisodes.some(e => e.num === num)) return showToast('Bu bölüm numarası zaten mevcut!', 'error');
+            if (seasons[season].length === 1 && seasons[season][0] && seasons[season][0].__placeholder) {
+              seasons[season] = [{ num, title: title || `Bölüm ${num}`, video }];
+            } else {
+              seasons[season].push({ num, title: title || `Bölüm ${num}`, video });
+            }
+            seasons[season].sort((a, b) => a.num - b.num);
+            update(ref(db, `content/${id}`), { seasons }).then(() => {
+              showToast(`Bölüm ${num} eklendi!`, 'success');
+              document.getElementById('inlineEpisodeNumber').value = '';
+              document.getElementById('inlineEpisodeTitle').value = '';
+              document.getElementById('inlineEpisodeVideo').value = '';
+              populateInlineEpisodeSeason(id);
+              renderInlineSeasons(id);
+            });
+          }
+        });
+      });
     }
   });
 };
@@ -2064,6 +2182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         update(ref(db, `content/${editingId}`), { ...contentData, seasons }).then(() => {
           showToast('İçerik güncellendi!', 'success');
           editingId = null;
+          document.getElementById('inlineSeriesManagement').style.display = 'none';
           document.getElementById('addContentForm').reset();
           document.querySelector('#addContentForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> İçeriği Ekle';
           document.getElementById('posterPreview').style.display='none';
@@ -2077,6 +2196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const newRef = push(ref(db, 'content'));
       set(newRef, contentData).then(() => {
         showToast('İçerik eklendi!', 'success');
+        document.getElementById('inlineSeriesManagement').style.display = 'none';
         document.getElementById('addContentForm').reset();
         document.getElementById('posterPreview').style.display='none';
         document.getElementById('bgPreview').style.display='none';
