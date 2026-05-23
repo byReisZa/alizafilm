@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<base target="_blank">
 </head>
 <body>
 
@@ -273,6 +272,54 @@
           <div class="admin-content">
             <div class="admin-panel active" id="panel-add-content">
               <h3>Yeni İçerik Ekle</h3>
+
+              <!-- TMDB AUTO-FILL SECTION -->
+              <div class="tmdb-section">
+                <div class="tmdb-header">
+                  <div class="tmdb-header-left">
+                    <i class="fas fa-magic"></i>
+                    <span>TMDB'den Otomatik Doldur</span>
+                  </div>
+                  <span class="tmdb-badge">BETA</span>
+                </div>
+                <div class="tmdb-info">
+                  <i class="fas fa-info-circle"></i>
+                  TMDB'de ara, tüm bilgileri (afiş, açıklama, puan, oyuncular) otomatik doldur.
+                  <span class="tmdb-apikey-warning" id="tmdbApiWarning" style="display:none">
+                    <i class="fas fa-exclamation-triangle"></i> API anahtarı girilmedi!
+                  </span>
+                </div>
+                <div class="tmdb-controls">
+                  <div class="tmdb-search-box">
+                    <input type="text" id="tmdbSearchInput" placeholder="Film veya dizi adı yazın... (örn: Esaretin Bedeli)">
+                    <button class="btn-primary tmdb-search-btn" id="tmdbSearchBtn">
+                      <i class="fas fa-search"></i> Ara
+                    </button>
+                  </div>
+                  <div class="tmdb-type-selector">
+                    <button class="tmdb-type-btn active" data-tmdb-type="movie">🎬 Film</button>
+                    <button class="tmdb-type-btn" data-tmdb-type="tv">📺 Dizi</button>
+                  </div>
+                </div>
+                <div class="tmdb-loading" id="tmdbLoading" style="display:none">
+                  <div class="spinner"></div>
+                  <p>TMDB taranıyor...</p>
+                </div>
+                <div class="tmdb-results" id="tmdbResults"></div>
+                <div class="tmdb-detail" id="tmdbDetail" style="display:none">
+                  <div class="tmdb-detail-header">
+                    <h4><i class="fas fa-film"></i> <span id="tmdbDetailTitle">—</span></h4>
+                    <button class="btn-secondary tmdb-detail-close" id="tmdbDetailClose"><i class="fas fa-times"></i></button>
+                  </div>
+                  <div class="tmdb-detail-body" id="tmdbDetailBody"></div>
+                  <div class="tmdb-detail-actions">
+                    <button class="btn-primary" id="tmdbFillFormBtn"><i class="fas fa-arrow-right"></i> Formu Doldur</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tmdb-divider"><span>veya manuel ekle</span></div>
+
               <form id="addContentForm">
                 <div class="form-row">
                   <div class="form-group">
@@ -393,78 +440,49 @@
             </div>
             <div class="admin-panel" id="panel-manage-series">
               <h3>Sezon & Bölüm Yönetimi</h3>
-
-              <!-- Dizi Seçimi -->
               <div class="form-group">
-                <label><i class="fas fa-tv"></i> Dizi Seç</label>
-                <select id="seriesSelect">
-                  <option value="">— Dizi Seçin —</option>
-                </select>
+                <label>Dizi Seç</label>
+                <select id="seriesSelect"></select>
               </div>
-
-              <div class="series-management" id="seriesManagement" style="display:none">
-
-                <!-- Mevcut Sezonlar -->
-                <div class="seasons-display" id="seasonsDisplay">
-                  <h4><i class="fas fa-layer-group"></i> Mevcut Sezonlar</h4>
-                  <div class="season-tags" id="seasonTags"></div>
-                  <p class="no-seasons" id="noSeasons" style="display:none;color:var(--text-muted);font-size:0.85rem;padding:10px 0;">
-                    Henüz sezon eklenmemiş.
-                  </p>
-                </div>
-
-                <!-- Yeni Sezon Ekle -->
-                <div class="add-season-box">
+              <div class="series-management" id="seriesManagement">
+                <div class="add-season">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Sezon Ekle</h4>
                   <div class="form-row" style="align-items:flex-end">
                     <div class="form-group" style="margin-bottom:0">
-                      <input type="number" id="seasonNumber" placeholder="Sezon no (örn: 2)" min="1" style="width:100%">
+                      <label>Sezon Numarası</label>
+                      <input type="number" id="seasonNumber" placeholder="örn: 1" min="1">
                     </div>
-                    <button class="btn-primary" id="addSeasonBtn" style="height:44px;white-space:nowrap">
-                      <i class="fas fa-plus"></i> Ekle
-                    </button>
+                    <button class="btn-primary" id="addSeasonBtn" style="height:44px"><i class="fas fa-plus"></i> Sezon Ekle</button>
                   </div>
                 </div>
-
-                <!-- Seçili Sezon Bilgisi -->
-                
-
-                <!-- Yeni Bölüm Ekle -->
-                <div class="add-episode-box" id="addEpisodeBox">
+                <div class="add-episode">
                   <h4><i class="fas fa-plus-circle"></i> Yeni Bölüm Ekle</h4>
-
-                  <!-- Auto-filled season info -->
-                  <div class="auto-season-info" id="autoSeasonInfo" style="margin-bottom:16px;padding:10px 14px;background:rgba(108,60,225,0.1);border:1px solid var(--border-color);border-radius:var(--radius-md);display:none;">
-                    <span style="color:var(--primary-light);font-size:0.85rem;">
-                      <i class="fas fa-layer-group"></i> <strong>Sezon <span id="autoSeasonNum">—</span></strong> seçili — bölüm bu sezona eklenecek
-                    </span>
+                  <div class="form-group">
+                    <label>Sezon Seç</label>
+                    <select id="episodeSeason">
+                      <option value="">— Önce sezon ekleyin —</option>
+                    </select>
                   </div>
-
                   <div class="form-row">
                     <div class="form-group">
                       <label>Bölüm No *</label>
-                      <input type="number" id="episodeNumber" placeholder="Bölüm no yaz" min="1">
+                      <input type="number" id="episodeNumber" placeholder="örn: 1" min="1">
                     </div>
-                  </div>
-                  <div class="form-group">
-                    <label>Bölüm Başlığı</label>
-                    <input type="text" id="episodeTitle" placeholder="Bölüm başlığı (opsiyonel)">
+                    <div class="form-group">
+                      <label>Bölüm Başlığı</label>
+                      <input type="text" id="episodeTitle" placeholder="Bölüm başlığı (opsiyonel)">
+                    </div>
                   </div>
                   <div class="form-group">
                     <label>Video URL <span style="color:var(--text-muted);font-weight:400">(opsiyonel)</span></label>
                     <input type="url" id="episodeVideo" placeholder="https://vidmoly.net/embed-... veya .mp4">
                   </div>
-                  <button class="btn-primary" id="addEpisodeBtn">
-                    <i class="fas fa-plus"></i> Bölüm Ekle
-                  </button>
+                  <button class="btn-primary" id="addEpisodeBtn"><i class="fas fa-plus"></i> Bölüm Ekle</button>
                 </div>
-
-                <!-- Sezon ve Bölüm Listesi -->
                 <div class="seasons-list" id="seasonsList">
-                  <h4><i class="fas fa-list"></i> Sezonlar & Bölümler</h4>
+                  <h4><i class="fas fa-layer-group"></i> Mevcut Sezonlar & Bölümler</h4>
                   <div id="seasonsContainer"></div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -507,7 +525,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import { getDatabase, ref, set, push, onValue, remove, update, get, child } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut, updateProfile, signInWithCredential, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBK3mnQL99Lfqx7cWkufo3HKDkp7SIGznA",
@@ -523,6 +541,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
+
+// TMDB API Configuration - https://www.themoviedb.org/ ücretsiz kaydolun
+// API Key (v3) veya API Read Access Token (v4) - hangisini girersen çalışır
+const TMDB_API_KEY = '871819e941dabadb820672cc19fe35de'; // ★ API Key (v3): https://www.themoviedb.org/settings/api
+const TMDB_ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4NzE4MTllOTQxZGFiYWRiODIwNjcyY2MxOWZlMzVkZSIsIm5iZiI6MTc3OTU0Nzk3NC45NjQsInN1YiI6IjZhMTFiZjQ2YmI2YWRjYTlmMzg3NjkwYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Q9cdp1eI4faLhv70iMPw8veKWQbEU0XDeJeUnhDBHzk'; // ★ API Read Access Token (v4): ayarlar > API > API Read Access Token
+const TMDB_IMG_URL = 'https://image.tmdb.org/t/p/';
 
 let currentUser = null;
 let currentUserRole = null;
@@ -630,19 +654,17 @@ function showToast(message, type = 'info') {
   }, 4000);
 }
 
-/* IMAGE UPLOAD
- * Parametre sırası: dropId, previewId, imgId, widthId, heightId, cropBtnId, removeId, hiddenId, prefix
- * DÜZELTİLDİ: hInput artık heightId'ye, hidden artık hiddenId'ye bağlı
- */
+/* IMAGE UPLOAD */
+
 function setupUploadZone(dropId, previewId, imgId, widthId, heightId, cropBtnId, removeId, hiddenId, prefix) {
   const drop = document.getElementById(dropId);
   const preview = document.getElementById(previewId);
   const img = document.getElementById(imgId);
   const wInput = document.getElementById(widthId);
-  const hInput = document.getElementById(heightId);   // ← DÜZELTİLDİ: heightId kullanılıyor
+  const hInput = document.getElementById(heightId);
   const cropBtn = document.getElementById(cropBtnId);
   const removeBtn = document.getElementById(removeId);
-  const hidden = document.getElementById(hiddenId);   // ← DÜZELTİLDİ: hiddenId kullanılıyor
+  const hidden = document.getElementById(hiddenId);
   let currentFile = null;
 
   function handleFile(file) {
@@ -727,13 +749,19 @@ function setupUploadZone(dropId, previewId, imgId, widthId, heightId, cropBtnId,
   });
 }
 
+let contentUnsubscribe = null;
+const contentCallbacks = [];
+
 function loadContent(callback) {
-  const contentRef = ref(db, 'content');
-  onValue(contentRef, (snapshot) => {
-    const data = snapshot.val();
-    const items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-    callback(items);
-  });
+  contentCallbacks.push(callback);
+  if (!contentUnsubscribe) {
+    const contentRef = ref(db, 'content');
+    contentUnsubscribe = onValue(contentRef, (snapshot) => {
+      const data = snapshot.val();
+      const items = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+      contentCallbacks.forEach(cb => cb(items));
+    });
+  }
 }
 
 function getContentById(id, callback) {
@@ -1069,10 +1097,6 @@ function renderAdminList() {
   });
 }
 
-// =====================================================================
-// DÜZELTİLDİ: renderSeriesSelect artık episodeSeason'ı bozmaz
-// keepSelection=true ise mevcut seriesSelect değeri korunur
-// =====================================================================
 function renderSeriesSelect(keepSelection = false) {
   loadContent((data) => {
     const series = data.filter(c => c.type === 'series');
@@ -1080,11 +1104,10 @@ function renderSeriesSelect(keepSelection = false) {
     const prevVal = select.value;
     select.innerHTML = '<option value="">— Dizi Seçin —</option>' +
       series.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
-
     if (keepSelection && prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
       select.value = prevVal;
       document.getElementById('seriesManagement').style.display = 'block';
-    } else if (!keepSelection) {
+    } else {
       select.value = '';
       document.getElementById('seriesManagement').style.display = 'none';
     }
@@ -1105,7 +1128,8 @@ function renderSeasons(contentId) {
     }
 
     container.innerHTML = seasonKeys.map(sNum => {
-      const episodes = seasons[sNum] || [];
+      const episodesRaw = seasons[sNum] || [];
+      const episodes = episodesRaw.filter(e => !(e && e.__placeholder));
       return `
         <div class="season-block">
           <div class="season-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'flex':'none'">
@@ -1127,13 +1151,23 @@ function renderSeasons(contentId) {
   });
 }
 
-// =====================================================================
-// DÜZELTİLDİ: Firebase'deki season key'leri string olarak saklanıyor
-// ve select option value'ları ile tutarlı hale getirildi
-// =====================================================================
+function populateEpisodeSeasonSelect(contentId) {
+  getContentById(contentId, (content) => {
+    if (!content) return;
+    const seasons = Object.keys(content.seasons || {}).sort((a, b) => Number(a) - Number(b));
+    const select = document.getElementById('episodeSeason');
+    if (seasons.length === 0) {
+      select.innerHTML = '<option value="">— Önce sezon ekleyin —</option>';
+      return;
+    }
+    select.innerHTML = seasons.map(s => `<option value="${s}">Sezon ${s}</option>`).join('');
+    select.value = seasons[0];
+  });
+}
 
-
-/* LETTER FILTER & DISCOVER */
+/* ======================
+   MOBILE UI - LETTER FILTER & DISCOVER
+   ====================== */
 
 function buildLetterFilter() {
   const container = document.getElementById('letterFilter');
@@ -1223,6 +1257,203 @@ function renderDiscover() {
   });
 }
 
+/* ======================
+   TMDB FUNCTIONS
+   ====================== */
+
+function tmdbFetch(url) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (TMDB_ACCESS_TOKEN) {
+    headers['Authorization'] = `Bearer ${TMDB_ACCESS_TOKEN}`;
+    return fetch(url, { headers }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
+  } else if (TMDB_API_KEY) {
+    const sep = url.includes('?') ? '&' : '?';
+    return fetch(url + sep + `api_key=${TMDB_API_KEY}`, { headers }).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
+  } else {
+    return Promise.reject(new Error('API anahtarı gerekli'));
+  }
+}
+
+function tmdbCheckKey() {
+  if (!TMDB_API_KEY && !TMDB_ACCESS_TOKEN) {
+    showToast('TMDB API anahtarı gerekli! themoviedb.org ücretsiz kaydolun.', 'error');
+    return false;
+  }
+  return true;
+}
+
+async function searchTMDB(query, type = 'movie') {
+  if (!tmdbCheckKey()) return [];
+  const endpoint = type === 'tv' ? 'tv' : 'movie';
+  const url = `https://api.themoviedb.org/3/search/${endpoint}?query=${encodeURIComponent(query)}&language=tr-TR&page=1&include_adult=false`;
+  try {
+    const data = await tmdbFetch(url);
+    return data.results || [];
+  } catch (err) {
+    showToast('TMDB arama hatası: ' + err.message, 'error');
+    return [];
+  }
+}
+
+async function getTMDBDetails(id, type = 'movie') {
+  if (!tmdbCheckKey()) return null;
+  const endpoint = type === 'tv' ? 'tv' : 'movie';
+  const url = `https://api.themoviedb.org/3/${endpoint}/${id}?language=tr-TR&append_to_response=credits,external_ids`;
+  try {
+    return await tmdbFetch(url);
+  } catch (err) {
+    showToast('TMDB detay hatası: ' + err.message, 'error');
+    return null;
+  }
+}
+
+function fillFormFromTMDB(item, type) {
+  // Set form values
+  document.getElementById('formTitle').value = item.title || item.name || '';
+  document.getElementById('formType').value = type === 'tv' ? 'series' : 'movie';
+  
+  // Map TMDB genres to our categories
+  const genreMap = {
+    28: 'action', 12: 'action', 10759: 'action',
+    35: 'comedy', 10762: 'comedy',
+    878: 'sci-fi', 10765: 'sci-fi',
+    18: 'drama', 10766: 'drama',
+    27: 'horror', 10769: 'horror',
+    53: 'thriller', 80: 'thriller', 9648: 'thriller',
+    10749: 'romance',
+    99: 'documentary',
+    16: 'animation', 10770: 'animation',
+    14: 'fantasy', 10759: 'fantasy',
+  };
+  const genreId = item.genre_ids?.[0];
+  if (genreId && genreMap[genreId]) {
+    document.getElementById('formCategory').value = genreMap[genreId];
+  }
+  
+  // Determine language
+  const origLang = (item.original_language || '').toLowerCase();
+  if (origLang === 'tr') {
+    document.getElementById('formLang').value = 'turkish';
+  } else if (origLang === 'en' || origLang === '') {
+    document.getElementById('formLang').value = 'original';
+  } else {
+    document.getElementById('formLang').value = 'original';
+  }
+  
+  // Year
+  const dateStr = item.release_date || item.first_air_date || '';
+  if (dateStr) {
+    document.getElementById('formYear').value = new Date(dateStr).getFullYear();
+  }
+  
+  // Rating (convert TMDB 10-point to our scale, or keep as is)
+  if (item.vote_average) {
+    document.getElementById('formRating').value = Math.round(item.vote_average * 10) / 10;
+  }
+  
+  // Description
+  if (item.overview) {
+    document.getElementById('formDesc').value = item.overview;
+  }
+  
+  // Poster image
+  if (item.poster_path) {
+    const posterUrl = `${TMDB_IMG_URL}w500${item.poster_path}`;
+    document.getElementById('formImage').value = posterUrl;
+    document.getElementById('posterPreviewImg').src = posterUrl;
+    document.getElementById('posterPreview').style.display = 'block';
+    document.getElementById('posterDrop').style.display = 'none';
+  }
+  
+  // Background image
+  if (item.backdrop_path) {
+    const bgUrl = `${TMDB_IMG_URL}original${item.backdrop_path}`;
+    document.getElementById('formBg').value = bgUrl;
+    document.getElementById('bgPreviewImg').src = bgUrl;
+    document.getElementById('bgPreview').style.display = 'block';
+    document.getElementById('bgDrop').style.display = 'none';
+  }
+  
+  showToast(`"${item.title || item.name}" formu dolduruldu!`, 'success');
+}
+
+function formatTMDBResults(results, type) {
+  if (!results || results.length === 0) {
+    return '<p class="tmdb-no-results"><i class="fas fa-search"></i> Sonuç bulunamadı. Farklı bir arama deneyin.</p>';
+  }
+  return results.slice(0, 10).map(item => {
+    const title = item.title || item.name || '—';
+    const date = item.release_date || item.first_air_date || '';
+    const year = date ? date.split('-')[0] : '—';
+    const rating = item.vote_average ? Math.round(item.vote_average * 10) / 10 : '—';
+    const poster = item.poster_path ? `${TMDB_IMG_URL}w92${item.poster_path}` : '';
+    const overview = item.overview ? item.overview.substring(0, 120) + '...' : 'Açıklama bulunamadı.';
+    const mediaType = type === 'tv' ? '📺' : '🎬';
+    
+    return `
+      <div class="tmdb-result-item" data-tmdb-id="${item.id}" data-tmdb-type="${type}">
+        <div class="tmdb-result-poster">
+          ${poster ? `<img src="${poster}" alt="${title}" loading="lazy">` : '<div class="tmdb-no-poster"><i class="fas fa-film"></i></div>'}
+        </div>
+        <div class="tmdb-result-info">
+          <h5>${mediaType} ${title}</h5>
+          <div class="tmdb-result-meta">
+            <span><i class="fas fa-calendar"></i> ${year}</span>
+            <span><i class="fas fa-star" style="color:var(--warning)"></i> ${rating}</span>
+            <span><i class="fas fa-language"></i> ${(item.original_language || '').toUpperCase()}</span>
+          </div>
+          <p class="tmdb-result-desc">${overview}</p>
+        </div>
+        <div class="tmdb-result-action">
+          <button class="btn-primary tmdb-select-btn" style="padding:8px 16px;font-size:0.78rem">
+            <i class="fas fa-arrow-right"></i> Seç
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTMDBCredits(details) {
+  if (!details || !details.credits) return '';
+  const cast = (details.credits.cast || []).slice(0, 8);
+  const crew = (details.credits.crew || []).slice(0, 5);
+  if (cast.length === 0 && crew.length === 0) return '';
+  
+  let html = '';
+  if (cast.length > 0) {
+    html += `
+      <div class="tmdb-cast-section">
+        <h5><i class="fas fa-users"></i> Oyuncular</h5>
+        <div class="tmdb-cast-list">
+          ${cast.map(c => `
+            <div class="tmdb-cast-item">
+              <div class="tmdb-cast-photo">
+                ${c.profile_path ? `<img src="${TMDB_IMG_URL}w92${c.profile_path}" alt="${c.name}" loading="lazy">` : '<i class="fas fa-user"></i>'}
+              </div>
+              <div class="tmdb-cast-name">${c.name || '—'}</div>
+              <div class="tmdb-cast-role">${c.character || '—'}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  if (crew.length > 0) {
+    html += `
+      <div class="tmdb-crew-section">
+        <h5><i class="fas fa-video"></i> Ekip</h5>
+        <div class="tmdb-crew-list">
+          ${crew.map(c => `
+            <span class="tmdb-crew-item"><strong>${c.name}</strong> (${c.job || c.department || '—'})</span>
+          `).join(' • ')}
+        </div>
+      </div>
+    `;
+  }
+  return html;
+}
+
 window.editContent = function(id) {
   getContentById(id, (content) => {
     if (!content) return;
@@ -1278,7 +1509,7 @@ window.confirmDeleteSeason = function(contentId, num) {
       update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
         showToast(`Sezon ${num} silindi!`, 'info');
         renderSeasons(contentId);
-        renderSeriesSelect(true);
+        populateEpisodeSeasonSelect(contentId);
         renderContent();
       });
     }
@@ -1293,6 +1524,7 @@ window.confirmDeleteEpisode = function(contentId, seasonNum, epNum) {
       update(ref(db, `content/${contentId}`), { seasons: content.seasons }).then(() => {
         showToast(`Bölüm ${epNum} silindi!`, 'info');
         renderSeasons(contentId);
+        populateEpisodeSeasonSelect(contentId);
         renderContent();
       });
     }
@@ -1373,7 +1605,7 @@ onAuthStateChanged(auth, async (user) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* Upload Zones - DÜZELTİLDİ: parametre sırası düzenlendi */
+  /* Upload Zones */
   setupUploadZone('posterDrop','posterPreview','posterPreviewImg','posterWidth','posterHeight','posterCropBtn','posterRemove','formImage','poster');
   setupUploadZone('bgDrop','bgPreview','bgPreviewImg','bgWidth','bgHeight','bgCropBtn','bgRemove','formBg','bg');
 
@@ -1755,412 +1987,190 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('adminSearch').addEventListener('input', () => renderAdminList());
 
-  /* =====================================================================
-   * DÜZELTİLDİ: seriesSelect change handler
-   * Seçim değiştiğinde episodeSeason düzgün dolduruluyor
-   * ===================================================================== */
+  /* TMDB Auto-Fill */
+  const tmdbSearchBtn = document.getElementById('tmdbSearchBtn');
+  const tmdbInput = document.getElementById('tmdbSearchInput');
+  const tmdbResults = document.getElementById('tmdbResults');
+  const tmdbLoading = document.getElementById('tmdbLoading');
+  const tmdbDetail = document.getElementById('tmdbDetail');
+  const tmdbApiWarning = document.getElementById('tmdbApiWarning');
+
+  if (tmdbApiWarning) {
+    tmdbApiWarning.style.display = (TMDB_API_KEY || TMDB_ACCESS_TOKEN) ? 'none' : 'block';
+  }
+
+  let tmdbType = 'movie';
+  let tmdbCurrentDetail = null;
+
+  document.querySelectorAll('.tmdb-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tmdb-type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tmdbType = btn.dataset.tmdbType;
+    });
+  });
+
+  function doTmdbSearch() {
+    const query = tmdbInput.value.trim();
+    if (!query) return showToast('Arama yapmak için bir şey yazın.', 'error');
+    if (!TMDB_API_KEY && !TMDB_ACCESS_TOKEN) return showToast('TMDB API anahtarı gerekli!', 'error');
+
+    tmdbLoading.style.display = 'flex';
+    tmdbResults.innerHTML = '';
+    tmdbDetail.style.display = 'none';
+    tmdbCurrentDetail = null;
+
+    searchTMDB(query, tmdbType).then(results => {
+      tmdbLoading.style.display = 'none';
+      tmdbResults.innerHTML = formatTMDBResults(results, tmdbType);
+
+      tmdbResults.querySelectorAll('.tmdb-result-item').forEach(el => {
+        el.addEventListener('click', async () => {
+          const id = el.dataset.tmdbId;
+          const type = el.dataset.tmdbType;
+          tmdbLoading.style.display = 'flex';
+
+          const details = await getTMDBDetails(id, type);
+          tmdbLoading.style.display = 'none';
+
+          if (!details) return showToast('Detay alınamadı.', 'error');
+
+          tmdbCurrentDetail = { details, type };
+          const title = details.title || details.name || '—';
+          const year = (details.release_date || details.first_air_date || '').split('-')[0];
+          const rating = details.vote_average ? Math.round(details.vote_average * 10) / 10 : '—';
+          const runtime = details.runtime ? details.runtime + ' dk' : details.episode_run_time?.[0] ? details.episode_run_time[0] + ' dk' : '—';
+          const genres = (details.genres || []).map(g => g.name).join(', ') || '—';
+          const overview = details.overview || 'Açıklama bulunamadı.';
+          const poster = details.poster_path ? `${TMDB_IMG_URL}w300${details.poster_path}` : '';
+          const bg = details.backdrop_path ? `${TMDB_IMG_URL}original${details.backdrop_path}` : '';
+          const imdbId = details.external_ids?.imdb_id || '';
+          const language = (details.original_language || '').toUpperCase();
+          const status = details.status || '—';
+
+          document.getElementById('tmdbDetailTitle').textContent = title;
+          document.getElementById('tmdbDetailBody').innerHTML = `
+            <div class="tmdb-detail-grid">
+              ${poster ? `<div class="tmdb-detail-poster"><img src="${poster}" alt="${title}"></div>` : ''}
+              <div class="tmdb-detail-content">
+                <div class="tmdb-detail-meta">
+                  <span><i class="fas fa-calendar"></i> ${year}</span>
+                  <span><i class="fas fa-star" style="color:var(--warning)"></i> ${rating}</span>
+                  <span><i class="fas fa-clock"></i> ${runtime}</span>
+                  <span><i class="fas fa-language"></i> ${language}</span>
+                  ${imdbId ? `<span><i class="fab fa-imdb" style="color:#F5C518"></i> <a href="https://www.imdb.com/title/${imdbId}" target="_blank">IMDB</a></span>` : ''}
+                  <span><i class="fas fa-tag"></i> ${genres}</span>
+                  <span><i class="fas fa-circle"></i> ${status}</span>
+                </div>
+                <p class="tmdb-detail-overview">${overview}</p>
+                ${renderTMDBCredits(details)}
+                <div class="tmdb-detail-extra">
+                  <p><strong>Orijinal Adı:</strong> ${details.original_title || details.original_name || '—'}</p>
+                  <p><strong>Popülerlik:</strong> ${Math.round(details.popularity || 0)}</p>
+                  <p><strong>Yetişkin:</strong> ${details.adult ? 'Evet' : 'Hayır'}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          tmdbDetail.style.display = 'block';
+          tmdbDetail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    });
+  }
+
+  tmdbSearchBtn.addEventListener('click', doTmdbSearch);
+  tmdbInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doTmdbSearch(); });
+
+  document.getElementById('tmdbDetailClose').addEventListener('click', () => {
+    tmdbDetail.style.display = 'none';
+    tmdbCurrentDetail = null;
+  });
+
+  document.getElementById('tmdbFillFormBtn').addEventListener('click', () => {
+    if (!tmdbCurrentDetail) return showToast('Önce bir sonuç seçin.', 'error');
+    fillFormFromTMDB(tmdbCurrentDetail.details, tmdbCurrentDetail.type);
+    tmdbDetail.style.display = 'none';
+    tmdbResults.innerHTML = '';
+    tmdbInput.value = '';
+  });
+
   document.getElementById('seriesSelect').addEventListener('change', (e) => {
     const val = e.target.value;
     const mgmt = document.getElementById('seriesManagement');
     if (val) {
       mgmt.style.display = 'block';
+      populateEpisodeSeasonSelect(val);
       renderSeasons(val);
     } else {
       mgmt.style.display = 'none';
     }
   });
 
-  /* =====================================================================
-   * DÜZELTİLDİ: addSeasonBtn
-   * Firebase'e sezon key'i string olarak yazılıyor tutarlılık için
-   * Sezon eklendikten sonra episodeSeason doğru şekilde yenileniyor
-   * ===================================================================== */
-  /* =====================================================================
-   SEASON & EPISODE MANAGEMENT - COMPLETE REWRITE
-   ===================================================================== */
+  document.getElementById('addSeasonBtn').addEventListener('click', () => {
+    const id = document.getElementById('seriesSelect').value;
+    const num = Number(document.getElementById('seasonNumber').value);
+    if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
+    if (!num || num < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
 
-// Global variable to track currently selected season for episode adding
-let currentSelectedSeason = null;
-
-function renderSeriesSelect(keepSelection = false) {
-  loadContent((data) => {
-    const series = data.filter(c => c.type === 'series');
-    const select = document.getElementById('seriesSelect');
-    const prevVal = select.value;
-    select.innerHTML = '<option value="">— Dizi Seçin —</option>' +
-      series.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
-
-    if (keepSelection && prevVal && select.querySelector(`option[value="${prevVal}"]`)) {
-      select.value = prevVal;
-      document.getElementById('seriesManagement').style.display = 'block';
-      renderSeasons(prevVal);
-    } else if (!keepSelection) {
-      select.value = '';
-      document.getElementById('seriesManagement').style.display = 'none';
-    }
-  });
-}
-
-function renderSeasons(contentId) {
-  get(child(ref(db), `content/${contentId}`)).then((snap) => {
-    const content = snap.val();
-    const container = document.getElementById('seasonsContainer');
-    const tagsContainer = document.getElementById('seasonTags');
-    const noSeasonsMsg = document.getElementById('noSeasons');
-
-    if (!content) {
-      container.innerHTML = '<p style="color:var(--text-muted)">Dizi bulunamadı.</p>';
-      tagsContainer.innerHTML = '';
-      noSeasonsMsg.style.display = 'block';
-      return;
-    }
-
-    // Ensure seasons is an object
-    let seasons = content.seasons || {};
-    if (typeof seasons !== 'object' || seasons === null) {
-      seasons = {};
-    }
-
-    const seasonKeys = Object.keys(seasons).sort((a, b) => Number(a) - Number(b));
-
-    // Render season tags (clickable buttons)
-    if (seasonKeys.length === 0) {
-      tagsContainer.innerHTML = '';
-      noSeasonsMsg.style.display = 'block';
-    } else {
-      noSeasonsMsg.style.display = 'none';
-      tagsContainer.innerHTML = seasonKeys.map(sNum => {
-        const isSelected = currentSelectedSeason === sNum;
-        const seasonData = seasons[sNum];
-        let episodeCount = 0;
-        if (Array.isArray(seasonData)) {
-          episodeCount = seasonData.length;
-        } else if (typeof seasonData === 'object' && seasonData !== null) {
-          episodeCount = Object.keys(seasonData).length;
-        }
-        return `
-          <button class="season-tag ${isSelected ? 'active' : ''}" data-season="${sNum}" onclick="selectSeasonForEpisode('${sNum}')">
-            <i class="fas fa-layer-group"></i> Sezon ${sNum}
-            <span class="ep-count">${episodeCount} bölüm</span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    // Render detailed season list with episodes
-    if (seasonKeys.length === 0) {
-      container.innerHTML = '<p style="color:var(--text-muted);padding:12px 0;">Henüz sezon eklenmemiş.</p>';
-      return;
-    }
-
-    container.innerHTML = seasonKeys.map(sNum => {
-      let episodes = [];
-      const seasonData = seasons[sNum];
-      if (Array.isArray(seasonData)) {
-        episodes = seasonData;
-      } else if (typeof seasonData === 'object' && seasonData !== null) {
-        episodes = Object.values(seasonData).filter(item => item && typeof item === 'object');
+    getContentById(id, (content) => {
+      if (content) {
+        const seasons = content.seasons || {};
+        if (seasons[num]) return showToast('Bu sezon zaten mevcut!', 'error');
+        seasons[num] = [{ __placeholder: true }];
+        update(ref(db, `content/${id}`), { seasons }).then(() => {
+          showToast(`Sezon ${num} eklendi!`, 'success');
+          document.getElementById('seasonNumber').value = '';
+          renderSeasons(id);
+          populateEpisodeSeasonSelect(id);
+          const epSeason = document.getElementById('episodeSeason');
+          if (epSeason.querySelector(`option[value="${num}"]`)) epSeason.value = String(num);
+          renderContent();
+        });
       }
-
-      return `
-        <div class="season-block">
-          <div class="season-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'flex':'none'">
-            <h5><i class="fas fa-layer-group"></i> Sezon ${sNum} <span class="episode-count">(${episodes.length} bölüm)</span></h5>
-            <div class="season-actions">
-              <button class="season-select-btn" onclick="event.stopPropagation();selectSeasonForEpisode('${sNum}')" title="Bu sezona bölüm ekle">
-                <i class="fas fa-plus"></i> Bölüm Ekle
-              </button>
-              <button class="season-delete-btn" onclick="event.stopPropagation();confirmDeleteSeason('${contentId}',${sNum})" title="Sezonu sil">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-          <div class="season-episodes" style="display:${episodes.length > 0 ? 'flex' : 'none'}">
-            ${episodes.length === 0 ? '<p style="color:var(--text-muted);padding:8px 0;font-size:0.8rem">Henüz bölüm yok.</p>' :
-              episodes.map(ep => `
-                <div class="season-episode-item">
-                  <span><strong>${ep.num || '?' }.</strong> ${ep.title || `Bölüm ${ep.num || '?'}`}</span>
-                  <button class="ep-delete" onclick="confirmDeleteEpisode('${contentId}',${sNum},${ep.num})"><i class="fas fa-times"></i></button>
-                </div>
-              `).join('')}
-          </div>
-        </div>
-      `;
-    }).join('');
-  }).catch(err => {
-    console.error('renderSeasons error:', err);
-    document.getElementById('seasonsContainer').innerHTML = '<p style="color:var(--error)">Veri yüklenirken hata oluştu.</p>';
-  });
-}
-
-// Select a season for adding episodes
-window.selectSeasonForEpisode = function(seasonNum) {
-  currentSelectedSeason = String(seasonNum);
-
-  // Update auto-season info in episode box
-  const autoInfo = document.getElementById('autoSeasonInfo');
-  const autoNum = document.getElementById('autoSeasonNum');
-  if (autoInfo && autoNum) {
-    autoInfo.style.display = 'block';
-    autoNum.textContent = seasonNum;
-  }
-
-  // Update tag styles
-  document.querySelectorAll('.season-tag').forEach(tag => {
-    tag.classList.toggle('active', tag.dataset.season === String(seasonNum));
-  });
-
-  showToast(`Sezon ${seasonNum} seçildi. Bölüm ekleyebilirsin.`, 'info');
-};
-
-// Clear selected season
-function clearSelectedSeason() {
-  currentSelectedSeason = null;
-
-  // Hide auto season info
-  const autoInfo = document.getElementById('autoSeasonInfo');
-  if (autoInfo) autoInfo.style.display = 'none';
-
-  document.querySelectorAll('.season-tag').forEach(tag => {
-    tag.classList.remove('active');
-  });
-}
-
-/* EVENT HANDLERS */
-
-// Series selection change
-document.getElementById('seriesSelect').addEventListener('change', (e) => {
-  const val = e.target.value;
-  const mgmt = document.getElementById('seriesManagement');
-  if (val) {
-    mgmt.style.display = 'block';
-    currentSelectedSeason = null;
-    document.getElementById('selectedSeasonInfo').style.display = 'none';
-    document.getElementById('episodeSeason').value = '';
-    renderSeasons(val);
-  } else {
-    mgmt.style.display = 'none';
-    currentSelectedSeason = null;
-  }
-});
-
-// Add Season
-document.getElementById('addSeasonBtn').addEventListener('click', () => {
-  const id = document.getElementById('seriesSelect').value;
-  const num = parseInt(document.getElementById('seasonNumber').value, 10);
-
-  if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
-  if (!num || num < 1) return showToast('Geçerli bir sezon numarası girin.', 'error');
-
-  const seasonKey = String(num);
-
-  // Check if season already exists first
-  get(child(ref(db), `content/${id}/seasons/${seasonKey}`)).then((snap) => {
-    if (snap.exists()) {
-      return showToast(`Sezon ${num} zaten mevcut!`, 'error');
-    }
-
-    // Add season directly to specific path
-    set(ref(db, `content/${id}/seasons/${seasonKey}`), [])
-      .then(() => {
-        showToast(`Sezon ${num} eklendi!`, 'success');
-        document.getElementById('seasonNumber').value = '';
-        renderSeasons(id);
-        renderContent();
-        // Auto-select the new season
-        setTimeout(() => selectSeasonForEpisode(seasonKey), 100);
-      })
-      .catch(err => {
-        showToast('Sezon eklenirken hata: ' + err.message, 'error');
-        console.error('Add season error:', err);
-      });
-  }).catch(err => {
-    showToast('Kontrol hatası: ' + err.message, 'error');
-    console.error('Check season error:', err);
-  });
-});
-
-// Add Episode
-document.getElementById('addEpisodeBtn').addEventListener('click', () => {
-  const id = document.getElementById('seriesSelect').value;
-  const num = parseInt(document.getElementById('episodeNumber').value, 10);
-  const title = document.getElementById('episodeTitle').value.trim();
-  const video = document.getElementById('episodeVideo').value.trim();
-
-  if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
-  if (!currentSelectedSeason) return showToast('Önce bir sezon seçin! Sezon butonlarından birine tıklayın.', 'error');
-  if (!num || num < 1) return showToast('Geçerli bir bölüm numarası girin.', 'error');
-
-  const seasonKey = currentSelectedSeason;
-
-  // Read current season data directly from Firebase
-  get(child(ref(db), `content/${id}/seasons/${seasonKey}`)).then((snap) => {
-    let episodes = [];
-    if (snap.exists()) {
-      const val = snap.val();
-      if (Array.isArray(val)) {
-        episodes = val;
-      } else if (typeof val === 'object' && val !== null) {
-        // Handle case where data might be stored as object
-        episodes = Object.values(val).filter(item => item && typeof item === 'object');
-      }
-    }
-
-    // Check if episode already exists
-    if (episodes.find(e => e && e.num === num)) {
-      return showToast(`Bölüm ${num} zaten mevcut!`, 'error');
-    }
-
-    // Add new episode
-    episodes.push({ num, title: title || `Bölüm ${num}`, video });
-    episodes.sort((a, b) => (a.num || 0) - (b.num || 0));
-
-    // Update specific season path
-    set(ref(db, `content/${id}/seasons/${seasonKey}`), episodes)
-      .then(() => {
-        showToast(`Bölüm ${num} eklendi!`, 'success');
-        document.getElementById('episodeNumber').value = '';
-        document.getElementById('episodeTitle').value = '';
-        document.getElementById('episodeVideo').value = '';
-        renderSeasons(id);
-        renderContent();
-      })
-      .catch(err => {
-        showToast('Bölüm eklenirken hata: ' + err.message, 'error');
-        console.error('Add episode error:', err);
-      });
-  }).catch(err => {
-    showToast('Sezon okuma hatası: ' + err.message, 'error');
-    console.error('Read season error:', err);
-  });
-});
-
-// Clear season selection
-
-
-/* DELETE FUNCTIONS */
-
-window.confirmDeleteSeason = function(contentId, num) {
-  if (!confirm(`Sezon ${num} ve tüm bölümleri silinsin mi?`)) return;
-
-  const seasonKey = String(num);
-
-  remove(ref(db, `content/${contentId}/seasons/${seasonKey}`))
-    .then(() => {
-      showToast(`Sezon ${num} silindi!`, 'info');
-      if (currentSelectedSeason === seasonKey) {
-        clearSelectedSeason();
-      }
-      renderSeasons(contentId);
-      renderSeriesSelect(true);
-      renderContent();
-    })
-    .catch(err => {
-      showToast('Silme hatası: ' + err.message, 'error');
-      console.error('Delete season error:', err);
     });
-};
-
-window.confirmDeleteEpisode = function(contentId, seasonNum, epNum) {
-  if (!confirm(`Bölüm ${epNum} silinsin mi?`)) return;
-
-  const seasonKey = String(seasonNum);
-
-  get(child(ref(db), `content/${contentId}/seasons/${seasonKey}`)).then((snap) => {
-    if (!snap.exists()) {
-      return showToast('Sezon bulunamadı!', 'error');
-    }
-
-    let episodes = [];
-    const val = snap.val();
-    if (Array.isArray(val)) {
-      episodes = val.filter(e => e && e.num !== epNum);
-    } else if (typeof val === 'object' && val !== null) {
-      episodes = Object.values(val).filter(e => e && e.num !== epNum);
-    }
-
-    set(ref(db, `content/${contentId}/seasons/${seasonKey}`), episodes)
-      .then(() => {
-        showToast(`Bölüm ${epNum} silindi!`, 'info');
-        renderSeasons(contentId);
-        renderContent();
-      })
-      .catch(err => {
-        showToast('Silme hatası: ' + err.message, 'error');
-        console.error('Delete episode error:', err);
-      });
-  }).catch(err => {
-    showToast('Veri okuma hatası: ' + err.message, 'error');
   });
-};
 
-/* CSS for new season tags */
-const seasonTagCSS = `
-.season-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px 0;
-}
-.season-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-base);
-}
-.season-tag:hover {
-  border-color: var(--primary);
-  color: var(--text-primary);
-  background: var(--bg-elevated);
-}
-.season-tag.active {
-  background: var(--gradient-primary);
-  border-color: transparent;
-  color: var(--text-on-primary);
-  box-shadow: var(--shadow-glow-primary);
-}
-.season-tag .ep-count {
-  font-size: 0.7rem;
-  opacity: 0.8;
-  font-weight: 400;
-}
-.season-actions {
-  display: flex;
-  gap: 8px;
-}
-.season-select-btn {
-  padding: 4px 10px;
-  font-size: 0.75rem;
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--success);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-.season-select-btn:hover {
-  background: rgba(16, 185, 129, 0.25);
-}
-.selected-season-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-`;
+  document.getElementById('addEpisodeBtn').addEventListener('click', () => {
+    const id = document.getElementById('seriesSelect').value;
+    const season = Number(document.getElementById('episodeSeason').value);
+    const num = Number(document.getElementById('episodeNumber').value);
+    const title = document.getElementById('episodeTitle').value.trim();
+    const video = document.getElementById('episodeVideo').value.trim();
 
-// Inject CSS
-const styleEl = document.createElement('style');
-styleEl.textContent = seasonTagCSS;
-document.head.appendChild(styleEl);
-/* Hero Info Button */
+    if (!id) return showToast('Lütfen bir dizi seçin.', 'error');
+    if (!season || !num) return showToast('Sezon ve bölüm numarası girin.', 'error');
+
+    getContentById(id, (content) => {
+      if (content) {
+        const seasons = content.seasons || {};
+        if (!seasons[season]) return showToast('Bu sezon mevcut değil!', 'error');
+        // Filter out placeholders for episode existence check
+        const realEpisodes = seasons[season].filter(e => !(e && e.__placeholder));
+        if (realEpisodes.some(e => e.num === num)) return showToast('Bu bölüm numarası zaten mevcut!', 'error');
+        // If first element is placeholder, replace it; else push
+        if (seasons[season].length === 1 && seasons[season][0] && seasons[season][0].__placeholder) {
+          seasons[season] = [{ num, title: title || `Bölüm ${num}`, video }];
+        } else {
+          seasons[season].push({ num, title: title || `Bölüm ${num}`, video });
+        }
+        seasons[season].sort((a, b) => a.num - b.num);
+        update(ref(db, `content/${id}`), { seasons }).then(() => {
+          showToast(`Bölüm ${num} eklendi!`, 'success');
+          document.getElementById('episodeNumber').value = '';
+          document.getElementById('episodeTitle').value = '';
+          document.getElementById('episodeVideo').value = '';
+          renderSeasons(id);
+          populateEpisodeSeasonSelect(id);
+          const epSeason = document.getElementById('episodeSeason');
+          if (epSeason.querySelector(`option[value="${season}"]`)) epSeason.value = String(season);
+          renderContent();
+        });
+      }
+    });
+  });
+
+  /* Hero Info Button */
   document.getElementById('heroInfo').addEventListener('click', () => {
     loadContent((data) => {
       if (data.length > 0) showDetail(data[0].id);
