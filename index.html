@@ -29,15 +29,15 @@
         <button class="header-btn" id="adminToggle" title="Admin"><i class="fas fa-shield-halved"></i></button>
       </div>
     </div>
-    <div class="search-row" id="searchRow">
-      <div class="search-box-full">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Film veya dizi ara...">
-        <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="letter-filter" id="letterFilter" style="display:none"></div>
-    </div>
   </header>
+
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Film veya dizi ara..." autocomplete="off">
+      <button class="search-bar-clear" id="searchClear"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
 
   <div class="page-content" id="pageContent">
 
@@ -1650,7 +1650,7 @@ document.addEventListener('DOMContentLoaded', () => {
       item.classList.add('active');
       const page = item.dataset.page;
       currentPage = page;
-      document.getElementById('searchRow').classList.remove('active');
+      document.getElementById('searchOverlay').classList.remove('active');
       document.getElementById('hero').style.display = 'none';
       document.getElementById('discoverSection').style.display = 'none';
       if (page === 'home') {
@@ -1672,9 +1672,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Search */
   document.getElementById('searchToggleBtn').addEventListener('click', () => {
-    const row = document.getElementById('searchRow');
-    row.classList.toggle('active');
-    if (row.classList.contains('active')) {
+    const overlay = document.getElementById('searchOverlay');
+    overlay.classList.toggle('active');
+    if (overlay.classList.contains('active')) {
       setTimeout(() => document.getElementById('searchInput').focus(), 100);
     }
   });
@@ -1682,11 +1682,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('searchInput').value = '';
     document.getElementById('searchClear').classList.remove('visible');
     document.getElementById('searchInput').focus();
+    document.getElementById('searchInput').dispatchEvent(new Event('keydown', { key: 'Enter' }));
   });
-  document.getElementById('searchInput').addEventListener('input', () => {
-    const val = document.getElementById('searchInput').value.trim();
-    document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
+  document.getElementById('searchClear').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchClear').classList.remove('visible');
+    document.getElementById('searchInput').focus();
+    document.getElementById('hero').style.display = 'block';
+    document.getElementById('discoverSection').style.display = 'block';
+    renderDiscover();
   });
+  document.getElementById('searchOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('searchOverlay').classList.remove('active');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.getElementById('searchOverlay').classList.remove('active');
+  });
+
   document.getElementById('searchInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const val = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -1694,6 +1709,15 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('hero').style.display = 'none';
       document.getElementById('discoverSection').style.display = 'block';
       renderDiscover('search', val);
+    }
+  });
+  document.getElementById('searchInput').addEventListener('input', () => {
+    const val = document.getElementById('searchInput').value.trim().toLowerCase();
+    document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
+    if (!val) {
+      document.getElementById('hero').style.display = 'block';
+      document.getElementById('discoverSection').style.display = 'block';
+      renderDiscover();
     }
   });
 
