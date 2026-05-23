@@ -311,7 +311,7 @@ ul, ol {
   display: flex;
   align-items: center;
   background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  border: none;
   border-radius: var(--radius-lg);
   padding: 0 16px;
   gap: 12px;
@@ -321,7 +321,7 @@ ul, ol {
 }
 
 .search-bar:focus-within {
-  border-color: transparent;
+  background: var(--bg-elevated);
 }
 
 .search-bar-btn {
