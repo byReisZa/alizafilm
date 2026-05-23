@@ -281,9 +281,11 @@
 
               <form id="addContentForm" class="admin-form">
                 <div class="form-row">
-                  <div class="form-group"><label>Başlık *</label><input type="text" id="formTitle" required placeholder="İçerik başlığı"></div>
-                  <div class="form-group"><label>Tür *</label><select id="formType" required><option value="movie">Film</option><option value="series">Dizi</option></select></div>
+                  <div class="form-group"><label>Başlık *</label><input type="text" id="formTitle" required placeholder="Türkçe başlık"></div>
+                  <div class="form-group"><label>Orijinal Ad</label><input type="text" id="formOriginalTitle" placeholder="TMDB otomatik doldurur"></div>
                 </div>
+                <div class="form-row">
+                  <div class="form-group"><label>Tür *</label><select id="formType" required><option value="movie">Film</option><option value="series">Dizi</option></select></div>
                 <div class="form-row">
                   <div class="form-group"><label>Kategori</label><select id="formCategory"><option value="action">Aksiyon</option><option value="comedy">Komedi</option><option value="sci-fi">Bilim Kurgu</option><option value="drama">Dram</option><option value="horror">Korku</option><option value="thriller">Gerilim</option><option value="romance">Romantik</option><option value="documentary">Belgesel</option><option value="animation">Animasyon</option><option value="fantasy">Fantastik</option></select></div>
                   <div class="form-group"><label>Dil *</label><select id="formLang" required><option value="turkish">Türkçe Dublaj</option><option value="original">Orijinal Dil</option><option value="both">Her İkisi</option></select></div>
@@ -701,6 +703,11 @@ function showDetail(id) {
 
     // Set title
     document.getElementById('detailHeroTitle').textContent = content.title || '—';
+    if (content.originalTitle) {
+      document.getElementById('detailHeroTitle').insertAdjacentHTML('afterend',
+        `<p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">${content.originalTitle}</p>`
+      );
+    }
 
     // Set meta
     document.getElementById('detailHeroMeta').innerHTML = `
@@ -1087,7 +1094,10 @@ function renderDiscover(filter, searchQuery) {
     if (!data || data.length === 0) { container.innerHTML = ''; return; }
     let categories;
     if (filter === 'search' && searchQuery) {
-      const matched = data.filter(c => c.title?.toLowerCase().includes(searchQuery));
+      const matched = data.filter(c => 
+        c.title?.toLowerCase().includes(searchQuery) || 
+        c.originalTitle?.toLowerCase().includes(searchQuery)
+      );
       categories = matched.length > 0
         ? [{ key: 'search', label: `"${searchQuery}" için sonuçlar`, icon: 'fa-search', items: matched.slice(0, 30) }]
         : [{ key: 'noresult', label: `"${searchQuery}" için sonuç bulunamadı`, icon: 'fa-search', items: [] }];
@@ -1106,7 +1116,7 @@ function renderDiscover(filter, searchQuery) {
     } else {
       categories = [{ key: 'popular', label: 'Popüler', icon: 'fa-fire', items: [...data].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 20) }];
     }
-    if (filter === 'search' && searchQuery && !data.some(c => c.title?.toLowerCase().includes(searchQuery))) {
+    if (filter === 'search' && searchQuery && !data.some(c => c.title?.toLowerCase().includes(searchQuery) || c.originalTitle?.toLowerCase().includes(searchQuery))) {
       container.innerHTML = `<div class="discover-row"><div class="discover-row-header"><h3><i class="fas fa-search"></i> "${searchQuery}" için sonuç bulunamadı</h3></div></div>`;
       return;
     }
@@ -1125,6 +1135,7 @@ function renderDiscover(filter, searchQuery) {
               </div>
               <div class="discover-card-info">
                 <h4>${item.title || '—'}</h4>
+                <span style="font-size:0.58rem;color:var(--text-muted);display:block;margin-bottom:2px">${item.originalTitle || ''}</span>
                 <span>${item.type === 'series' ? 'Dizi' : 'Film'} · ${item.year || '—'}</span>
               </div>
             </div>
@@ -1192,6 +1203,7 @@ async function getTMDBDetails(id, type = 'movie') {
 function fillFormFromTMDB(item, type) {
   // Set form values
   document.getElementById('formTitle').value = item.title || item.name || '';
+  document.getElementById('formOriginalTitle').value = item.original_title || item.original_name || '';
   document.getElementById('formType').value = type === 'tv' ? 'series' : 'movie';
   
   // Map TMDB genres to our categories
@@ -1357,6 +1369,7 @@ window.editContent = function(id) {
     if (!content) return;
     editingId = id;
     document.getElementById('formTitle').value = content.title || '';
+    document.getElementById('formOriginalTitle').value = content.originalTitle || '';
     document.getElementById('formType').value = content.type || 'movie';
     document.getElementById('formCategory').value = content.category || 'action';
     document.getElementById('formLang').value = content.lang || 'turkish';
@@ -1982,6 +1995,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('addContentForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const title = document.getElementById('formTitle').value.trim();
+    const originalTitle = document.getElementById('formOriginalTitle').value.trim();
     const type = document.getElementById('formType').value;
     const category = document.getElementById('formCategory').value;
     const lang = document.getElementById('formLang').value;
@@ -1997,7 +2011,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const castRaw = document.getElementById('formCast').value;
     const cast = castRaw ? JSON.parse(castRaw) : null;
-    const contentData = { title, type, category, lang, year, rating, image, bg, video, trailer, desc, cast };
+    const contentData = { title, originalTitle, type, category, lang, year, rating, image, bg, video, trailer, desc, cast };
 
     if (editingId) {
       getContentById(editingId, (existing) => {
