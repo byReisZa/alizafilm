@@ -305,6 +305,11 @@ ul, ol {
   border-color: var(--primary);
 }
 
+.header-search-box input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 .header-search-box i {
   color: var(--text-muted);
   font-size: 0.8rem;
