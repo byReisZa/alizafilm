@@ -33,7 +33,7 @@
 
   <div class="search-overlay" id="searchOverlay">
     <div class="search-bar">
-      <i class="fas fa-search"></i>
+      <button class="search-bar-btn" id="searchBtn"><i class="fas fa-search"></i></button>
       <input type="text" id="searchInput" placeholder="Film veya dizi ara..." autocomplete="off">
       <button class="search-bar-clear" id="searchClear"><i class="fas fa-times"></i></button>
     </div>
@@ -1640,6 +1640,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* Search */
+  function doSearch() {
+    const val = document.getElementById('searchInput').value.trim().toLowerCase();
+    document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
+    if (!val) {
+      document.getElementById('hero').style.display = 'block';
+      document.getElementById('discoverSection').style.display = 'block';
+      renderDiscover();
+      return;
+    }
+    document.getElementById('hero').style.display = 'none';
+    document.getElementById('discoverSection').style.display = 'block';
+    renderDiscover('search', val);
+  }
+
   document.getElementById('searchToggleBtn').addEventListener('click', () => {
     const overlay = document.getElementById('searchOverlay');
     overlay.classList.toggle('active');
@@ -1647,12 +1661,9 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => document.getElementById('searchInput').focus(), 100);
     }
   });
-  document.getElementById('searchClear').addEventListener('click', () => {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('searchClear').classList.remove('visible');
-    document.getElementById('searchInput').focus();
-    document.getElementById('searchInput').dispatchEvent(new Event('keydown', { key: 'Enter' }));
-  });
+
+  document.getElementById('searchBtn').addEventListener('click', doSearch);
+
   document.getElementById('searchClear').addEventListener('click', () => {
     document.getElementById('searchInput').value = '';
     document.getElementById('searchClear').classList.remove('visible');
@@ -1661,6 +1672,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('discoverSection').style.display = 'block';
     renderDiscover();
   });
+
   document.getElementById('searchOverlay').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) {
       document.getElementById('searchOverlay').classList.remove('active');
@@ -1671,22 +1683,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') document.getElementById('searchOverlay').classList.remove('active');
   });
 
-  let searchTimer;
-  document.getElementById('searchInput').addEventListener('input', () => {
-    const val = document.getElementById('searchInput').value.trim().toLowerCase();
-    document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
-    clearTimeout(searchTimer);
-    if (!val) {
-      document.getElementById('hero').style.display = 'block';
-      document.getElementById('discoverSection').style.display = 'block';
-      renderDiscover();
-      return;
-    }
-    searchTimer = setTimeout(() => {
-      document.getElementById('hero').style.display = 'none';
-      document.getElementById('discoverSection').style.display = 'block';
-      renderDiscover('search', val);
-    }, 300);
+  document.getElementById('searchInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') doSearch();
   });
 
   /* Detail Overlay */
