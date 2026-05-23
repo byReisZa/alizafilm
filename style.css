@@ -321,7 +321,7 @@ ul, ol {
 }
 
 .search-bar:focus-within {
-  border-color: var(--border-light);
+  border-color: transparent;
 }
 
 .search-bar-btn {
@@ -1288,6 +1288,18 @@ ul, ol {
 .player-info span {
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.player-episode-nav {
+  display: flex;
+  gap: 6px;
+  margin: 0 8px;
+}
+
+.player-episode-nav .player-btn {
+  width: 36px;
+  height: 36px;
+  font-size: 0.95rem;
 }
 
 .player-controls-top {
