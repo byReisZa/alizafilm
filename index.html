@@ -23,7 +23,6 @@
       </div>
       <div class="header-actions">
         <button class="header-btn" id="fullscreenApp" title="Tam Ekran"><i class="fas fa-expand"></i></button>
-        <button class="header-btn" id="searchToggleBtn" title="Ara"><i class="fas fa-search"></i></button>
         <button class="header-btn" id="settingsBtn" title="Ayarlar"><i class="fas fa-cog"></i></button>
         <button class="header-btn" id="userToggle" title="Hesabım"><i class="fas fa-user"></i></button>
         <button class="header-btn" id="adminToggle" title="Admin"><i class="fas fa-shield-halved"></i></button>
@@ -31,13 +30,7 @@
     </div>
   </header>
 
-  <div class="search-overlay" id="searchOverlay">
-    <div class="search-bar">
-      <button class="search-bar-btn" id="searchBtn"><i class="fas fa-search"></i></button>
-      <input type="text" id="searchInput" placeholder="Film veya dizi ara..." autocomplete="off">
-      <button class="search-bar-clear" id="searchClear"><i class="fas fa-times"></i></button>
-    </div>
-  </div>
+
 
   <div class="page-content" id="pageContent">
 
@@ -1644,7 +1637,6 @@ document.addEventListener('DOMContentLoaded', () => {
       item.classList.add('active');
       const page = item.dataset.page;
       currentPage = page;
-      document.getElementById('searchOverlay').classList.remove('active');
       document.getElementById('hero').style.display = 'none';
       document.getElementById('discoverSection').style.display = 'none';
       if (page === 'home') {
@@ -1662,54 +1654,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderDiscover('series');
       }
     });
-  });
-
-  /* Search */
-  function doSearch() {
-    const val = document.getElementById('searchInput').value.trim().toLowerCase();
-    document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
-    if (!val) {
-      document.getElementById('hero').style.display = 'block';
-      document.getElementById('discoverSection').style.display = 'block';
-      renderDiscover();
-      return;
-    }
-    document.getElementById('hero').style.display = 'none';
-    document.getElementById('discoverSection').style.display = 'block';
-    renderDiscover('search', val);
-  }
-
-  document.getElementById('searchToggleBtn').addEventListener('click', () => {
-    const overlay = document.getElementById('searchOverlay');
-    overlay.classList.toggle('active');
-    if (overlay.classList.contains('active')) {
-      setTimeout(() => document.getElementById('searchInput').focus(), 100);
-    }
-  });
-
-  document.getElementById('searchBtn').addEventListener('click', doSearch);
-
-  document.getElementById('searchClear').addEventListener('click', () => {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('searchClear').classList.remove('visible');
-    document.getElementById('searchInput').focus();
-    document.getElementById('hero').style.display = 'block';
-    document.getElementById('discoverSection').style.display = 'block';
-    renderDiscover();
-  });
-
-  document.getElementById('searchOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) {
-      document.getElementById('searchOverlay').classList.remove('active');
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') document.getElementById('searchOverlay').classList.remove('active');
-  });
-
-  document.getElementById('searchInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') doSearch();
   });
 
   /* Detail Overlay */
