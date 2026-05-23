@@ -33,7 +33,7 @@
         <input type="text" id="searchInput" placeholder="Film veya dizi ara...">
         <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
       </div>
-      <div class="letter-filter" id="letterFilter"></div>
+      <div class="letter-filter" id="letterFilter" style="display:none"></div>
     </div>
   </header>
 
@@ -61,83 +61,9 @@
 
     <main class="main-content" id="mainContent">
 
-      <section class="quick-actions" id="quickActions">
-        <div class="quick-actions-scroll">
-          <button class="quick-btn" data-page="home" id="qaHome"><i class="fas fa-house"></i><span>Ana Sayfa</span></button>
-          <button class="quick-btn" data-page="discover" id="qaDiscover"><i class="fas fa-compass"></i><span>Keşfet</span></button>
-          <button class="quick-btn" data-page="movies" id="qaMovies"><i class="fas fa-film"></i><span>Filmler</span></button>
-          <button class="quick-btn" data-page="series" id="qaSeries"><i class="fas fa-tv"></i><span>Diziler</span></button>
-          <button class="quick-btn" data-page="account" id="qaAccount"><i class="fas fa-user"></i><span>Hesap</span></button>
-        </div>
-      </section>
-
       <section class="discover-section" id="discoverSection">
         <div class="container">
-          <div class="section-header">
-            <h2 class="section-title"><span class="title-glow">Keşfet</span></h2>
-            <a href="#" class="section-more" id="discoverMore">Tümünü Gör</a>
-          </div>
           <div class="discover-rows" id="discoverRows"></div>
-        </div>
-      </section>
-
-      <section class="filter-section" id="filterSection">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title"><span class="title-glow">İçerikler</span></h2>
-          </div>
-          <div class="filter-scroll" id="filterTabs">
-            <button class="filter-chip active" data-filter="all">Tümü</button>
-            <button class="filter-chip" data-filter="movie">Filmler</button>
-            <button class="filter-chip" data-filter="series">Diziler</button>
-            <button class="filter-chip" data-filter="action">Aksiyon</button>
-            <button class="filter-chip" data-filter="comedy">Komedi</button>
-            <button class="filter-chip" data-filter="sci-fi">Bilim Kurgu</button>
-            <button class="filter-chip" data-filter="drama">Dram</button>
-            <button class="filter-chip" data-filter="horror">Korku</button>
-            <button class="filter-chip" data-filter="thriller">Gerilim</button>
-            <button class="filter-chip" data-filter="romance">Romantik</button>
-            <button class="filter-chip" data-filter="fantasy">Fantastik</button>
-            <button class="filter-chip" data-filter="animation">Animasyon</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="content-section">
-        <div class="container">
-          <div class="content-grid" id="contentGrid"></div>
-          <div class="empty-state" id="emptyState">
-            <i class="fas fa-film"></i>
-            <h3>İçerik Bulunamadı</h3>
-            <p id="emptyStateText">Henüz hiç film veya dizi eklenmemiş.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="stats-section" id="statsSection">
-        <div class="container">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon"><i class="fas fa-film"></i></div>
-              <div class="stat-number" id="totalMovies">0</div>
-              <div class="stat-label">Film</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon"><i class="fas fa-tv"></i></div>
-              <div class="stat-number" id="totalSeries">0</div>
-              <div class="stat-label">Dizi</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon"><i class="fas fa-language"></i></div>
-              <div class="stat-number" id="totalTurkish">0</div>
-              <div class="stat-label">Türkçe</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon"><i class="fas fa-globe"></i></div>
-              <div class="stat-number" id="totalOriginal">0</div>
-              <div class="stat-label">Orijinal</div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -544,7 +470,6 @@ const TMDB_IMG_URL = 'https://image.tmdb.org/t/p/';
 let currentUser = null;
 let currentUserRole = null;
 let currentFilter = 'all';
-let currentPage = 'home';
 let currentPlayer = null;
 let currentEpisode = null;
 let editingId = null;
@@ -701,33 +626,14 @@ function getContentById(id, callback) {
   });
 }
 
-function renderContent(filter = currentFilter) {
-  const grid = document.getElementById('contentGrid');
-  const empty = document.getElementById('emptyState');
-  const query = document.getElementById('searchInput').value.toLowerCase().trim();
-
+function renderContent() {
   loadContent((data) => {
-    let filtered = [...data];
+    updateHero(data);
+    renderDiscover();
+  });
+}
 
-    if (filter === 'movie') filtered = filtered.filter(c => c.type === 'movie');
-    else if (filter === 'series') filtered = filtered.filter(c => c.type === 'series');
-    else if (filter === 'turkish') filtered = filtered.filter(c => c.lang === 'turkish' || c.lang === 'both');
-    else if (filter === 'original') filtered = filtered.filter(c => c.lang === 'original' || c.lang === 'both');
-    else if (filter !== 'all') filtered = filtered.filter(c => c.category === filter);
-
-    if (query) filtered = filtered.filter(c => c.title?.toLowerCase().includes(query));
-
-    if (filtered.length === 0) {
-      grid.innerHTML = '';
-      empty.style.display = 'flex';
-      const emptyText = document.getElementById('emptyStateText');
-      if (data.length === 0) {
-        emptyText.textContent = 'Henüz hiç film veya dizi eklenmemiş. Admin panelinden ekleyebilirsiniz.';
-      } else if (query) {
-        emptyText.textContent = `"${query}" için sonuç bulunamadı.`;
-      } else {
-        emptyText.textContent = 'Bu kategoride içerik bulunamadı.';
-      }
+function updateStats() {}
       updateStats(data);
       updateHero(data);
       return;
@@ -777,12 +683,7 @@ function renderContent(filter = currentFilter) {
   });
 }
 
-function updateStats(data) {
-  document.getElementById('totalMovies').textContent = data.filter(c => c.type === 'movie').length;
-  document.getElementById('totalSeries').textContent = data.filter(c => c.type === 'series').length;
-  document.getElementById('totalTurkish').textContent = data.filter(c => c.lang === 'turkish' || c.lang === 'both').length;
-  document.getElementById('totalOriginal').textContent = data.filter(c => c.lang === 'original' || c.lang === 'both').length;
-}
+function updateStats() {}
 
 function updateHero(data) {
   if (data.length === 0) {
@@ -1164,32 +1065,11 @@ function populateEpisodeSeasonSelect(contentId) {
    MOBILE UI - LETTER FILTER & DISCOVER
    ====================== */
 
-function buildLetterFilter() {
-  const container = document.getElementById('letterFilter');
-  const letters = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ'.split('');
-  let html = '<button class="letter-btn active" data-letter="all">Tümü</button>';
-  letters.forEach(l => { html += `<button class="letter-btn" data-letter="${l}">${l}</button>`; });
-  html += '<button class="letter-btn" data-letter="0-9">0-9</button>';
-  container.innerHTML = html;
-  container.querySelectorAll('.letter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      container.querySelectorAll('.letter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      filterByLetter(btn.dataset.letter);
-    });
-  });
-}
+function buildLetterFilter() {}
 
 let currentLetter = 'all';
 
-function filterByLetter(letter) {
-  currentLetter = letter;
-  const grid = document.getElementById('contentGrid');
-  const cards = grid.querySelectorAll('.content-card');
-  if (letter === 'all') {
-    cards.forEach(c => c.style.display = '');
-    return;
-  }
+function filterByLetter() {}
   cards.forEach(c => {
     const title = c.querySelector('.content-card-title')?.textContent?.trim() || '';
     if (letter === '0-9') {
@@ -1240,13 +1120,10 @@ function renderDiscover() {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const filter = btn.dataset.filter;
-        const navMap = { popular: 'all', latest: 'all', movie: 'movie', series: 'series', turkish: 'turkish' };
-        const navFilter = navMap[filter] || 'all';
-        document.querySelector(`.nav-item[data-page="${navFilter === 'movie' ? 'movies' : navFilter === 'series' ? 'series' : 'home'}"]`).click();
-        if (filter === 'popular' || filter === 'latest' || filter === 'turkish') {
-          const chip = document.querySelector(`.filter-chip[data-filter="${navFilter}"]`);
-          if (chip) chip.click();
-        }
+        const navMap = { movie: 'movies', series: 'series' };
+        const navPage = navMap[filter] || 'home';
+        const navItem = document.querySelector(`.nav-item[data-page="${navPage}"]`);
+        if (navItem) navItem.click();
       });
     });
   });
@@ -1624,14 +1501,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* Bottom Nav */
-  /* Quick action buttons - click the matching nav item */
-  document.querySelectorAll('.quick-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const navItem = document.querySelector(`.nav-item[data-page="${btn.dataset.page}"]`);
-      if (navItem) navItem.click();
-    });
-  });
-
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1641,41 +1510,17 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('searchRow').classList.remove('active');
       document.getElementById('hero').style.display = 'none';
       document.getElementById('discoverSection').style.display = 'none';
-      document.getElementById('filterSection').style.display = 'none';
-      document.querySelector('.content-section').style.display = 'none';
-      document.getElementById('statsSection').style.display = 'none';
       if (page === 'home') {
         document.getElementById('hero').style.display = 'block';
         document.getElementById('discoverSection').style.display = 'block';
-        document.getElementById('filterSection').style.display = 'block';
-        document.querySelector('.content-section').style.display = 'block';
-        document.getElementById('statsSection').style.display = 'block';
-        renderContent('all');
       } else if (page === 'discover') {
         document.getElementById('discoverSection').style.display = 'block';
-      } else if (page === 'movies') {
-        document.getElementById('filterSection').style.display = 'block';
-        document.querySelector('.content-section').style.display = 'block';
-        document.getElementById('statsSection').style.display = 'block';
-        renderContent('movie');
-      } else if (page === 'series') {
-        document.getElementById('filterSection').style.display = 'block';
-        document.querySelector('.content-section').style.display = 'block';
-        document.getElementById('statsSection').style.display = 'block';
-        renderContent('series');
       } else if (page === 'account') {
-        document.getElementById('userToggle').click();
+        document.getElementById('userOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        item.classList.remove('active');
+        document.querySelector('.nav-item[data-page="home"]').classList.add('active');
       }
-    });
-  });
-
-  /* Filters */
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      currentFilter = chip.dataset.filter;
-      renderContent(currentFilter);
     });
   });
 
@@ -2192,7 +2037,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Initial Render */
   renderContent();
-  buildLetterFilter();
   renderDiscover();
 
 });
