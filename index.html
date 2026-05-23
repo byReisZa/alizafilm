@@ -1317,15 +1317,8 @@ function fillFormFromTMDB(item, type) {
     document.getElementById('formCategory').value = genreMap[genreId];
   }
   
-  // Determine language
-  const origLang = (item.original_language || '').toLowerCase();
-  if (origLang === 'tr') {
-    document.getElementById('formLang').value = 'turkish';
-  } else if (origLang === 'en' || origLang === '') {
-    document.getElementById('formLang').value = 'original';
-  } else {
-    document.getElementById('formLang').value = 'original';
-  }
+  // Always Turkish Dub
+  document.getElementById('formLang').value = 'turkish';
   
   // Year
   const dateStr = item.release_date || item.first_air_date || '';
