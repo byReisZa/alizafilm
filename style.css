@@ -290,67 +290,81 @@ ul, ol {
   display: none;
 }
 
-.search-row {
-  padding: 0 16px 12px;
+.search-overlay {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  z-index: calc(var(--z-nav) - 1);
+  background: rgba(5, 5, 8, 0.97);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 16px;
   display: none;
-  max-width: var(--container-max);
-  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
-.search-row.active {
+.search-overlay.active {
   display: block;
 }
 
-.search-box-full {
+.search-bar {
   display: flex;
   align-items: center;
-  background: var(--bg-input);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
   padding: 0 16px;
-  gap: 10px;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
   transition: var(--transition-base);
 }
 
-.search-box-full:focus-within {
+.search-bar:focus-within {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15), 0 0 20px rgba(10, 132, 255, 0.1);
 }
 
-.search-box-full i {
+.search-bar i {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
-.search-box-full input {
+.search-bar input {
   flex: 1;
   background: transparent;
   border: none;
-  padding: 12px 0;
+  padding: 14px 0;
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   min-width: 0;
+  outline: none;
 }
 
-.search-box-full input::placeholder {
+.search-bar input::placeholder {
   color: var(--text-muted);
 }
 
-.search-clear {
+.search-bar-clear {
   color: var(--text-muted);
-  font-size: 0.85rem;
-  padding: 4px;
+  font-size: 0.9rem;
+  padding: 4px 6px;
   display: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
 }
 
-.search-clear.visible {
+.search-bar-clear:hover {
+  color: var(--text-primary);
+}
+
+.search-bar-clear.visible {
   display: block;
 }
 
-.search-clear:hover {
-  color: var(--text-primary);
-}
+
 
 .letter-filter {
   display: flex;
