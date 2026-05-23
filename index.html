@@ -298,6 +298,10 @@
                 </div>
                 <input type="hidden" id="formCast">
                 <div class="form-group" id="videoUrlGroup"><label>Video URL <span id="videoLabelSuffix">(Film)</span></label><input type="url" id="formVideo" placeholder="https://..."><small style="color:var(--text-muted);font-size:0.72rem;display:block;margin-top:4px">Dizilerde video her bölüme ayrı eklenir.</small></div>
+                <div class="form-group">
+                  <label>Fragman URL (YouTube)</label>
+                  <input type="url" id="formTrailer" placeholder="TMDB otomatik doldurur">
+                </div>
                 <div class="form-group"><label>Açıklama</label><textarea id="formDesc" rows="3" placeholder="İçerik açıklaması..."></textarea></div>
                 <button type="submit" class="btn-primary admin-submit"><i class="fas fa-save"></i> İçeriği Ekle</button>
               </form>
@@ -720,7 +724,9 @@ function showDetail(id) {
 
     // Set actions
     document.getElementById('detailHeroActions').innerHTML = `
-      <button class="btn-primary detail-play-btn" data-id="${content.id}"><i class="fas fa-play"></i> ${isSeries && seasonKeys.length > 0 ? 'İzlemeye Başla' : 'İzle'}</button>
+      ${content.video ? `<button class="btn-primary detail-play-btn" data-id="${content.id}"><i class="fas fa-play"></i> ${isSeries && seasonKeys.length > 0 ? 'İzlemeye Başla' : 'İzle'}</button>` : ''}
+      ${content.trailer ? `<button class="btn-secondary detail-trailer-btn" data-id="${content.id}"><i class="fas fa-film"></i> Fragman</button>` : ''}
+      ${!content.video && !content.trailer ? `<button class="btn-primary detail-play-btn" data-id="${content.id}"><i class="fas fa-play"></i> İzle</button>` : ''}
     `;
 
     // Seasons & episodes
@@ -799,6 +805,12 @@ function showDetail(id) {
       openPlayer(content.id);
     });
 
+    overlay.querySelector('.detail-trailer-btn')?.addEventListener('click', () => {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+      openTrailer(content.trailer);
+    });
+
     // Episode clicks
     overlay.querySelectorAll('.detail-episode-card').forEach(el => {
       el.addEventListener('click', () => {
@@ -808,6 +820,26 @@ function showDetail(id) {
       });
     });
   });
+}
+
+function openTrailer(trailerUrl) {
+  const overlay = document.getElementById('playerOverlay');
+  const title = document.getElementById('playerTitle');
+  const meta = document.getElementById('playerMeta');
+  const video = document.getElementById('playerVideo');
+  const iframe = document.getElementById('playerIframe');
+  const placeholder = document.getElementById('playerPlaceholder');
+  const episodesSection = document.getElementById('playerEpisodes');
+  const episodeNav = document.getElementById('episodeNav');
+
+  title.textContent = 'Fragman';
+  meta.textContent = 'Resmi YouTube Fragmanı';
+  episodesSection.classList.remove('active');
+  episodeNav.style.display = 'none';
+
+  playUrl('embed', trailerUrl, video, iframe, placeholder);
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
 
 function openPlayer(contentId, season, episode) {
@@ -1164,7 +1196,7 @@ async function searchTMDB(query, type = 'movie') {
 async function getTMDBDetails(id, type = 'movie') {
   if (!tmdbCheckKey()) return null;
   const endpoint = type === 'tv' ? 'tv' : 'movie';
-  const url = `https://api.themoviedb.org/3/${endpoint}/${id}?language=tr-TR&append_to_response=credits,external_ids`;
+  const url = `https://api.themoviedb.org/3/${endpoint}/${id}?language=tr-TR&append_to_response=credits,external_ids,videos`;
   try {
     return await tmdbFetch(url);
   } catch (err) {
@@ -1247,6 +1279,14 @@ function fillFormFromTMDB(item, type) {
   }));
   document.getElementById('formCast').value = JSON.stringify({ cast, crew });
   
+  const videos = item.videos?.results || [];
+  const trailer = videos.find(v => v.type === 'Trailer' && v.site === 'YouTube')
+               || videos.find(v => v.site === 'YouTube');
+  if (trailer) {
+    document.getElementById('formTrailer').value =
+      `https://www.youtube.com/watch?v=${trailer.key}`;
+  }
+
   showToast(`"${item.title || item.name}" formu dolduruldu!`, 'success');
 }
 
@@ -1338,6 +1378,7 @@ window.editContent = function(id) {
     document.getElementById('formYear').value = content.year || '';
     document.getElementById('formRating').value = content.rating || '';
     document.getElementById('formVideo').value = content.video || '';
+    document.getElementById('formTrailer').value = content.trailer || '';
     document.getElementById('formDesc').value = content.desc || '';
     document.getElementById('formCast').value = content.cast ? JSON.stringify(content.cast) : '';
 
@@ -1964,13 +2005,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const image = document.getElementById('formImage').value.trim();
     const bg = document.getElementById('formBg').value.trim();
     const video = document.getElementById('formVideo').value.trim();
+    const trailer = document.getElementById('formTrailer').value.trim();
     const desc = document.getElementById('formDesc').value.trim();
 
     if (!title) return showToast('Başlık zorunludur!', 'error');
 
     const castRaw = document.getElementById('formCast').value;
     const cast = castRaw ? JSON.parse(castRaw) : null;
-    const contentData = { title, type, category, lang, year, rating, image, bg, video, desc, cast };
+    const contentData = { title, type, category, lang, year, rating, image, bg, video, trailer, desc, cast };
 
     if (editingId) {
       getContentById(editingId, (existing) => {
