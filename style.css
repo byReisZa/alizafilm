@@ -210,7 +210,7 @@ ul, ol {
   top: 0;
   left: 0;
   right: 0;
-  z-index: calc(var(--z-player) + 1);
+  z-index: var(--z-nav);
   background: transparent;
   transition: var(--transition-base);
 }
