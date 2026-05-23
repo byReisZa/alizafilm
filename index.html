@@ -1018,15 +1018,6 @@ function populateEpisodeSeasonSelect(contentId) {
 function buildLetterFilter() {}
 
 function filterByLetter() {}
-  cards.forEach(c => {
-    const title = c.querySelector('.content-card-title')?.textContent?.trim() || '';
-    if (letter === '0-9') {
-      c.style.display = /^[0-9]/.test(title) ? '' : 'none';
-    } else {
-      c.style.display = title.startsWith(letter) || title.startsWith(letter.toLocaleLowerCase('tr')) ? '' : 'none';
-    }
-  });
-}
 
 function renderDiscover() {
   const container = document.getElementById('discoverRows');
