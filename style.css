@@ -211,12 +211,14 @@ ul, ol {
   left: 0;
   right: 0;
   z-index: var(--z-nav);
-  background: linear-gradient(180deg, rgba(5, 5, 8, 0.95) 0%, rgba(5, 5, 8, 0) 100%);
+  background: transparent;
   transition: var(--transition-base);
 }
 
 .top-header.scrolled {
-  background: rgba(5, 5, 8, 0.98);
+  background: rgba(5, 5, 8, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-lg);
 }
 
